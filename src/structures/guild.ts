@@ -19,4 +19,17 @@ export class Guild {
         let guild = await response.json()
         return new Guild(guild, this.client)
     }
+
+    async delete(): Promise<boolean> {
+        let resp = await fetch(
+            this.client._path(`/guilds/${this.data.id}`),
+            this.client._options('DELETE')
+        )
+
+        if (resp.status != 204) {
+            throw new Error(`Error ${resp.status}`)
+        }
+
+        return true
+    }
 }
