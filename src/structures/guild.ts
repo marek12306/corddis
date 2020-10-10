@@ -2,7 +2,7 @@ import { GuildType } from '../types/guild'
 import { Client } from '../client'
 import { GuildUpdateType } from '../types/guildUpdate'
 import { Channel } from './channel'
-import { ChannelCreateType } from '../types/channelCreateType'
+import { ChannelCreateType } from '../types/channelCreate'
 
 export class Guild {
     data : GuildType
