@@ -7,5 +7,6 @@ export class Channel {
 
     constructor(data: ChannelType, client: Client) {
         this.data = data
+        this.client = client
     }
 }
