@@ -2,6 +2,7 @@ import { GuildType } from '../types/guild'
 import { Client } from '../client'
 import { GuildUpdateType } from '../types/guildUpdate'
 import { Channel } from './channel'
+import { ChannelCreateType } from '../types/channelCreateType'
 
 export class Guild {
     data : GuildType
@@ -41,5 +42,14 @@ export class Guild {
         )
         let json = await resp.json()
         return json.map(data => new Channel(data, this.client))
+    }
+
+    async createChannel(data: ChannelCreateType): Promise<Channel> {
+        let resp = await fetch(
+            this.client._path(`/guilds/${this.data.id}/channels`),
+            this.client._options('POST', JSON.stringify(data))
+        )
+        let json = await resp.json()
+        return new Channel(json, this.client)
     }
 }
