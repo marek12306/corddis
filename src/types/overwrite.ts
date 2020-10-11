@@ -1,8 +1,8 @@
-import { Snowflake } from './utils'
+import { Snowflake } from "./utils.ts";
 
 export interface OverwriteType {
-    id: Snowflake;
-    type: number;
-    allow: string;
-    deny: string;
+  id: Snowflake;
+  type: number;
+  allow: string;
+  deny: string;
 }

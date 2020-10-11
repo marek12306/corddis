@@ -1,3 +1,3 @@
-import { Client } from './client'
+import { Client } from "./client.ts";
 
-export { Client }
+export { Client };
