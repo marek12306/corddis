@@ -1,3 +1,4 @@
+import { GuildMemberType } from './guild';
 import { Snowflake } from './utils'
 
 export interface UserType {
@@ -14,4 +15,8 @@ export interface UserType {
     flags?: number
     premium_type?: number
     public_flags?: number
+}
+
+export interface UserMemberType extends UserType {
+    member: GuildMemberType
 }
