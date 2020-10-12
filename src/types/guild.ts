@@ -67,3 +67,8 @@ export interface GuildMemberType {
   deaf: boolean;
   mute: boolean;
 }
+
+export interface IconAttributesType {
+  size?: number;
+  format?: string;
+}

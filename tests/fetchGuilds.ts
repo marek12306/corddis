@@ -1,3 +1,4 @@
 import { Client } from "../src/index.ts";
+import token from "./token.ts"
 
-new Client("NzY0OTI0NDczNDI5ODUyMjEx.X4NVbg.pJOglox_LnuHw6vJ57dD2VTpG3s").guilds().then(value => console.log(value))
+new Client(token).guilds().then(value => console.log(value))

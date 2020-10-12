@@ -1,4 +1,4 @@
-import { GuildType, GuildUpdateType } from "../types/guild.ts";
+import { GuildType, GuildUpdateType, IconAttributesType } from "../types/guild.ts";
 import { ChannelCreateType, ChannelType } from "../types/channel.ts";
 import { Client } from "../client.ts";
 import { Channel } from "./channel.ts";
@@ -50,5 +50,14 @@ export class Guild {
     );
     let json = await resp.json();
     return new Channel(json, this.client);
+  }
+
+  async icon(attr: IconAttributesType = {}): Promise<string> {
+    if (attr.size && this.client.IMAGE_SIZES.includes(attr.size)) 
+      throw new Error(`Size must be one of ${this.client.IMAGE_SIZES.join(", ")}`);
+    if (attr.format && this.client.IMAGE_FORMATS.includes(attr.format)) 
+      throw new Error(`Format must be one of ${this.client.IMAGE_FORMATS.join(", ")}`);
+
+    return `https://cdn.discordapp.com/icons/${this.data.id}/${this.data.icon}.${'png' ?? attr.format}?size=${4096 ?? attr.size}`
   }
 }
