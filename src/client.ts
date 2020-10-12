@@ -1,17 +1,18 @@
 import { User } from "./structures/user.ts";
 import { Guild } from "./structures/guild.ts";
 import { GuildType } from "./types/guild.ts";
-import { Snowflake } from "./types/utils.ts";
+import { EntityType, Snowflake } from "./types/utils.ts";
 import { Channel } from "./structures/channel.ts";
 import { ChannelType } from "./types/channel.ts";
 import constants from "./constants.ts"
 
 class Client {
     token: String;
+    user: User | null = null;
 
     constants = constants;
 
-    constructor(token: String) {
+    constructor(token: String = "") {
         this.token = token;
     }
 
@@ -31,16 +32,38 @@ class Client {
         };
     }
 
-    async guild(id: Snowflake): Promise<Guild> {
+    async login(token: String = this.token): Promise<User> {
+        if (token.length == 0) throw Error("Invalid token");
+        this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
         let response = await fetch(
-            this._path(`/guilds/${id}`),
-            this._options("GET"),
+            this._path(`/users/@me`),
+            this._options("GET")
         );
-        let guild = await response.json();
-        return new Guild(guild, this);
+        this.user = new User(await response.json(), this);
+        return this.user;
+    }
+
+    async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {
+        if (!this.user) throw Error("Not logged in");
+        var response;
+        switch (entity) {
+            case EntityType.GUILD:
+                response = await fetch(
+                    this._path(`/guilds/${id}`),
+                    this._options("GET"));
+                let guild = await response.json();
+                return new Guild(guild, this)
+            case EntityType.USER:
+                response = await fetch(
+                    this._path(`/users/${id}`),
+                    this._options("GET"));
+                let user = await response.json();
+                return new User(user, this);
+        }
     }
 
     async me(): Promise<User> {
+        if (!this.user) throw Error("Not logged in");
         let response = await fetch(
             this._path(`/users/@me`),
             this._options("GET"),
@@ -49,53 +72,29 @@ class Client {
         return new User(user, this);
     }
 
-    async user(id: Snowflake): Promise<User> {
-        let response = await fetch(
-            this._path(`/users/${id}`),
-            this._options("GET"),
-        );
-        let user = await response.json();
-        return new User(user, this);
-    }
-
     async guilds(): Promise<Guild[]> {
+        if (!this.user) throw Error("Not logged in");
         let response = await fetch(
             this._path(`/users/@me/guilds`),
             this._options("GET"),
         );
         let guildsJSON = await response.json();
-        let temp: Guild[] = [];
-        guildsJSON.forEach((elt: GuildType) => {
-            temp.push(new Guild(elt, this))
-        });
-
-        return temp;
-    }
-
-    async leaveGuild(id: Snowflake): Promise<boolean> {
-        let response = await fetch(
-            this._path(`/users/@me/guilds/${id}`),
-            this._options("DELETE"),
-        );
-        return await response.text().then(value => value == "" ? true : false)
+        return guildsJSON.map((elt: GuildType) => new Guild(elt, this));
     }
 
     async getDM(): Promise<Channel[]> {
-        // Dla botów zawsze [] więc optymalizacja byłaby c00l
+        if (!this.user) throw Error("Not logged in");
+        if (this.user.isBot()) return [];
         let response = await fetch(
             this._path(`/users/@me/channels`),
             this._options("GET"),
         );
-        let guildsJSON = await response.json();
-        let temp: Channel[] = [];
-        guildsJSON.forEach((elt: ChannelType) => {
-            temp.push(new Channel(elt, this))
-        });
-
-        return temp;
+        let channelsJSON = await response.json();
+        return channelsJSON.map((elt: ChannelType) => new Channel(elt, this));
     }
 
     async createDM(id: Snowflake): Promise<Channel> {
+        if (!this.user) throw Error("Not logged in");
         let response = await fetch(
             this._path(`/users/@me/channels`),
             this._options("POST", JSON.stringify({ recipent_id: id })),
@@ -105,6 +104,7 @@ class Client {
     }
 
     async getConnections(): Promise<any> {
+        if (!this.user) throw Error("Not logged in");
         let response = await fetch(
             this._path(`/users/@me/connections`),
             this._options("GET"),
