@@ -53,10 +53,10 @@ export class Guild {
   }
 
   async icon(attr: IconAttributesType = {}): Promise<string> {
-    if (attr.size && this.client.IMAGE_SIZES.includes(attr.size)) 
-      throw new Error(`Size must be one of ${this.client.IMAGE_SIZES.join(", ")}`);
-    if (attr.format && this.client.IMAGE_FORMATS.includes(attr.format)) 
-      throw new Error(`Format must be one of ${this.client.IMAGE_FORMATS.join(", ")}`);
+    if (attr.size && this.client.constants.IMAGE_SIZES.includes(attr.size)) 
+      throw new Error(`Size must be one of ${this.client.constants.IMAGE_SIZES.join(", ")}`);
+    if (attr.format && this.client.constants.IMAGE_FORMATS.includes(attr.format)) 
+      throw new Error(`Format must be one of ${this.client.constants.IMAGE_FORMATS.join(", ")}`);
 
     return `https://cdn.discordapp.com/icons/${this.data.id}/${this.data.icon}.${'png' ?? attr.format}?size=${4096 ?? attr.size}`
   }
