@@ -63,7 +63,7 @@ class Client {
         }
     }
 
-    async me(): Promise<User> {
+    async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
         let response = await fetch(
             this._path(`/users/@me`),

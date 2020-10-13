@@ -4,5 +4,6 @@ import { token } from "./token.ts"
 (async () => {
     var client = new Client(token)
     await client.login()
-    client.guilds().then(value => console.log(value))
+    var me = await client.me()
+    me.guilds().then(value => console.log(value))
 })()

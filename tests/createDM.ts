@@ -4,5 +4,6 @@ import { token } from "./token.ts"
 (async () => {
     var client = new Client(token);
     await client.login()
-    client.createDM("344048874656366592").then(elt => console.log(elt)) // ZiomaleQ
+    var me = await client.me()
+    me.createDM("344048874656366592").then(elt => console.log(elt)) // ZiomaleQ
 })()
