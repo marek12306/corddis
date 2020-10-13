@@ -13,7 +13,7 @@ export interface MessageType {
   member?: GuildMemberType;
   content: string;
   timestamp: Timestamp;
-  edited_timestamp: Timestamp | null;
+  edited_timestamp?: Timestamp;
   tts: boolean;
   mention_everyone: boolean;
   mentions: UserMemberType[];
@@ -38,8 +38,8 @@ export interface AttachmentType {
   size: number;
   url: string;
   proxy_url: string;
-  height: number | null;
-  width: number | null;
+  height?: number;
+  width?: number;
 }
 
 export interface ReactionType {
@@ -57,7 +57,7 @@ export interface MessageApplicationType {
   id: Snowflake;
   cover_image?: string;
   description: string;
-  icon: string | null;
+  icon?: string;
   name: string;
 }
 

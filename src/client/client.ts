@@ -1,9 +1,6 @@
 import { User } from "./../structures/user.ts";
 import { Guild } from "./../structures/guild.ts";
-import { GuildType } from "./../types/guild.ts";
 import { EntityType, Snowflake } from "./../types/utils.ts";
-import { Channel } from "./../structures/channel.ts";
-import { ChannelType } from "./../types/channel.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 
@@ -60,6 +57,8 @@ class Client {
                     this._options("GET"));
                 let user = await response.json();
                 return new User(user, this);
+            default:
+                throw Error("Wrong EntityType")
         }
     }
 

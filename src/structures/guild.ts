@@ -1,7 +1,10 @@
-import { GuildType, GuildUpdateType, IconAttributesType } from "../types/guild.ts";
+import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType } from "../types/guild.ts";
 import { ChannelCreateType, ChannelType } from "../types/channel.ts";
 import { Client } from "./../client/client.ts";
 import { Channel } from "./channel.ts";
+import { GuildMember } from "./guildMember.ts";
+import { EntityType, Snowflake } from "../types/utils.ts";
+import { User } from "./user.ts";
 
 export class Guild {
   data: GuildType;
@@ -41,6 +44,44 @@ export class Guild {
     );
     let json = await resp.json();
     return json.map((data: ChannelType) => new Channel(data, this.client));
+  }
+
+  async members(limit: number = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
+    let resp = await fetch(
+      this.client._path(`/guilds/${this.data.id}/members?limit=${limit}&after=${after}`),
+      this.client._options("GET"),
+    );
+    let json = await resp.json();
+    return json.map((data: GuildMemberType) => new GuildMember(data, this.client));
+  }
+
+  async addMember(token: String, userId: Snowflake | User, nick: String = "", roles: Snowflake[] = [], mute: boolean = false, deaf: boolean = false): Promise<GuildMember> {
+    if (!this.client.user) throw Error("Invalid user token")
+    if (this.isUser(userId)) userId = (userId as User).data.id
+    let resp = await fetch(
+      this.client._path(`/guilds/${this.data.id}/members/${userId}`),
+      this.client._options("GET", JSON.stringify({ accessToken: token, nick, roles, mute, deaf }))
+    );
+    if ((await resp.text()).length == 0) return await this.get(EntityType.USER, userId);
+    return new GuildMember(await resp.json(), this.client);
+  }
+
+  async get(type: EntityType, id: Snowflake): Promise<GuildMember> {
+    var response;
+    switch (type) {
+      case EntityType.GUILD_MEMBER:
+        response = await fetch(
+          this.client._path(`/users/${id}`),
+          this.client._options("GET"));
+        let user = await response.json();
+        return new GuildMember(user, this.client);
+      default:
+        throw Error("Wrong EntityType")
+    }
+  }
+
+  isUser(item: any): item is User {
+    return (item as User).isMe() !== undefined
   }
 
   async createChannel(data: ChannelCreateType): Promise<Channel> {
