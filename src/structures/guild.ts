@@ -1,6 +1,6 @@
 import { GuildType, GuildUpdateType, IconAttributesType } from "../types/guild.ts";
 import { ChannelCreateType, ChannelType } from "../types/channel.ts";
-import { Client } from "../client.ts";
+import { Client } from "./../client/client.ts";
 import { Channel } from "./channel.ts";
 
 export class Guild {

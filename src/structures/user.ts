@@ -1,15 +1,13 @@
-import { Client } from "../client.ts";
+import { Client } from "./../client/client.ts";
 import { UserType } from "../types/user.ts";
 
 export class User {
     data: UserType;
     client: Client;
-    me: boolean;
 
-    constructor(data: UserType, client: Client, me: boolean = false) {
+    constructor(data: UserType, client: Client) {
         this.data = data;
         this.client = client;
-        this.me = me;
     }
 
     avatar(format: string = "png", size: number = 1024): String {

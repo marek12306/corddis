@@ -1,4 +1,4 @@
-import { Client } from "../client.ts";
+import { Client } from "./../client/client.ts";
 import { ChannelType } from "../types/channel.ts";
 import { Message } from "./message.ts";
 

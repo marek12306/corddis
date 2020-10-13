@@ -1,4 +1,4 @@
-import { Client } from "../client.ts";
+import { Client } from "./../client/client.ts";
 import { MessageType } from "../types/message.ts";
 
 export class Message {

@@ -7,6 +7,6 @@ import { token } from "./token.ts"
     await client.login()
     client.get(EntityType.USER, "344048874656366592").then(async value => {
         console.log(value)
-        console.log(await (value as User).avatar())
+        console.log(await (value as User).avatar()) // Avatar
     })  // ZiomaleQ
 })()
