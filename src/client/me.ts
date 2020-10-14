@@ -8,6 +8,7 @@ import { Snowflake } from "../types/utils.ts";
 import { Client } from "./client.ts";
 
 export class Me extends User {
+
     constructor(data: UserType, client: Client) {
         super(data, client)
     }

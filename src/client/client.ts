@@ -3,14 +3,19 @@ import { Guild } from "./../structures/guild.ts";
 import { EntityType, Snowflake } from "./../types/utils.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
+import EventEmitter from "https://deno.land/x/events/mod.ts";
 
-class Client {
+class Client extends EventEmitter {
     token: String;
     user: User | null = null;
+    gatewayData: any
+    socket: any
+    gatewayInterval: any
 
     constants = constants;
 
     constructor(token: String = "") {
+        super()
         this.token = token;
     }
 
@@ -30,6 +35,40 @@ class Client {
         };
     }
 
+    _heartbeat() {
+        this.socket.send(JSON.stringify({ op: 1 }))
+    }
+
+    async _open(event: any) {
+    }
+
+    async _message(event: any) {
+        let data = JSON.parse(event.data.toString())
+        switch (data.op) {
+            case  10:
+                this.gatewayInterval = setInterval(
+                    this._heartbeat,
+                    data.d.heartbeat_interval
+                )
+
+                this.socket.send(JSON.stringify({
+                    token: `Bot ${this.token}`,
+                    properties: {
+                        $os: "linux",
+                        $browser: "corddis",
+                        $device: "corddis"
+                    },
+                    presence: {
+                        status: "dnd",
+                        afk: false
+                    },
+                    intents: 1 << 9
+                }))
+            default:
+                this.emit('raw', data)
+        }
+    }
+
     async login(token: String = this.token): Promise<User> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
@@ -38,6 +77,17 @@ class Client {
             this._options("GET")
         );
         this.user = new User(await response.json(), this);
+
+        response = await fetch(
+            this._path(`/gateway/bot`),
+            this._options("GET")
+        )
+        this.gatewayData = await response.json()
+
+        this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
+        this.socket.addEventListener('open', this._open)
+        this.socket.addEventListener('message', this._message)
+
         return this.user;
     }
 
