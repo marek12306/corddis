@@ -91,3 +91,24 @@ export enum MessageActivityTypeData {
   LISTEN,
   JOIN_REQUEST = 5,
 }
+
+export enum AllowedMentionTypes {
+  ROLES = "roles",
+  USERS = "users",
+  EVERYONE = "everyone"
+}
+
+export interface AllowedMentionsType {
+  parse: AllowedMentionTypes[];
+  roles: Snowflake[];
+  users: Snowflake[];
+}
+
+export interface MessageCreateParamsType {
+  content?: string;
+  nonce?: (string | number);
+  tts?: boolean;
+  embed?: EmbedType[];
+  paylad_json?: string;
+  allowed_mentions?: AllowedMentionsType[]
+}

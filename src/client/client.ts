@@ -4,6 +4,9 @@ import { EntityType, Snowflake } from "./../types/utils.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 import EventEmitter from "https://deno.land/x/events/mod.ts";
+import { Message } from "./../structures/message.ts"
+import { IntentObjects } from "./gatewayHelpers.ts"
+import { MessageCreateParamsType } from "./../types/message.ts"
 
 class Client extends EventEmitter {
     token: String;
@@ -11,12 +14,22 @@ class Client extends EventEmitter {
     gatewayData: any
     socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
     gatewayInterval: any
+    intents: number[]
+    sequenceNumber: any = null
+    _heartbeatTime: number = -1
+    ping: number = -1
 
     constants = constants;
 
     constructor(token: String = "") {
         super()
         this.token = token;
+        this.intents = []
+    }
+
+    addIntent(intent: number) {
+        this.intents.push(intent)
+        return this
     }
 
     _path(suffix: string) {
@@ -36,9 +49,9 @@ class Client extends EventEmitter {
     }
 
     _heartbeat() {
-        console.log(this.socket.readyState)
         if (this.socket.readyState != 1) return clearInterval(this.gatewayInterval)
-        this.socket.send(JSON.stringify({ op: 1 }))
+        this._heartbeatTime = Date.now()
+        this.socket.send(JSON.stringify({ op: 1, d: this.sequenceNumber }))
     }
 
     async _open(event: any) {
@@ -46,30 +59,40 @@ class Client extends EventEmitter {
 
     async _message(event: any) {
         let data = JSON.parse(event.data.toString())
-        switch (data.op) {
-            case 10:
-                this.gatewayInterval = setInterval(
-                    () => this._heartbeat.call(this),
-                    data.d.heartbeat_interval
-                )
+        this.emit('raw', data)
+        if (data.s) this.sequenceNumber = data.s
+        if (data.op == 10) {
+            this.gatewayInterval = setInterval(
+                () => this._heartbeat.call(this),
+                data.d.heartbeat_interval
+            )
 
-                this.socket.send(JSON.stringify({
-                    op: 2, d: {
-                        token: `Bot ${this.token}`,
-                        properties: {
-                            $os: "linux",
-                            $browser: "corddis",
-                            $device: "corddis"
-                        },
-                        presence: {
-                            status: "dnd",
-                            afk: false
-                        },
-                        intents: 1 << 9
-                    }
-                }))
-            default:
-                this.emit('raw', data)
+            let intents = 0
+            this.intents.forEach(intent => {
+                intents |= intent
+            })
+
+            this.socket.send(JSON.stringify({
+                op: 2, d: {
+                    token: `Bot ${this.token}`,
+                    properties: {
+                        $os: "linux",
+                        $browser: "corddis",
+                        $device: "corddis"
+                    },
+                    presence: {
+                        status: "online",
+                        afk: false
+                    },
+                    intents
+                }
+            }))
+        } else if (data.op == 11) {
+            let calculated = Date.now() - this._heartbeatTime
+            if (calculated > 1) this.ping = calculated
+        } else if (data.t && IntentObjects[data.t]) {
+            let object = new IntentObjects[data.t](data.d, this)
+            this.emit(data.t, object);
         }
     }
 
@@ -124,6 +147,26 @@ class Client extends EventEmitter {
         );
         let user = await response.json();
         return new Me(user, this);
+    }
+
+
+    async sendMessage(id: string, data: MessageCreateParamsType): Promise<Message> {
+        if (!id || !data) throw Error("ID or content for message are not provided");
+        let response = await fetch(
+            this._path(`/channels/${id}/messages`),
+            this._options("POST", JSON.stringify(data))
+        );
+        let json = await response.json()
+        return new Message(json, this);
+    }
+
+    async deleteMessage(channelID: string, id: string) {
+        if (!channelID || !id) throw Error("Channel or message ID are not provided");
+        let response = await fetch(
+            this._path(`/channels/${channelID}/messages/${id}`),
+            this._options("DELETE")
+        );
+        return response.status == 204 ? true : false;
     }
 }
 
