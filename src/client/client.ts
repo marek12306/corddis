@@ -9,7 +9,7 @@ class Client extends EventEmitter {
     token: String;
     user: User | null = null;
     gatewayData: any
-    socket: any
+    socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
     gatewayInterval: any
 
     constants = constants;
@@ -36,6 +36,8 @@ class Client extends EventEmitter {
     }
 
     _heartbeat() {
+        console.log(this.socket.readyState)
+        if (this.socket.readyState != 1) return clearInterval(this.gatewayInterval)
         this.socket.send(JSON.stringify({ op: 1 }))
     }
 
@@ -45,24 +47,26 @@ class Client extends EventEmitter {
     async _message(event: any) {
         let data = JSON.parse(event.data.toString())
         switch (data.op) {
-            case  10:
+            case 10:
                 this.gatewayInterval = setInterval(
-                    this._heartbeat,
+                    () => this._heartbeat.call(this),
                     data.d.heartbeat_interval
                 )
 
                 this.socket.send(JSON.stringify({
-                    token: `Bot ${this.token}`,
-                    properties: {
-                        $os: "linux",
-                        $browser: "corddis",
-                        $device: "corddis"
-                    },
-                    presence: {
-                        status: "dnd",
-                        afk: false
-                    },
-                    intents: 1 << 9
+                    op: 2, d: {
+                        token: `Bot ${this.token}`,
+                        properties: {
+                            $os: "linux",
+                            $browser: "corddis",
+                            $device: "corddis"
+                        },
+                        presence: {
+                            status: "dnd",
+                            afk: false
+                        },
+                        intents: 1 << 9
+                    }
                 }))
             default:
                 this.emit('raw', data)
@@ -85,8 +89,8 @@ class Client extends EventEmitter {
         this.gatewayData = await response.json()
 
         this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
-        this.socket.addEventListener('open', this._open)
-        this.socket.addEventListener('message', this._message)
+        this.socket.addEventListener('open', (ev: Event) => this._open.call(this, ev))
+        this.socket.addEventListener('message', (ev: Event) => this._message.call(this, ev))
 
         return this.user;
     }
