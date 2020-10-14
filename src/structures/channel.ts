@@ -1,6 +1,7 @@
 import { Client } from "./../client/client.ts";
 import { ChannelType } from "../types/channel.ts";
 import { Message } from "./message.ts";
+import { MessageCreateParamsType } from "../types/message.ts";
 
 export class Channel {
   data: ChannelType;
@@ -11,13 +12,22 @@ export class Channel {
     this.client = client;
   }
 
-  // Dać parametr do wysyłania z https://discord.com/developers/docs/resources/channel#create-message
-  async sendMessage(): Promise<Message> {
+  async sendMessage(data: MessageCreateParamsType): Promise<Message> {
+    if (!data) throw Error("Content for message is not provided");
     let response = await fetch(
-      this.client._path(`/channels/${this.data.id}/channels`),
-      this.client._options("GET")
+      this.client._path(`/channels/${this.data.id}/messages`),
+      this.client._options("POST", JSON.stringify(data))
     );
-    var message = await response.json()
-    return new Message(message, this.client)
+    let json = await response.json()
+    return new Message(json, this.client);
+  }
+
+  async deleteMessage(id: string): Promise<boolean> {
+    if (!id) throw Error("Message ID is not provided");
+    let response = await fetch(
+      this.client._path(`/channels/${this.data.id}/messages/${id}`),
+      this.client._options("DELETE")
+    );
+    return response.status == 204 ? true : false;
   }
 }

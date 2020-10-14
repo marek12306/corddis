@@ -62,11 +62,11 @@ export class Guild {
       this.client._path(`/guilds/${this.data.id}/members/${userId}`),
       this.client._options("GET", JSON.stringify({ accessToken: token, nick, roles, mute, deaf }))
     );
-    if ((await resp.text()).length == 0) return await this.get(EntityType.USER, userId);
+    if ((await resp.text()).length == 0) return (await this.get(EntityType.USER, userId)) as GuildMember;
     return new GuildMember(await resp.json(), this.client);
   }
 
-  async get(type: EntityType, id: Snowflake): Promise<GuildMember> {
+  async get(type: EntityType, id: Snowflake): Promise<GuildMember | Channel> {
     var response;
     switch (type) {
       case EntityType.GUILD_MEMBER:
@@ -75,6 +75,8 @@ export class Guild {
           this.client._options("GET"));
         let user = await response.json();
         return new GuildMember(user, this.client);
+      case EntityType.CHANNEL:
+        return (await this.channels()).find(ch => ch.data.id == id) as Channel;
       default:
         throw Error("Wrong EntityType")
     }

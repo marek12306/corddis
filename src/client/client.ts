@@ -14,21 +14,21 @@ class Client extends EventEmitter {
     gatewayData: any
     socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
     gatewayInterval: any
-    intents: number[]
+    intents: number[] = []
     sequenceNumber: any = null
     _heartbeatTime: number = -1
     ping: number = -1
 
     constants = constants;
 
-    constructor(token: String = "") {
+    constructor(token: String = "", ...intents: number[]) {
         super()
         this.token = token;
-        this.intents = []
+        this.intents = intents;
     }
 
-    addIntent(intent: number) {
-        this.intents.push(intent)
+    addIntents(...intent: number[]) {
+        this.intents.push(...intent);
         return this
     }
 
@@ -49,12 +49,13 @@ class Client extends EventEmitter {
     }
 
     _heartbeat() {
-        if (this.socket.readyState != 1) return clearInterval(this.gatewayInterval)
         this._heartbeatTime = Date.now()
         this.socket.send(JSON.stringify({ op: 1, d: this.sequenceNumber }))
+        this.emit("debug", "Sending heartbeat")
     }
 
     async _open(event: any) {
+        this.emit("debug", "Connected to WebSocket")
     }
 
     async _message(event: any) {
@@ -67,14 +68,11 @@ class Client extends EventEmitter {
                 data.d.heartbeat_interval
             )
 
-            let intents = 0
-            this.intents.forEach(intent => {
-                intents |= intent
-            })
+            let intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
 
             this.socket.send(JSON.stringify({
                 op: 2, d: {
-                    token: `Bot ${this.token}`,
+                    token: "Bot " + this.token,
                     properties: {
                         $os: "linux",
                         $browser: "corddis",
@@ -83,13 +81,12 @@ class Client extends EventEmitter {
                     presence: {
                         status: "online",
                         afk: false
-                    },
-                    intents
+                    }, intents
                 }
             }))
         } else if (data.op == 11) {
             let calculated = Date.now() - this._heartbeatTime
-            if (calculated > 1) this.ping = calculated
+            this.ping = calculated > 1 ? calculated : this.ping
         } else if (data.t && IntentObjects[data.t]) {
             let object = new IntentObjects[data.t](data.d, this)
             this.emit(data.t, object);
@@ -147,26 +144,6 @@ class Client extends EventEmitter {
         );
         let user = await response.json();
         return new Me(user, this);
-    }
-
-
-    async sendMessage(id: string, data: MessageCreateParamsType): Promise<Message> {
-        if (!id || !data) throw Error("ID or content for message are not provided");
-        let response = await fetch(
-            this._path(`/channels/${id}/messages`),
-            this._options("POST", JSON.stringify(data))
-        );
-        let json = await response.json()
-        return new Message(json, this);
-    }
-
-    async deleteMessage(channelID: string, id: string) {
-        if (!channelID || !id) throw Error("Channel or message ID are not provided");
-        let response = await fetch(
-            this._path(`/channels/${channelID}/messages/${id}`),
-            this._options("DELETE")
-        );
-        return response.status == 204 ? true : false;
     }
 }
 

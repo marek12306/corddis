@@ -1,5 +1,8 @@
 import { Client } from "./../client/client.ts";
 import { MessageType } from "../types/message.ts";
+import { EntityType } from "../types/utils.ts";
+import { Guild } from "./guild.ts";
+import { Channel } from "./channel.ts";
 
 export class Message {
     data: MessageType;
@@ -11,10 +14,14 @@ export class Message {
     }
 
     async reply(content: string): Promise<Message> {
-        return await this.client.sendMessage(this.data.channel_id, { content })
+        let guild = await this.client.get(EntityType.GUILD, this.data.guild_id as string) as Guild;
+        let channel = await guild.get(EntityType.CHANNEL, this.data.channel_id as string) as Channel;
+        return channel.sendMessage({ content })
     }
 
     async delete(): Promise<boolean> {
-        return await this.client.deleteMessage(this.data.channel_id, this.data.id)
+        let guild = await this.client.get(EntityType.GUILD, this.data.guild_id as string) as Guild;
+        let channel = await guild.get(EntityType.CHANNEL, this.data.channel_id as string) as Channel;
+        return channel.deleteMessage(this.data.id)
     }
 }
