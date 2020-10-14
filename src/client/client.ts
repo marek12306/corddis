@@ -7,7 +7,7 @@ import EventEmitter from "https://deno.land/x/events/mod.ts";
 import { Message } from "./../structures/message.ts"
 import { IntentObjects } from "./gatewayHelpers.ts"
 import { MessageCreateParamsType } from "./../types/message.ts"
-import { inflate } from "https://deno.land/x/denoflate/mod.ts";
+import { zlib, unzlib } from "https://deno.land/x/denoflate/mod.ts";
 
 class Client extends EventEmitter {
     token: String;
@@ -60,14 +60,26 @@ class Client extends EventEmitter {
     }
 
     async _message(event: any) {
+        let blob: Blob = event.data
         let data = event.data
-        console.log(data)
-        if (data.endsWith(this.constants.ZLIB_SUFFIX)) {
+        // new Blob([Uint8Array.of(0,0,255,255)])
+
+        var dataUINT8 = await this.blobToUINT8(blob);
+        if (dataUINT8.slice(blob.size - 4).reduce((x, y) => x += y) == 510) {
+            // let textDecoder = new TextDecoder("utf-8");
+            // let textEncoder = new TextEncoder();
+            // data = textDecoder.decode(inflate(textEncoder.encode(dataUINT8)))
+            // console.log("REEEEEEEEEEEEEEEE")
+            var inflates = zlib(dataUINT8, undefined);
+            var binary = unzlib(inflates)
+            var binaryconverter = new TextDecoder('utf-8');
+            data = binaryconverter.decode(binary);
             let textEncoder = new TextEncoder();
             let textDecoder = new TextDecoder("utf-8");
-            data = textDecoder.decode(inflate(textEncoder.encode(data.toString())))
-        } 
-        data = JSON.parse(event.data.toString())
+            data = textDecoder.decode(inflates)
+        
+        }
+        console.log(data)
         this.emit('raw', data)
         if (data.s) this.sequenceNumber = data.s
         if (data.op == 10) {
@@ -97,7 +109,7 @@ class Client extends EventEmitter {
             this.ping = calculated > 1 ? calculated : this.ping
         } else if (data.t && IntentObjects[data.t]) {
             let object = new IntentObjects[data.t](data.d, this)
-            this.emit(data.t, object);
+            //this.emit(data.t, object);
         }
     }
 
@@ -116,7 +128,7 @@ class Client extends EventEmitter {
         )
         this.gatewayData = await response.json()
 
-        this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json&compress=true`)
+        this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json&compress=zlib-stream`)
         this.socket.addEventListener('open', (ev: Event) => this._open.call(this, ev))
         this.socket.addEventListener('message', (ev: Event) => this._message.call(this, ev))
 
@@ -152,6 +164,14 @@ class Client extends EventEmitter {
         );
         let user = await response.json();
         return new Me(user, this);
+    }
+
+    async blobToUINT8(blob: Blob): Promise<Uint8Array> {
+        return new Promise(function (resolve) {
+            var reader = new FileReader();
+            reader.onloadend = () => resolve(new Uint8Array(reader.result as ArrayBuffer))
+            reader.readAsArrayBuffer(blob);
+        });
     }
 }
 
