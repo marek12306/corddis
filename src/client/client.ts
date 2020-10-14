@@ -7,6 +7,7 @@ import EventEmitter from "https://deno.land/x/events/mod.ts";
 import { Message } from "./../structures/message.ts"
 import { IntentObjects } from "./gatewayHelpers.ts"
 import { MessageCreateParamsType } from "./../types/message.ts"
+import { inflate } from "https://deno.land/x/denoflate/mod.ts";
 
 class Client extends EventEmitter {
     token: String;
@@ -59,7 +60,14 @@ class Client extends EventEmitter {
     }
 
     async _message(event: any) {
-        let data = JSON.parse(event.data.toString())
+        let data = event.data
+        console.log(data)
+        if (data.endsWith(this.constants.ZLIB_SUFFIX)) {
+            let textEncoder = new TextEncoder();
+            let textDecoder = new TextDecoder("utf-8");
+            data = textDecoder.decode(inflate(textEncoder.encode(data.toString())))
+        } 
+        data = JSON.parse(event.data.toString())
         this.emit('raw', data)
         if (data.s) this.sequenceNumber = data.s
         if (data.op == 10) {
@@ -108,7 +116,7 @@ class Client extends EventEmitter {
         )
         this.gatewayData = await response.json()
 
-        this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
+        this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json&compress=true`)
         this.socket.addEventListener('open', (ev: Event) => this._open.call(this, ev))
         this.socket.addEventListener('message', (ev: Event) => this._message.call(this, ev))
 
