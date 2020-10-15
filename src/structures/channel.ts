@@ -27,18 +27,20 @@ export class Channel {
 
   async sendFile(data: MessageCreateParamsType, filename: string = "file.jpg"): Promise<Message> {
     if (!data) throw Error("Content for message is not provided");
-    const body = Object.keys(data).reduce((form, key) => {
-      form.append(key, (data as any)[key]);
-      return form;
-    }, new FormData())
-    console.log(body)
+
+    var body = new FormData();
+    body.append(filename, new Blob([data.file as BlobPart]), filename);
+    body.append('payload_json', JSON.stringify(data));
+
     let response = await fetch(
       this.client._path(`/channels/${this.data.id}/messages`),
       this.client._options("POST", body, "multipart/form-data", {
         "Content-Disposition": filename ? "filename=" + filename : ""
       })
     );
+
     let json = await response.json();
+    console.log(json)
     return new Message(json, this.client, this);
   }
 
@@ -73,7 +75,7 @@ export class Channel {
     return response.status == 204 ? true : false;
   }
 
-   async unreact(id: string, emoji: string): Promise<boolean> {
+  async unreact(id: string, emoji: string): Promise<boolean> {
     if (!id) throw Error("Message ID is not provided");
     let response = await fetch(
       this.client._path(`/channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`),

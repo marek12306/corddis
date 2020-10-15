@@ -40,6 +40,16 @@ class Client extends EventEmitter {
     }
 
     _options(method: string, body: any = "", contentType: string = "application/json", headers: any = {}) {
+        console.log({
+            method,
+            body,
+            headers: {
+                "Authorization": `Bot ${this.token}`,
+                "User-Agent": this.constants.USER_AGENT,
+                "Content-Type": contentType,
+                ...headers
+            },
+        })
         return {
             method,
             body,
@@ -110,7 +120,7 @@ class Client extends EventEmitter {
     async login(token: String = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
-        
+
         let response = await fetch(
             this._path(`/gateway/bot`),
             this._options("GET")
