@@ -4,10 +4,7 @@ import { EntityType, Snowflake } from "./../types/utils.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 import EventEmitter from "https://deno.land/x/events/mod.ts";
-import { Message } from "./../structures/message.ts"
 import { IntentObjects } from "./gatewayHelpers.ts"
-import { MessageCreateParamsType } from "./../types/message.ts"
-import { zlib, unzlib } from "https://deno.land/x/denoflate/mod.ts";
 import { Channel } from "./../structures/channel.ts";
 
 class Client extends EventEmitter {
