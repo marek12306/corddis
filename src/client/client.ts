@@ -41,7 +41,6 @@ class Client extends EventEmitter {
     }
 
     _options(method: string, body: any = "", contentType: string = "application/json", headers: any = {}) {
-        console.log(body)
         return {
             method,
             body,
