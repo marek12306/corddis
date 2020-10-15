@@ -8,6 +8,7 @@ import { Message } from "./../structures/message.ts"
 import { IntentObjects } from "./gatewayHelpers.ts"
 import { MessageCreateParamsType } from "./../types/message.ts"
 import { zlib, unzlib } from "https://deno.land/x/denoflate/mod.ts";
+import { Channel } from "./../structures/channel.ts";
 
 class Client extends EventEmitter {
     token: String;
@@ -19,6 +20,7 @@ class Client extends EventEmitter {
     sequenceNumber: any = null
     _heartbeatTime: number = -1
     ping: number = -1
+    sessionID: string = ""
 
     constants = constants;
 
@@ -37,14 +39,15 @@ class Client extends EventEmitter {
         return `${this.constants.BASE_URL}/v${this.constants.VERSION}/${suffix}`;
     }
 
-    _options(method: string, body: string = "") {
+    _options(method: string, body: any = "", contentType: string = "application/json", headers: any = {}) {
         return {
             method,
             body,
             headers: {
                 "Authorization": `Bot ${this.token}`,
                 "User-Agent": this.constants.USER_AGENT,
-                "Content-Type": "application/json"
+                "Content-Type": contentType,
+                ...headers
             },
         };
     }
@@ -60,26 +63,7 @@ class Client extends EventEmitter {
     }
 
     async _message(event: any) {
-        let blob: Blob = event.data
-        let data = event.data
-        // new Blob([Uint8Array.of(0,0,255,255)])
-
-        var dataUINT8 = await this.blobToUINT8(blob);
-        if (dataUINT8.slice(blob.size - 4).reduce((x, y) => x += y) == 510) {
-            // let textDecoder = new TextDecoder("utf-8");
-            // let textEncoder = new TextEncoder();
-            // data = textDecoder.decode(inflate(textEncoder.encode(dataUINT8)))
-            // console.log("REEEEEEEEEEEEEEEE")
-            var inflates = zlib(dataUINT8, undefined);
-            var binary = unzlib(inflates)
-            var binaryconverter = new TextDecoder('utf-8');
-            data = binaryconverter.decode(binary);
-            let textEncoder = new TextEncoder();
-            let textDecoder = new TextDecoder("utf-8");
-            data = textDecoder.decode(inflates)
-        
-        }
-        console.log(data)
+        let data = JSON.parse(event.data)
         this.emit('raw', data)
         if (data.s) this.sequenceNumber = data.s
         if (data.op == 10) {
@@ -107,32 +91,37 @@ class Client extends EventEmitter {
         } else if (data.op == 11) {
             let calculated = Date.now() - this._heartbeatTime
             this.ping = calculated > 1 ? calculated : this.ping
+        } else if (data.t == "READY") {
+            this.sessionID = data.d.session_id
+            this.user = new User(data.d.user, this)
+            this.emit("READY", this.user)
         } else if (data.t && IntentObjects[data.t]) {
-            let object = new IntentObjects[data.t](data.d, this)
-            //this.emit(data.t, object);
+            let addProp = []
+            if (data.t == "MESSAGE_CREATE") {
+                let guild = await this.get(EntityType.GUILD, data.d.guild_id as string) as Guild;
+                let channel = await guild.get(EntityType.CHANNEL, data.d.channel_id as string) as Channel;
+                addProp.push(channel, guild)
+            }
+            let object = new IntentObjects[data.t](data.d, this, ...addProp)
+            this.emit(data.t, object);
         }
     }
 
-    async login(token: String = this.token): Promise<User> {
+    async login(token: String = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
+        
         let response = await fetch(
-            this._path(`/users/@me`),
-            this._options("GET")
-        );
-        this.user = new User(await response.json(), this);
-
-        response = await fetch(
             this._path(`/gateway/bot`),
             this._options("GET")
         )
         this.gatewayData = await response.json()
 
-        this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json&compress=zlib-stream`)
+        this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
         this.socket.addEventListener('open', (ev: Event) => this._open.call(this, ev))
         this.socket.addEventListener('message', (ev: Event) => this._message.call(this, ev))
 
-        return this.user;
+        return true;
     }
 
     async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {

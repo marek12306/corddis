@@ -2,14 +2,17 @@ import { Client } from "./../client/client.ts";
 import { ChannelType } from "../types/channel.ts";
 import { Message } from "./message.ts";
 import { MessageCreateParamsType } from "../types/message.ts";
+import { Guild } from "./guild.ts";
 
 export class Channel {
   data: ChannelType;
   client: Client;
+  guild?: Guild;
 
-  constructor(data: ChannelType, client: Client) {
+  constructor(data: ChannelType, client: Client, guild?: Guild) {
     this.data = data;
     this.client = client;
+    this.guild = guild
   }
 
   async sendMessage(data: MessageCreateParamsType): Promise<Message> {
@@ -18,8 +21,25 @@ export class Channel {
       this.client._path(`/channels/${this.data.id}/messages`),
       this.client._options("POST", JSON.stringify(data))
     );
-    let json = await response.json()
-    return new Message(json, this.client);
+    let json = await response.json();
+    return new Message(json, this.client, this);
+  }
+
+  async sendFile(data: MessageCreateParamsType, filename: string = "file.jpg"): Promise<Message> {
+    if (!data) throw Error("Content for message is not provided");
+    const body = Object.keys(data).reduce((form, key) => {
+      form.append(key, (data as any)[key]);
+      return form;
+    }, new FormData())
+    console.log(body)
+    let response = await fetch(
+      this.client._path(`/channels/${this.data.id}/messages`),
+      this.client._options("POST", body, "multipart/form-data", {
+        "Content-Disposition": filename ? "filename=" + filename : ""
+      })
+    );
+    let json = await response.json();
+    return new Message(json, this.client, this);
   }
 
   async deleteMessage(id: string): Promise<boolean> {

@@ -7,21 +7,21 @@ import { Channel } from "./channel.ts";
 export class Message {
     data: MessageType;
     client: Client;
+    channel: Channel;
+    guild?: Guild;
 
-    constructor(data: MessageType, client: Client) {
+    constructor(data: MessageType, client: Client, channel: Channel, guild?: Guild) {
         this.data = data;
         this.client = client;
+        this.channel = channel;
+        this.guild = guild;
     }
 
     async reply(content: string): Promise<Message> {
-        let guild = await this.client.get(EntityType.GUILD, this.data.guild_id as string) as Guild;
-        let channel = await guild.get(EntityType.CHANNEL, this.data.channel_id as string) as Channel;
-        return channel.sendMessage({ content })
+        return this.channel.sendMessage({ content })
     }
 
     async delete(): Promise<boolean> {
-        let guild = await this.client.get(EntityType.GUILD, this.data.guild_id as string) as Guild;
-        let channel = await guild.get(EntityType.CHANNEL, this.data.channel_id as string) as Channel;
-        return channel.deleteMessage(this.data.id)
+        return this.channel.deleteMessage(this.data.id)
     }
 }

@@ -43,7 +43,7 @@ export class Guild {
       this.client._options("GET"),
     );
     let json = await resp.json();
-    return json.map((data: ChannelType) => new Channel(data, this.client));
+    return json.map((data: ChannelType) => new Channel(data, this.client, this));
   }
 
   async members(limit: number = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
@@ -92,7 +92,7 @@ export class Guild {
       this.client._options("POST", JSON.stringify(data)),
     );
     let json = await resp.json();
-    return new Channel(json, this.client);
+    return new Channel(json, this.client, this);
   }
 
   async icon(attr: IconAttributesType = {}): Promise<string> {
