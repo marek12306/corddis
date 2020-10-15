@@ -11,7 +11,7 @@ import { token } from "./token.ts";
             console.log(await message.delete())
         } else if (message.data.content == "test2") {
             console.log(await message.reply("Test"))
-        } else if (message.data.content == "KURWA DZIAŁAJ") {
+        } else if (message.data.content == "x") {
             await message.channel.sendFile({
                 content: "huj",
                 file: await Deno.readFile("./h.jpg"),

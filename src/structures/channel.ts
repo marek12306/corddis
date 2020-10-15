@@ -28,17 +28,10 @@ export class Channel {
   async sendFile(data: MessageCreateParamsType, filename: string = "file.jpg"): Promise<Message> {
     if (!data) throw Error("Content for message is not provided");
 
-    var body = new FormData();
-    body.append(filename, new Blob([data.file as BlobPart]), filename);
-    body.append('payload_json', JSON.stringify(data));
-
     let response = await fetch(
       this.client._path(`/channels/${this.data.id}/messages`),
-      this.client._options("POST", body, "multipart/form-data", {
-        "Content-Disposition": filename ? "filename=" + filename : ""
-      })
+      this.client._options("POST", JSON.stringify(data))
     );
-
     let json = await response.json();
     console.log(json)
     return new Message(json, this.client, this);

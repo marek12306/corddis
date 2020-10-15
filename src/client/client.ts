@@ -11,6 +11,7 @@ import { zlib, unzlib } from "https://deno.land/x/denoflate/mod.ts";
 import { Channel } from "./../structures/channel.ts";
 
 class Client extends EventEmitter {
+	public emit: any;
     token: String;
     user: User | null = null;
     gatewayData: any
@@ -40,16 +41,7 @@ class Client extends EventEmitter {
     }
 
     _options(method: string, body: any = "", contentType: string = "application/json", headers: any = {}) {
-        console.log({
-            method,
-            body,
-            headers: {
-                "Authorization": `Bot ${this.token}`,
-                "User-Agent": this.constants.USER_AGENT,
-                "Content-Type": contentType,
-                ...headers
-            },
-        })
+        console.log(body)
         return {
             method,
             body,
