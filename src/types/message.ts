@@ -104,7 +104,7 @@ export interface AllowedMentionsType {
   users: Snowflake[];
 }
 
-export type MessageCreateParamsType = {
+export interface MessageCreateParamsType {
   content?: string;
   nonce?: (string | number);
   tts?: boolean;
@@ -112,4 +112,10 @@ export type MessageCreateParamsType = {
   paylad_json?: string;
   allowed_mentions?: AllowedMentionsType[]
   file?: ArrayBuffer
+}
+
+export interface MessageEditParamsType {
+  content?: string;
+  embed?: EmbedType[];
+  flags?: number;
 }

@@ -111,4 +111,22 @@ export class Guild {
     );
     return await response.text().then(value => value == "" ? true : false)
   }
+
+  async ban(id: string, reason?: string): Promise<boolean> {
+    if (!id) throw Error("Member ID is not provided");
+    let response = await fetch(
+      this.client._path(`/guilds/${this.data.id}/bans/${id}`),
+      this.client._options("PUT", JSON.stringify({ reason }))
+    );
+    return response.status == 204 ? true : false;
+  }
+ 
+  async unban(id: string): Promise<boolean> {
+    if (!id) throw Error("Member ID is not provided");
+    let response = await fetch(
+      this.client._path(`/guilds/${this.data.id}/bans/${id}`),
+      this.client._options("DELETE")
+    );
+    return response.status == 204 ? true : false;
+  }
 }
