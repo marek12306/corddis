@@ -1,7 +1,7 @@
 import { Client } from "./../client/client.ts";
 import { ChannelType } from "../types/channel.ts";
 import { Message } from "./message.ts";
-import { MessageCreateParamsType, MessageEditParamsType } from "../types/message.ts";
+import { MessageCreateParamsType, MessageEditParamsType, MessageTypeData } from "../types/message.ts";
 import { Guild } from "./guild.ts";
 
 export class Channel {
@@ -22,18 +22,6 @@ export class Channel {
       this.client._options("POST", JSON.stringify(data))
     );
     let json = await response.json();
-    return new Message(json, this.client, this);
-  }
-
-  async sendFile(data: MessageCreateParamsType, filename: string = "file.jpg"): Promise<Message> {
-    if (!data) throw Error("Content for message is not provided");
-
-    let response = await fetch(
-      this.client._path(`/channels/${this.data.id}/messages`),
-      this.client._options("POST", JSON.stringify(data))
-    );
-    let json = await response.json();
-    console.log(json)
     return new Message(json, this.client, this);
   }
 
