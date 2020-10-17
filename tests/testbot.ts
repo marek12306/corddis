@@ -1,4 +1,4 @@
-import { Client, Intents, Message, User } from "../src/index.ts";
+import { Client, Intents, Message, User, EmbedBuilder } from "../src/index.ts";
 import { token } from "./token.ts";
 
 (async () => {
@@ -14,8 +14,14 @@ import { token } from "./token.ts";
         } else if (message.data.content == "test3") {
             console.log(await message.react(":Neil_Patel:666343612077834254"))
         } else if (message.data.content == "test4") {
-            let msg = await message.reply("a");
-            msg.edit("h")
+            let msg = await message.channel.sendMessage({
+                content: "a",
+                embed: new EmbedBuilder().title("h").end()
+            });
+            console.log(await msg.edit({
+                content: "b",
+                embed: new EmbedBuilder().title("c").end()
+            }))
         } else if (message.data.content == "test5") {
             console.log(await message.channel.sendMessage({
                 content: "h",

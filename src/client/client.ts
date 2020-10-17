@@ -59,6 +59,9 @@ class Client extends EventEmitter {
             console.log(`Sleeping ${response.headers.get("x-ratelimit-reset-after")}s`)
             await this.sleep(parseFloat(response.headers.get("x-ratelimit-reset-after") ?? "0"))
         }
+        if (response.status == 400) {
+            throw Error((await response.json()).message)
+        }
         return json ? await response.json() : response;
     }
 
@@ -120,7 +123,6 @@ class Client extends EventEmitter {
     async login(token: String = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
-
         this.gatewayData = await this._fetch<any>("GET", "gateway/bot", null, true)
 
         this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
