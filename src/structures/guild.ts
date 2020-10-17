@@ -129,4 +129,13 @@ export class Guild {
     );
     return response.status == 204 ? true : false;
   }
+
+  async kick(id: string): Promise<boolean> {
+    if (!id) throw Error("Member ID is not provided");
+    let response = await fetch(
+      this.client._path(`/guilds/${this.data.id}/members/${id}`),
+      this.client._options("DELETE")
+    );
+    return response.status == 204 ? true : false;
+  }
 }

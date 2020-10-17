@@ -37,14 +37,14 @@ class Client extends EventEmitter {
         return `${this.constants.BASE_URL}/v${this.constants.VERSION}/${suffix}`;
     }
 
-    _options(method: string, body: any = "", contentType: string = "application/json", headers: any = {}) {
+    _options(method: string, body: any = "", contentType: any = "application/json", headers: any = {}) {        
+        if (contentType) headers["Content-Type"] = contentType
         return {
             method,
             body,
             headers: {
                 "Authorization": `Bot ${this.token}`,
                 "User-Agent": this.constants.USER_AGENT,
-                "Content-Type": contentType,
                 ...headers
             },
         };

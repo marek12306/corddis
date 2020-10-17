@@ -17,9 +17,17 @@ export class Channel {
 
   async sendMessage(data: MessageCreateParamsType): Promise<Message> {
     if (!data) throw Error("Content for message is not provided");
+    let body;
+    if (data?.file) {
+      body = new FormData();
+      body.append("file", data.file.content, data.file.name)
+      body.append("payload_json", JSON.stringify({ ...data, file: undefined }))
+    } else {
+      body = JSON.stringify(data)
+    }
     let response = await fetch(
       this.client._path(`/channels/${this.data.id}/messages`),
-      this.client._options("POST", JSON.stringify(data))
+      this.client._options("POST", body, data?.file ? false : "application/json")
     );
     let json = await response.json();
     return new Message(json, this.client, this);

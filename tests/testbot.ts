@@ -16,6 +16,14 @@ import { token } from "./token.ts";
         } else if (message.data.content == "test4") {
             let msg = await message.reply("a");
             msg.edit("h")
+        } else if (message.data.content == "test5") {
+            console.log(await message.channel.sendMessage({
+                content: "h",
+                file: {
+                    name: "h.jpg",
+                    content: new Blob([await Deno.readFile("h.jpg")])
+                }
+            }))
         }
     })
     //client.on("raw", console.log)

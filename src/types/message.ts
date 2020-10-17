@@ -104,14 +104,19 @@ export interface AllowedMentionsType {
   users: Snowflake[];
 }
 
+export interface FileType {
+  name: string;
+  content: Blob;
+}
+
 export interface MessageCreateParamsType {
   content?: string;
   nonce?: (string | number);
   tts?: boolean;
   embed?: EmbedType[];
   paylad_json?: string;
-  allowed_mentions?: AllowedMentionsType[]
-  file?: ArrayBuffer
+  allowed_mentions?: AllowedMentionsType[];
+  file?: FileType;
 }
 
 export interface MessageEditParamsType {
