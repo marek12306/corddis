@@ -14,37 +14,22 @@ export class Me extends User {
     }
 
     async guilds(): Promise<Guild[]> {
-        let response = await fetch(
-            this.client._path(`/users/@me/guilds`),
-            this.client._options("GET"),
-        );
-        let guildsJSON = await response.json();
+        let guildsJSON = await this.client._fetch<GuildType[]>("GET", `users/@me/guilds`, null, true)
         return guildsJSON.map((elt: GuildType) => new Guild(elt, this.client));
     }
 
     async getDM(): Promise<Channel[]> {
         if (this.client.user?.isBot()) return [];
-        let response = await fetch(
-            this.client._path(`/users/@me/channels`),
-            this.client._options("GET"),
-        );
-        let channelsJSON = await response.json();
+        let channelsJSON = await this.client._fetch<ChannelType[]>("get", `users/@me/channels`, null, true)
         return channelsJSON.map((elt: ChannelType) => new Channel(elt, this.client));
     }
 
-    async createDM(id: Snowflake): Promise<Channel> {
-        let response = await fetch(
-            this.client._path(`/users/@me/channels`),
-            this.client._options("POST", JSON.stringify({ recipent_id: id })),
-        );
-        let channel = await response.json();
+    async createDM(recipent_id: Snowflake): Promise<Channel> {
+        let channel = await this.client._fetch<ChannelType>("POST", `users/@me/channels`, JSON.stringify({ recipent_id }), true)
         return new Channel(channel, this.client)
     }
 
     async getConnections(): Promise<any> {
-        return await fetch(
-            this.client._path(`/users/@me/connections`),
-            this.client._options("GET"),
-        ).then(async resp => await resp.json())
+        return this.client._fetch<any>("GET", `users/@me/connections`, null, true)
     }
 }

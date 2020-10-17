@@ -1,5 +1,6 @@
 import { Client } from "./../client/client.ts";
 import { ChannelType } from "../types/channel.ts";
+import { MessageType } from "../types/message.ts"
 import { Message } from "./message.ts";
 import { MessageCreateParamsType, MessageEditParamsType, MessageTypeData } from "../types/message.ts";
 import { Guild } from "./guild.ts";
@@ -25,20 +26,13 @@ export class Channel {
     } else {
       body = JSON.stringify(data)
     }
-    let response = await fetch(
-      this.client._path(`/channels/${this.data.id}/messages`),
-      this.client._options("POST", body, data?.file ? false : "application/json")
-    );
-    let json = await response.json();
+    let json = await this.client._fetch<MessageType>("POST", `channels/${this.data.id}/messages`, body, true, data?.file ? false : "application/json")
     return new Message(json, this.client, this);
   }
 
   async deleteMessage(id: string): Promise<boolean> {
     if (!id) throw Error("Message ID is not provided");
-    let response = await fetch(
-      this.client._path(`/channels/${this.data.id}/messages/${id}`),
-      this.client._options("DELETE")
-    );
+    let response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}`, null, false)
     return response.status == 204 ? true : false;
   }
 
@@ -47,29 +41,19 @@ export class Channel {
     if (typeof data == "string") {
       data = { content: data }
     }
-    let response = await fetch(
-      this.client._path(`/channels/${this.data.id}/messages/${id}`),
-      this.client._options("PATCH", JSON.stringify(data))
-    );
-    let json = await response.json()
+    let json = await this.client._fetch<MessageType>("PATCH", `channels/${this.data.id}/messages/${id}`, JSON.stringify(data), true)
     return new Message(json, this.client, this)
   }
 
   async react(id: string, emoji: string): Promise<boolean> {
     if (!id) throw Error("Message ID is not provided");
-    let response = await fetch(
-      this.client._path(`/channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`),
-      this.client._options("PUT")
-    );
+    let response = await this.client._fetch<Response>("PUT", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`, null, false);
     return response.status == 204 ? true : false;
   }
 
   async unreact(id: string, emoji: string): Promise<boolean> {
     if (!id) throw Error("Message ID is not provided");
-    let response = await fetch(
-      this.client._path(`/channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`),
-      this.client._options("DELETE")
-    );
+    let response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`, null, false)
     return response.status == 204 ? true : false;
   }
 }

@@ -6,6 +6,8 @@ import { Me } from "./me.ts";
 import EventEmitter from "https://deno.land/x/events/mod.ts";
 import { IntentObjects } from "./gatewayHelpers.ts"
 import { Channel } from "./../structures/channel.ts";
+import { UserType } from "./../types/user.ts"
+import { GuildType } from "./../types/guild.ts"
 
 class Client extends EventEmitter {
 	public emit: any;
@@ -33,21 +35,21 @@ class Client extends EventEmitter {
         return this
     }
 
-    _path(suffix: string) {
-        return `${this.constants.BASE_URL}/v${this.constants.VERSION}/${suffix}`;
-    }
-
-    _options(method: string, body: any = "", contentType: any = "application/json", headers: any = {}) {        
-        if (contentType) headers["Content-Type"] = contentType
-        return {
+    async _fetch<T>(method: string, path: string, body: any = "", json: boolean = true, contentType: any = "application/json", headers: any = {}): Promise<T> {
+        if (contentType) headers["Content-Type"] = contentType;
+        let response = await fetch(
+        `${this.constants.BASE_URL}/v${this.constants.VERSION}/${path}`,
+        {
             method,
             body,
             headers: {
                 "Authorization": `Bot ${this.token}`,
                 "User-Agent": this.constants.USER_AGENT,
-                ...headers
+                ...headers,
             },
-        };
+        },
+        );
+        return json ? await response.json() : response;
     }
 
     _heartbeat() {
@@ -109,11 +111,7 @@ class Client extends EventEmitter {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
 
-        let response = await fetch(
-            this._path(`/gateway/bot`),
-            this._options("GET")
-        )
-        this.gatewayData = await response.json()
+        this.gatewayData = await this._fetch<any>("GET", "gateway/bot", null, true)
 
         this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
         this.socket.addEventListener('open', (ev: Event) => this._open.call(this, ev))
@@ -127,16 +125,10 @@ class Client extends EventEmitter {
         var response;
         switch (entity) {
             case EntityType.GUILD:
-                response = await fetch(
-                    this._path(`/guilds/${id}`),
-                    this._options("GET"));
-                let guild = await response.json();
+                let guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
                 return new Guild(guild, this)
             case EntityType.USER:
-                response = await fetch(
-                    this._path(`/users/${id}`),
-                    this._options("GET"));
-                let user = await response.json();
+                let user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
                 return new User(user, this);
             default:
                 throw Error("Wrong EntityType")
@@ -145,11 +137,7 @@ class Client extends EventEmitter {
 
     async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
-        let response = await fetch(
-            this._path(`/users/@me`),
-            this._options("GET"),
-        );
-        let user = await response.json();
+        let user = await this._fetch<UserType>("GET", `users/@me`, null, true)
         return new Me(user, this);
     }
 
