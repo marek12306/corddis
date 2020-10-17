@@ -23,6 +23,7 @@ class Client extends EventEmitter {
     sessionID: string = ""
 
     constants = constants;
+    sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
     constructor(token: String = "", ...intents: number[]) {
         super()
@@ -49,6 +50,15 @@ class Client extends EventEmitter {
             },
         },
         );
+        if (response.status == 429) {
+            let ratelimit = await response.json();
+            console.log(`Ratelimit, waiting ${ratelimit.retry_after}s...`);
+            await this.sleep(ratelimit.retry_after);
+            response = await this._fetch<Response>(method, path, body, false, contentType, headers)
+        } else if (parseInt(response.headers.get("x-ratelimit-remaining") ?? "1") == 0) {
+            console.log(`Sleeping ${response.headers.get("x-ratelimit-reset-after")}s`)
+            await this.sleep(parseFloat(response.headers.get("x-ratelimit-reset-after") ?? "0"))
+        }
         return json ? await response.json() : response;
     }
 
