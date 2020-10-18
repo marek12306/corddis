@@ -4,6 +4,7 @@ import { EntityType, Snowflake } from "./../types/utils.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 import EventEmitter from "https://deno.land/x/events/mod.ts";
+import { LRU } from "https://deno.land/x/lru/mod.ts";
 import { IntentObjects } from "./gatewayHelpers.ts"
 import { Channel } from "./../structures/channel.ts";
 import { UserType } from "./../types/user.ts"
@@ -21,6 +22,7 @@ class Client extends EventEmitter {
     _heartbeatTime: number = -1
     ping: number = -1
     sessionID: string = ""
+    cache: LRU = new LRU(1000)
 
     constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
@@ -120,7 +122,7 @@ class Client extends EventEmitter {
         }
     }
 
-    async login(token: String = this.token): Promise<boolean> {
+    async login(token: string = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
         this.gatewayData = await this._fetch<any>("GET", "gateway/bot", null, true)
@@ -134,14 +136,19 @@ class Client extends EventEmitter {
 
     async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {
         if (!this.user) throw Error("Not logged in");
+        if (this.cache.has(id)) return this.cache.get(id) as User|Guild;
         var response;
         switch (entity) {
+            // deno-lint-ignore no-case-declarations
             case EntityType.GUILD:
                 const guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
-                return new Guild(guild, this)
+                this.cache.set(id, new Guild(guild, this))
+                return this.cache.get(id) as User|Guild
+            // deno-lint-ignore no-case-declarations
             case EntityType.USER:
                 const user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
-                return new User(user, this);
+                this.cache.set(id, new User(user, this))
+                return this.cache.get(id) as User|Guild;
             default:
                 throw Error("Wrong EntityType")
         }
@@ -149,16 +156,10 @@ class Client extends EventEmitter {
 
     async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
+        if (this.cache.has("me")) return this.cache.get("me") as Me
         const user = await this._fetch<UserType>("GET", `users/@me`, null, true)
-        return new Me(user, this);
-    }
-
-    async blobToUINT8(blob: Blob): Promise<Uint8Array> {
-        return new Promise(function (resolve) {
-            var reader = new FileReader();
-            reader.onloadend = () => resolve(new Uint8Array(reader.result as ArrayBuffer))
-            reader.readAsArrayBuffer(blob);
-        });
+        this.cache.set("me", new Me(user, this))
+        return this.cache.get("me") as Me;
     }
 }
 

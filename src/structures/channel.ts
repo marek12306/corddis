@@ -27,7 +27,7 @@ export class Channel {
       body = JSON.stringify(data)
     }
     const json = await this.client._fetch<MessageType>("POST", `channels/${this.data.id}/messages`, body, true, data?.file ? false : "application/json")
-    return new Message(json, this.client, this);
+    return new Message(json, this.client, this, this.guild);
   }
 
   async deleteMessage(id: string): Promise<boolean> {
@@ -42,7 +42,7 @@ export class Channel {
       data = { content: data }
     }
     const json = await this.client._fetch<MessageType>("PATCH", `channels/${this.data.id}/messages/${id}`, JSON.stringify(data), true)
-    return new Message(json, this.client, this)
+    return new Message(json, this.client, this, this.guild)
   }
 
   async react(id: string, emoji: string): Promise<boolean> {

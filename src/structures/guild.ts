@@ -31,13 +31,17 @@ export class Guild {
   }
 
   async channels(): Promise<Channel[]> {
+    if (this.client.cache.has(`${this.data.id}ch`)) return this.client.cache.get(`${this.data.id}ch`) as Channel[]
     const json = await this.client._fetch<ChannelType[]>("GET", `guilds/${this.data.id}/channels`, null, true)
-    return json.map((data: ChannelType) => new Channel(data, this.client, this));
+    this.client.cache.set(`${this.data.id}ch`, json.map((data: ChannelType) => new Channel(data, this.client, this)))
+    return this.client.cache.get(`${this.data.id}ch`) as Channel[];
   }
 
   async members(limit: number = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
+    if (this.client.cache.has(`${this.data.id}mem`)) return this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
-    return json.map((data: GuildMemberType) => new GuildMember(data, this.client));
+    this.client.cache.set(`${this.data.id}mem`, json.map((data: GuildMemberType) => new GuildMember(data, this.client)))
+    return this.client.cache.get(`${this.data.id}mem`) as GuildMember[];
   }
 
   async addMember(token: string, userId: Snowflake | User, nick: string = "", roles: Snowflake[] = [], mute: boolean = false, deaf: boolean = false): Promise<GuildMember> {
@@ -49,11 +53,14 @@ export class Guild {
   }
 
   async get(type: EntityType, id: Snowflake): Promise<GuildMember | Channel> {
+    if (type == EntityType.GUILD_MEMBER && this.client.cache.has(`${type}${id}`)) return this.client.cache.get(`${type}${id}`) as GuildMember|Channel
     var response;
     switch (type) {
+      // deno-lint-ignore no-case-declarations
       case EntityType.GUILD_MEMBER:
         const user = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
-        return new GuildMember(user, this.client);
+        this.client.cache.set(`${type}${id}`, new GuildMember(user, this.client))
+        return this.client.cache.get(`${type}${id}`) as GuildMember|Channel;
       case EntityType.CHANNEL:
         return (await this.channels()).find(ch => ch.data.id == id) as Channel;
       default:
