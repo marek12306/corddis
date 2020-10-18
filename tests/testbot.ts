@@ -18,10 +18,10 @@ import { token } from "./token.ts";
                 content: "a",
                 embed: new EmbedBuilder().title("h").end()
             });
-            console.log(await msg.edit({
+            await msg.edit({
                 content: "b",
                 embed: new EmbedBuilder().title("c").end()
-            }))
+            })
         } else if (message.data.content == "test5") {
             console.log(await message.channel.sendMessage({
                 content: "h",
@@ -44,7 +44,8 @@ import { token } from "./token.ts";
             })
         }
     })
-    //client.on("raw", console.log)
+    client.on("raw", console.log)
+    client.on("debug", console.log)
     client.on("READY", (user: User) => console.log("Logged as " + user.data.username))
     client.login()
 })()

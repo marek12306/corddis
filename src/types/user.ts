@@ -27,8 +27,8 @@ export interface ActivityType {
 }
 
 export interface StatusType {
-  since?: number|null;
-  activities?: ActivityType[]|null;
+  since: number|null;
+  activities: ActivityType[]|null;
   status: string;
   afk: boolean;
 }

@@ -24,6 +24,7 @@ class Client extends EventEmitter {
     sessionID: string = ""
     cache: LRU = new LRU(1000)
     status: StatusType = { activities: null, status: "online", afk: false }
+    reconnect = false
 
     constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
@@ -69,6 +70,7 @@ class Client extends EventEmitter {
     }
 
     _heartbeat() {
+        if (this.socket.readyState != 1 || this.reconnect) return;
         this._heartbeatTime = Date.now()
         this.socket.send(JSON.stringify({ op: 1, d: this.sequenceNumber }))
         this.emit("debug", "Sending heartbeat")
@@ -78,11 +80,19 @@ class Client extends EventEmitter {
         this.emit("debug", "Connected to WebSocket")
     }
 
+    async _close() {
+        if (this.socket.readyState == 1) return;
+        this.emit("debug", "Connection closed trying to reconnect")
+        this.reconnect = true
+        this.login()
+    }
+
     async _message(event: any) {
         const data = JSON.parse(event.data)
         this.emit('raw', data)
         if (data.s) this.sequenceNumber = data.s
         if (data.op == 10) {
+            if (this.gatewayInterval) clearInterval(this.gatewayInterval)
             this.gatewayInterval = setInterval(
                 () => this._heartbeat.call(this),
                 data.d.heartbeat_interval
@@ -90,23 +100,37 @@ class Client extends EventEmitter {
 
             const intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
 
-            this.socket.send(JSON.stringify({
-                op: 2, d: {
-                    token: "Bot " + this.token,
-                    properties: {
-                        $os: "linux",
-                        $browser: "corddis",
-                        $device: "corddis"
-                    },
-                    presence: {
-                        status: "online",
-                        afk: false
-                    }, intents
-                }
-            }))
+            if (this.reconnect) {
+                this.socket.send(JSON.stringify({
+                    op: 6, d: {
+                        token: this.token,
+                        session_id: this.sessionID,
+                        seq: this.sequenceNumber
+                    }
+                }))
+                this.reconnect = false
+            } else {
+                this.socket.send(JSON.stringify({
+                    op: 2, d: {
+                        token: "Bot " + this.token,
+                        properties: {
+                            $os: "linux",
+                            $browser: "corddis",
+                            $device: "corddis"
+                        },
+                        presence: {
+                            status: "online",
+                            afk: false
+                        }, intents
+                    }
+                }))
+            }
         } else if (data.op == 11) {
             const calculated = Date.now() - this._heartbeatTime
             this.ping = calculated > 1 ? calculated : this.ping
+        } else if (data.op == 9) {
+            this.emit("debug", "Session invalidated, reconnecting...")
+            this.login()
         } else if (data.t == "READY") {
             this.sessionID = data.d.session_id
             this.user = new User(data.d.user, this)
@@ -140,6 +164,7 @@ class Client extends EventEmitter {
         this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
         this.socket.addEventListener('open', (ev: Event) => this._open.call(this, ev))
         this.socket.addEventListener('message', (ev: Event) => this._message.call(this, ev))
+        this.socket.addEventListener('close', (ev: Event) => this._close.call(this))
 
         return true;
     }
