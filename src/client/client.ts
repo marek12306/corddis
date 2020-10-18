@@ -56,11 +56,11 @@ class Client extends EventEmitter {
         );
         if (response.status == 429) {
             const ratelimit = await response.json();
-            console.log(`Ratelimit, waiting ${ratelimit.retry_after}s...`);
+            this.emit("debug", `Ratelimit, waiting ${ratelimit.retry_after}s...`);
             await this.sleep(ratelimit.retry_after);
             response = await this._fetch<Response>(method, path, body, false, contentType, headers)
         } else if (parseInt(response.headers.get("x-ratelimit-remaining") ?? "1") == 0) {
-            console.log(`Sleeping ${response.headers.get("x-ratelimit-reset-after")}s`)
+            this.emit("debug", `Sleeping ${response.headers.get("x-ratelimit-reset-after")}s`)
             await this.sleep(parseFloat(response.headers.get("x-ratelimit-reset-after") ?? "0"))
         }
         if (response.status == 400) {
