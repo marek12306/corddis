@@ -23,7 +23,7 @@ class Client extends EventEmitter {
     ping: number = -1
     sessionID: string = ""
     cache: LRU = new LRU(1000)
-    status: StatusType = { activities: null, status: "online", afk: false }
+    status: StatusType = { since: null, activities: null, status: "online", afk: false }
     reconnect = false
 
     constants = constants;
