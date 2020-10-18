@@ -20,3 +20,15 @@ export interface UserType {
 export interface UserMemberType extends UserType {
   member: GuildMemberType;
 }
+
+export interface ActivityType {
+  name: string;
+  type: number;
+}
+
+export interface StatusType {
+  since?: number|null;
+  activities?: ActivityType[]|null;
+  status: string;
+  afk: boolean;
+}

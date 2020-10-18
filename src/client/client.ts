@@ -7,7 +7,7 @@ import EventEmitter from "https://deno.land/x/events/mod.ts";
 import { LRU } from "https://deno.land/x/lru/mod.ts";
 import { IntentObjects } from "./gatewayHelpers.ts"
 import { Channel } from "./../structures/channel.ts";
-import { UserType } from "./../types/user.ts"
+import { UserType, ActivityType, StatusType } from "./../types/user.ts"
 import { GuildType } from "./../types/guild.ts"
 
 class Client extends EventEmitter {
@@ -23,6 +23,7 @@ class Client extends EventEmitter {
     ping: number = -1
     sessionID: string = ""
     cache: LRU = new LRU(1000)
+    status: StatusType = { activities: null, status: "online", afk: false }
 
     constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
@@ -120,6 +121,15 @@ class Client extends EventEmitter {
             const object = new IntentObjects[data.t](data.d, this, ...addProp)
             this.emit(data.t, object);
         }
+    }
+
+    async setStatus(d: StatusType) {
+        console.log(JSON.stringify({op:3,d}))
+        this.socket.send(JSON.stringify({
+            op: 3, d
+        }))
+        this.status = d
+        return d
     }
 
     async login(token: string = this.token): Promise<boolean> {

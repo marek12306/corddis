@@ -30,6 +30,18 @@ import { token } from "./token.ts";
                     content: new Blob([await Deno.readFile("h.jpg")])
                 }
             }))
+        } else if (message.data.content == "status") {
+            client.setStatus({
+                since: null,
+                status: "dnd",
+                activities: [
+                    {
+                        name: "Bruh",
+                        type: 0
+                    }
+                ],
+                afk: false
+            })
         }
     })
     //client.on("raw", console.log)
