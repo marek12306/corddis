@@ -11,7 +11,7 @@ import { GuildType } from "./../types/guild.ts"
 
 class Client extends EventEmitter {
 	public emit: any;
-    token: String;
+    token: string;
     user: User | null = null;
     gatewayData: any
     socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
@@ -25,7 +25,7 @@ class Client extends EventEmitter {
     constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
-    constructor(token: String = "", ...intents: number[]) {
+    constructor(token: string = "", ...intents: number[]) {
         super()
         this.token = token;
         this.intents = intents;
@@ -51,7 +51,7 @@ class Client extends EventEmitter {
         },
         );
         if (response.status == 429) {
-            let ratelimit = await response.json();
+            const ratelimit = await response.json();
             console.log(`Ratelimit, waiting ${ratelimit.retry_after}s...`);
             await this.sleep(ratelimit.retry_after);
             response = await this._fetch<Response>(method, path, body, false, contentType, headers)
@@ -76,7 +76,7 @@ class Client extends EventEmitter {
     }
 
     async _message(event: any) {
-        let data = JSON.parse(event.data)
+        const data = JSON.parse(event.data)
         this.emit('raw', data)
         if (data.s) this.sequenceNumber = data.s
         if (data.op == 10) {
@@ -85,7 +85,7 @@ class Client extends EventEmitter {
                 data.d.heartbeat_interval
             )
 
-            let intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
+            const intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
 
             this.socket.send(JSON.stringify({
                 op: 2, d: {
@@ -102,20 +102,20 @@ class Client extends EventEmitter {
                 }
             }))
         } else if (data.op == 11) {
-            let calculated = Date.now() - this._heartbeatTime
+            const calculated = Date.now() - this._heartbeatTime
             this.ping = calculated > 1 ? calculated : this.ping
         } else if (data.t == "READY") {
             this.sessionID = data.d.session_id
             this.user = new User(data.d.user, this)
             this.emit("READY", this.user)
         } else if (data.t && IntentObjects[data.t]) {
-            let addProp = []
+            const addProp = []
             if (data.t == "MESSAGE_CREATE") {
-                let guild = await this.get(EntityType.GUILD, data.d.guild_id as string) as Guild;
-                let channel = await guild.get(EntityType.CHANNEL, data.d.channel_id as string) as Channel;
+                const guild = await this.get(EntityType.GUILD, data.d.guild_id as string) as Guild;
+                const channel = await guild.get(EntityType.CHANNEL, data.d.channel_id as string) as Channel;
                 addProp.push(channel, guild)
             }
-            let object = new IntentObjects[data.t](data.d, this, ...addProp)
+            const object = new IntentObjects[data.t](data.d, this, ...addProp)
             this.emit(data.t, object);
         }
     }
@@ -137,10 +137,10 @@ class Client extends EventEmitter {
         var response;
         switch (entity) {
             case EntityType.GUILD:
-                let guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
+                const guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
                 return new Guild(guild, this)
             case EntityType.USER:
-                let user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
+                const user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
                 return new User(user, this);
             default:
                 throw Error("Wrong EntityType")
@@ -149,7 +149,7 @@ class Client extends EventEmitter {
 
     async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
-        let user = await this._fetch<UserType>("GET", `users/@me`, null, true)
+        const user = await this._fetch<UserType>("GET", `users/@me`, null, true)
         return new Me(user, this);
     }
 
