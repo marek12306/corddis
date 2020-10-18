@@ -52,7 +52,7 @@ export class Guild {
     var response;
     switch (type) {
       case EntityType.GUILD_MEMBER:
-        let user = await this.client._fetch<GuildMemberType>("GET", `users/${id}`, null, true)
+        let user = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
         return new GuildMember(user, this.client);
       case EntityType.CHANNEL:
         return (await this.channels()).find(ch => ch.data.id == id) as Channel;
@@ -100,5 +100,10 @@ export class Guild {
     if (!id) throw Error("Member ID is not provided");
     let response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/members/${id}`, null, false)
     return response.status == 204 ? true : false;
+  }
+
+  async nickname(nick: string): Promise<boolean> {
+    const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/@me/nick`, JSON.stringify({ nick }), false)
+    return response.status == 200 ? true : false
   }
 }
