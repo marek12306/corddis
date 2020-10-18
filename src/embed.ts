@@ -25,8 +25,9 @@ export default class {
         return this
     }
 
-    color(value: number) {
-        this.embed.color = value
+    color(value: (number|string)) {
+        if (typeof value == "string" && /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(value)) value = parseInt(value.slice(1), 16)
+        this.embed.color = value as number
         return this
     }
 
