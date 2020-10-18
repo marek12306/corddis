@@ -148,7 +148,6 @@ class Client extends EventEmitter {
     }
 
     async setStatus(d: StatusType) {
-        console.log(JSON.stringify({op:3,d}))
         this.socket.send(JSON.stringify({
             op: 3, d
         }))
