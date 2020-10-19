@@ -2,11 +2,10 @@ import { Client, Intents, Message, User, EmbedBuilder } from "../src/index.ts";
 import { token } from "./token.ts";
 
 (async () => {
-    let client = new Client(token, Intents.GUILD_MESSAGES)
+    const client = new Client(token, Intents.GUILD_MESSAGES)
     // to samo co:
     // let client = await new Client(token).addIntents(Intents.GUILD_MESSAGES)
     client.on('MESSAGE_CREATE', async (message: Message) => {
-        //console.log(message)
         if (message.data.content == "test") {
             console.log(await message.delete())
         } else if (message.data.content == "test2") {
@@ -44,6 +43,7 @@ import { token } from "./token.ts";
             })
         }
     })
+    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
     client.on("raw", console.log)
     client.on("debug", console.log)
     client.on("READY", (user: User) => console.log("Logged as " + user.data.username))

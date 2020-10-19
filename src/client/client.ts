@@ -5,10 +5,10 @@ import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 import EventEmitter from "https://deno.land/x/events/mod.ts";
 import { LRU } from "https://deno.land/x/lru/mod.ts";
-import { IntentObjects } from "./gatewayHelpers.ts"
-import { Channel } from "./../structures/channel.ts";
 import { UserType, ActivityType, StatusType } from "./../types/user.ts"
 import { GuildType } from "./../types/guild.ts"
+import { IntentHandler } from "./intentHandler.ts";
+import { MessageType } from "../types/message.ts";
 
 class Client extends EventEmitter {
 	public emit: any;
@@ -135,15 +135,9 @@ class Client extends EventEmitter {
             this.sessionID = data.d.session_id
             this.user = new User(data.d.user, this)
             this.emit("READY", this.user)
-        } else if (data.t && IntentObjects[data.t]) {
-            const addProp = []
-            if (data.t == "MESSAGE_CREATE") {
-                const guild = await this.get(EntityType.GUILD, data.d.guild_id as string) as Guild;
-                const channel = await guild.get(EntityType.CHANNEL, data.d.channel_id as string) as Channel;
-                addProp.push(channel, guild)
-            }
-            const object = new IntentObjects[data.t](data.d, this, ...addProp)
-            this.emit(data.t, object);
+        } else if (data.t) {
+            const intentObject = await IntentHandler(this, data)
+            if (intentObject) this.emit(data.t, intentObject);
         }
     }
 
@@ -182,7 +176,7 @@ class Client extends EventEmitter {
             case EntityType.USER:
                 const user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
                 this.cache.set(id, new User(user, this))
-                return this.cache.get(id) as User|Guild;
+                return this.cache.get(id) as User|Guild
             default:
                 throw Error("Wrong EntityType")
         }
