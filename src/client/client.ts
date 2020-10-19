@@ -10,7 +10,7 @@ import { UserType } from "./../types/user.ts"
 import { GuildType } from "./../types/guild.ts"
 
 class Client extends EventEmitter {
-	public emit: any;
+    public emit: any;
     token: String;
     user: User | null = null;
     gatewayData: any
@@ -37,31 +37,33 @@ class Client extends EventEmitter {
     }
 
     async _fetch<T>(method: string, path: string, body: any = "", json: boolean = true, contentType: any = "application/json", headers: any = {}): Promise<T> {
-        if (contentType) headers["Content-Type"] = contentType;
         let response = await fetch(
-        `${this.constants.BASE_URL}/v${this.constants.VERSION}/${path}`,
-        {
-            method,
-            body,
-            headers: {
-                "Authorization": `Bot ${this.token}`,
-                "User-Agent": this.constants.USER_AGENT,
-                ...headers,
+            `${this.constants.BASE_URL}/v${this.constants.VERSION}/${path}`,
+            {
+                method, body, headers: {
+                    "Authorization": `Bot ${this.token}`,
+                    "User-Agent": this.constants.USER_AGENT,
+                    "Content-Type": contentType
+                    ...headers,
+                },
             },
-        },
         );
+        if (response.status == 400) throw Error((await response.json()).message)
+
         if (response.status == 429) {
-            let ratelimit = await response.json();
-            console.log(`Ratelimit, waiting ${ratelimit.retry_after}s...`);
-            await this.sleep(ratelimit.retry_after);
+            let { retry_after } = await response.json();
+            this.emit("debug", `Ratelimit, waiting ${retry_after}`);
+            await this.sleep(retry_after);
             response = await this._fetch<Response>(method, path, body, false, contentType, headers)
-        } else if (parseInt(response.headers.get("x-ratelimit-remaining") ?? "1") == 0) {
-            console.log(`Sleeping ${response.headers.get("x-ratelimit-reset-after")}s`)
-            await this.sleep(parseFloat(response.headers.get("x-ratelimit-reset-after") ?? "0"))
+            return json ? await response.json() : response;
         }
-        if (response.status == 400) {
-            throw Error((await response.json()).message)
+
+        var remaining = response.headers.get("x-ratelimit-remaining")
+        if (parseFloat(remaining ?? "1")) {
+            this.emit("debug", `Ratelimit, waiting ${remaining}`);
+            await this.sleep(parseFloat(remaining ?? "0"))
         }
+
         return json ? await response.json() : response;
     }
 
@@ -76,14 +78,11 @@ class Client extends EventEmitter {
     }
 
     async _message(event: any) {
-        let data = JSON.parse(event.data)
-        this.emit('raw', data)
-        if (data.s) this.sequenceNumber = data.s
-        if (data.op == 10) {
-            this.gatewayInterval = setInterval(
-                () => this._heartbeat.call(this),
-                data.d.heartbeat_interval
-            )
+        let { op, response, t, s, d } = JSON.parse(event.data)
+        this.emit('raw', response)
+        if (s) this.sequenceNumber = response.s
+        if (op == 10) {
+            this.gatewayInterval = setInterval(() => this._heartbeat.call(this), d.heartbeat_interval)
 
             let intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
 
@@ -91,32 +90,37 @@ class Client extends EventEmitter {
                 op: 2, d: {
                     token: "Bot " + this.token,
                     properties: {
-                        $os: "linux",
-                        $browser: "corddis",
-                        $device: "corddis"
+                        $os: "linux", $browser: "corddis", $device: "corddis"
                     },
                     presence: {
-                        status: "online",
-                        afk: false
+                        status: "online", afk: false
                     }, intents
                 }
             }))
-        } else if (data.op == 11) {
+
+            return
+        }
+        if (op == 11) {
             let calculated = Date.now() - this._heartbeatTime
             this.ping = calculated > 1 ? calculated : this.ping
-        } else if (data.t == "READY") {
-            this.sessionID = data.d.session_id
-            this.user = new User(data.d.user, this)
+            return;
+        }
+
+        if (t == "READY") {
+            this.sessionID = d.session_id
+            this.user = new User(d.user, this)
             this.emit("READY", this.user)
-        } else if (data.t && IntentObjects[data.t]) {
+            return
+        }
+
+        if (t && IntentObjects[t]) {
             let addProp = []
-            if (data.t == "MESSAGE_CREATE") {
-                let guild = await this.get(EntityType.GUILD, data.d.guild_id as string) as Guild;
-                let channel = await guild.get(EntityType.CHANNEL, data.d.channel_id as string) as Channel;
+            if (t == "MESSAGE_CREATE") {
+                let guild = await this.get(EntityType.GUILD, d.guild_id as string) as Guild;
+                let channel = await guild.get(EntityType.CHANNEL, d.channel_id as string) as Channel;
                 addProp.push(channel, guild)
             }
-            let object = new IntentObjects[data.t](data.d, this, ...addProp)
-            this.emit(data.t, object);
+            this.emit(t, new IntentObjects[t](d, this, ...addProp));
         }
     }
 
@@ -134,7 +138,6 @@ class Client extends EventEmitter {
 
     async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {
         if (!this.user) throw Error("Not logged in");
-        var response;
         switch (entity) {
             case EntityType.GUILD:
                 let guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
@@ -151,14 +154,6 @@ class Client extends EventEmitter {
         if (!this.user) throw Error("Not logged in");
         let user = await this._fetch<UserType>("GET", `users/@me`, null, true)
         return new Me(user, this);
-    }
-
-    async blobToUINT8(blob: Blob): Promise<Uint8Array> {
-        return new Promise(function (resolve) {
-            var reader = new FileReader();
-            reader.onloadend = () => resolve(new Uint8Array(reader.result as ArrayBuffer))
-            reader.readAsArrayBuffer(blob);
-        });
     }
 }
 

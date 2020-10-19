@@ -22,11 +22,7 @@ export class Guild {
 
   async delete(): Promise<boolean> {
     let resp = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}`, null, false)
-
-    if (resp.status != 204) {
-      throw new Error(`Error ${resp.status}`);
-    }
-
+    if (resp.status != 204) throw new Error(`Error ${resp.status}`);
     return true;
   }
 
@@ -49,7 +45,6 @@ export class Guild {
   }
 
   async get(type: EntityType, id: Snowflake): Promise<GuildMember | Channel> {
-    var response;
     switch (type) {
       case EntityType.GUILD_MEMBER:
         let user = await this.client._fetch<GuildMemberType>("GET", `users/${id}`, null, true)
@@ -81,7 +76,7 @@ export class Guild {
 
   async leave(): Promise<boolean> {
     let response = await this.client._fetch<Response>("DELETE", `users/@me/guilds/${this.data.id}`, null, false)
-    return await response.text().then(value => value == "" ? true : false)
+    return response.status == 204 ? true : false;
   }
 
   async ban(id: string, reason?: string): Promise<boolean> {
@@ -89,7 +84,7 @@ export class Guild {
     let response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/bans/${id}`, JSON.stringify({ reason }), false)
     return response.status == 204 ? true : false;
   }
- 
+
   async unban(id: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     let response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/bans/${id}`, null, false)
