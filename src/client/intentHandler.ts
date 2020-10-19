@@ -4,29 +4,33 @@ import { EntityType } from "./../types/utils.ts"
 import { Channel } from "../structures/channel.ts"
 import { Guild } from "../structures/guild.ts"
 
-type IntentObjectsType = { [index: string]: any }
-
-const IntentObjects: IntentObjectsType = {
-    "MESSAGE_CREATE": Message
-}
-
 const IntentHandler = async (client: Client, data: any): Promise<any> => {
     if (data.t == "MESSAGE_CREATE" || data.t == "MESSAGE_UPDATE") {
         const { guild_id, channel_id, id } = data.d
-        const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
-        const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
-        const object = new Message(data.d, client, channel, guild)
+        let object;
+        if (guild_id) {
+            const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
+            const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
+            object = new Message(data.d, client, channel, guild)
+        } else {
+            const channel = await (await client.me()).createDM(channel_id) as Channel
+            object = new Message(data.d, client, channel)
+        }
         client.cache.set(id, object)
         return object
     } else if (data.t == "MESSAGE_DELETE") {
         const { guild_id, channel_id, id } = data.d
-        const guild = await client.get(EntityType.GUILD, data.d.guild_id as string) as Guild;
-        const channel = await guild.get(EntityType.CHANNEL, data.d.channel_id as string) as Channel;
-        if (client.cache.has(id)) {
-            return client.cache.get(id) as Message
-        } else {
+        if (client.cache.has(id)) return client.cache.get(id)
+        if (guild_id) {
+            const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
+            const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
             return new Message(data.d, client, channel, guild)
+        } else {
+            const channel = await (await client.me()).createDM(channel_id) as Channel
+            return new Message(data.d, client, channel)
         }
+    } else {
+        client.emit("debug", `${data.d} not implemented`)
     }
 }
 
