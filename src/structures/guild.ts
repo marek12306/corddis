@@ -16,7 +16,7 @@ export class Guild {
   }
 
   async update(data: GuildUpdateType): Promise<Guild> {
-    let guild = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
+    const guild = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
     return new Guild(guild, this.client);
   }
 
@@ -27,28 +27,34 @@ export class Guild {
   }
 
   async channels(): Promise<Channel[]> {
-    let json = await this.client._fetch<ChannelType[]>("GET", `guilds/${this.data.id}/channels`, null, true)
-    return json.map((data: ChannelType) => new Channel(data, this.client, this));
+    if (this.client.cache.has(`${this.data.id}ch`)) return this.client.cache.get(`${this.data.id}ch`) as Channel[]
+    const json = await this.client._fetch<ChannelType[]>("GET", `guilds/${this.data.id}/channels`, null, true)
+    this.client.cache.set(`${this.data.id}ch`, json.map((data: ChannelType) => new Channel(data, this.client, this)))
+    return this.client.cache.get(`${this.data.id}ch`) as Channel[];
   }
 
   async members(limit: number = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
-    let json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
-    return json.map((data: GuildMemberType) => new GuildMember(data, this.client));
+    if (this.client.cache.has(`${this.data.id}mem`)) return this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
+    const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
+    this.client.cache.set(`${this.data.id}mem`, json.map((data: GuildMemberType) => new GuildMember(data, this.client)))
+    return this.client.cache.get(`${this.data.id}mem`) as GuildMember[];
   }
 
-  async addMember(token: String, userId: Snowflake | User, nick: String = "", roles: Snowflake[] = [], mute: boolean = false, deaf: boolean = false): Promise<GuildMember> {
+  async addMember(token: string, userId: Snowflake | User, nick: string = "", roles: Snowflake[] = [], mute: boolean = false, deaf: boolean = false): Promise<GuildMember> {
     if (!this.client.user) throw Error("Invalid user token")
     if (this.isUser(userId)) userId = (userId as User).data.id
-    let resp = await this.client._fetch<Response>("GET", `guilds/${this.data.id}/members/${userId}`, JSON.stringify({ accessToken: token, nick, roles, mute, deaf }), false)
+    const resp = await this.client._fetch<Response>("GET", `guilds/${this.data.id}/members/${userId}`, JSON.stringify({ accessToken: token, nick, roles, mute, deaf }), false)
     if ((await resp.text()).length == 0) return (await this.get(EntityType.USER, userId)) as GuildMember;
     return new GuildMember(await resp.json(), this.client);
   }
 
   async get(type: EntityType, id: Snowflake): Promise<GuildMember | Channel> {
     switch (type) {
+      // deno-lint-ignore no-case-declarations
       case EntityType.GUILD_MEMBER:
-        let user = await this.client._fetch<GuildMemberType>("GET", `users/${id}`, null, true)
-        return new GuildMember(user, this.client);
+        const user = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
+        this.client.cache.set(`${type}${id}`, new GuildMember(user, this.client))
+        return this.client.cache.get(`${type}${id}`) as GuildMember|Channel;
       case EntityType.CHANNEL:
         return (await this.channels()).find(ch => ch.data.id == id) as Channel;
       default:
@@ -61,7 +67,7 @@ export class Guild {
   }
 
   async createChannel(data: ChannelCreateType): Promise<Channel> {
-    let json = await this.client._fetch<ChannelType>("POST", `guilds/${this.data.id}/channels`, JSON.stringify(data), true)
+    const json = await this.client._fetch<ChannelType>("POST", `guilds/${this.data.id}/channels`, JSON.stringify(data), true)
     return new Channel(json, this.client, this);
   }
 
@@ -81,19 +87,24 @@ export class Guild {
 
   async ban(id: string, reason?: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
-    let response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/bans/${id}`, JSON.stringify({ reason }), false)
+    const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/bans/${id}`, JSON.stringify({ reason }), false)
     return response.status == 204 ? true : false;
   }
 
   async unban(id: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
-    let response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/bans/${id}`, null, false)
+    const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/bans/${id}`, null, false)
     return response.status == 204 ? true : false;
   }
 
   async kick(id: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
-    let response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/members/${id}`, null, false)
+    const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/members/${id}`, null, false)
     return response.status == 204 ? true : false;
+  }
+
+  async nickname(nick: string): Promise<boolean> {
+    const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/@me/nick`, JSON.stringify({ nick }), false)
+    return response.status == 200 ? true : false
   }
 }

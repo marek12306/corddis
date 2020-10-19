@@ -4,14 +4,16 @@ import { EntityType, Snowflake } from "./../types/utils.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 import EventEmitter from "https://deno.land/x/events/mod.ts";
-import { IntentObjects } from "./gatewayHelpers.ts"
-import { Channel } from "./../structures/channel.ts";
-import { UserType } from "./../types/user.ts"
+import { LRU } from "https://deno.land/x/lru/mod.ts";
+import { UserType, ActivityType, StatusType } from "./../types/user.ts"
 import { GuildType } from "./../types/guild.ts"
+import { IntentHandler } from "./intentHandler.ts";
+import { MessageType } from "../types/message.ts";
+import { Channel } from "../structures/channel.ts";
 
 class Client extends EventEmitter {
     public emit: any;
-    token: String;
+    token: string;
     user: User | null = null;
     gatewayData: any
     socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
@@ -21,11 +23,14 @@ class Client extends EventEmitter {
     _heartbeatTime: number = -1
     ping: number = -1
     sessionID: string = ""
+    cache: LRU = new LRU(1000)
+    status: StatusType = { since: null, activities: null, status: "online", afk: false }
+    reconnect = false
 
     constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
-    constructor(token: String = "", ...intents: number[]) {
+    constructor(token: string = "", ...intents: number[]) {
         super()
         this.token = token;
         this.intents = intents;
@@ -68,6 +73,7 @@ class Client extends EventEmitter {
     }
 
     _heartbeat() {
+        if (this.socket.readyState != 1 || this.reconnect) return;
         this._heartbeatTime = Date.now()
         this.socket.send(JSON.stringify({ op: 1, d: this.sequenceNumber }))
         this.emit("debug", "Sending heartbeat")
@@ -75,6 +81,13 @@ class Client extends EventEmitter {
 
     async _open(event: any) {
         this.emit("debug", "Connected to WebSocket")
+    }
+
+    async _close() {
+        if (this.socket.readyState == 1) return;
+        this.emit("debug", "Connection closed trying to reconnect")
+        this.reconnect = true
+        this.login()
     }
 
     async _message(event: any) {
@@ -113,18 +126,21 @@ class Client extends EventEmitter {
             return
         }
 
-        if (t && IntentObjects[t]) {
-            let addProp = []
-            if (t == "MESSAGE_CREATE") {
-                let guild = await this.get(EntityType.GUILD, d.guild_id as string) as Guild;
-                let channel = await guild.get(EntityType.CHANNEL, d.channel_id as string) as Channel;
-                addProp.push(channel, guild)
-            }
-            this.emit(t, new IntentObjects[t](d, this, ...addProp));
+        if (t) {
+            const intentObject = await IntentHandler(this, response)
+            if (intentObject) this.emit(t, intentObject);
         }
     }
 
-    async login(token: String = this.token): Promise<boolean> {
+    async setStatus(d: StatusType) {
+        this.socket.send(JSON.stringify({
+            op: 3, d
+        }))
+        this.status = d
+        return d
+    }
+
+    async login(token: string = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
         this.gatewayData = await this._fetch<any>("GET", "gateway/bot", null, true)
@@ -132,19 +148,25 @@ class Client extends EventEmitter {
         this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
         this.socket.addEventListener('open', (ev: Event) => this._open.call(this, ev))
         this.socket.addEventListener('message', (ev: Event) => this._message.call(this, ev))
+        this.socket.addEventListener('close', (ev: Event) => this._close.call(this))
 
         return true;
     }
 
     async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {
         if (!this.user) throw Error("Not logged in");
+        if (this.cache.has(id)) return this.cache.get(id) as User | Guild;
         switch (entity) {
+            // deno-lint-ignore no-case-declarations
             case EntityType.GUILD:
-                let guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
-                return new Guild(guild, this)
+                const guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
+                this.cache.set(id, new Guild(guild, this))
+                return this.cache.get(id) as User | Guild
+            // deno-lint-ignore no-case-declarations
             case EntityType.USER:
-                let user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
-                return new User(user, this);
+                const user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
+                this.cache.set(id, new User(user, this))
+                return this.cache.get(id) as User | Guild
             default:
                 throw Error("Wrong EntityType")
         }
@@ -152,8 +174,10 @@ class Client extends EventEmitter {
 
     async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
-        let user = await this._fetch<UserType>("GET", `users/@me`, null, true)
-        return new Me(user, this);
+        if (this.cache.has("me")) return this.cache.get("me") as Me
+        const user = await this._fetch<UserType>("GET", `users/@me`, null, true)
+        this.cache.set("me", new Me(user, this))
+        return this.cache.get("me") as Me;
     }
 }
 

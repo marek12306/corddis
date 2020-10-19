@@ -2,11 +2,10 @@ import { Client, Intents, Message, User, EmbedBuilder } from "../src/index.ts";
 import { token } from "./token.ts";
 
 (async () => {
-    let client = new Client(token, Intents.GUILD_MESSAGES)
+    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES)
     // to samo co:
     // let client = await new Client(token).addIntents(Intents.GUILD_MESSAGES)
     client.on('MESSAGE_CREATE', async (message: Message) => {
-        //console.log(message)
         if (message.data.content == "test") {
             console.log(await message.delete())
         } else if (message.data.content == "test2") {
@@ -18,10 +17,10 @@ import { token } from "./token.ts";
                 content: "a",
                 embed: new EmbedBuilder().title("h").end()
             });
-            console.log(await msg.edit({
+            await msg.edit({
                 content: "b",
                 embed: new EmbedBuilder().title("c").end()
-            }))
+            })
         } else if (message.data.content == "test5") {
             console.log(await message.channel.sendMessage({
                 content: "h",
@@ -30,9 +29,23 @@ import { token } from "./token.ts";
                     content: new Blob([await Deno.readFile("h.jpg")])
                 }
             }))
+        } else if (message.data.content == "status") {
+            client.setStatus({
+                since: null,
+                status: "dnd",
+                activities: [
+                    {
+                        name: "Bruh",
+                        type: 0
+                    }
+                ],
+                afk: false
+            })
         }
     })
-    //client.on("raw", console.log)
+    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
+    client.on("raw", console.log)
+    client.on("debug", console.log)
     client.on("READY", (user: User) => console.log("Logged as " + user.data.username))
     client.login()
 })()
