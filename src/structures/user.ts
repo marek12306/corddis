@@ -22,4 +22,8 @@ export class User {
     isMe(): boolean {
         return this.data.id == this.client.user?.data.id
     }
+
+    toString() {
+        return `User {"data":${JSON.stringify(this.data)}}`
+    }
 }

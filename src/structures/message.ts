@@ -36,4 +36,8 @@ export class Message {
     async unreact(emoji: string): Promise<boolean> {
         return this.channel.unreact(this.data.id, emoji)
     }
+
+    toString() {
+        return `Message {"data":${JSON.stringify(this.data)},"channel":{"data":${JSON.stringify(this.channel.data)}},"guild":${this.guild ? `{"data":${JSON.stringify(this.guild.data)}}` : "undefined"}}`
+    }
 }

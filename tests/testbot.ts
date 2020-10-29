@@ -48,6 +48,9 @@ import { token } from "./token.ts";
 //    client.on("raw", console.log)
     client.on("MESSAGE_REACTION_REMOVE", console.log)
     client.on("debug", console.log)
-    client.on("READY", (user: User) => console.log("Logged as " + user.data.username))
+    client.on("READY", (user: User) => {
+        console.log("Logged as " + user.data.username)
+        console.log(client.toString())
+    })
     client.login()
 })()

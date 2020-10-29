@@ -107,4 +107,8 @@ export class Guild {
     const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/@me/nick`, JSON.stringify({ nick }), false)
     return response.status == 200 ? true : false
   }
+
+  toString() {
+    return `Guild {"data":${JSON.stringify(this.data)}}`
+  }
 }

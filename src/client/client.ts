@@ -186,6 +186,10 @@ class Client extends EventEmitter {
         this.cache.set("me", new Me(user, this))
         return this.cache.get("me") as Me;
     }
+
+    toString() {
+        return `Client {"ping":${this.ping},"sessionID":"${this.sessionID}","token":"${this.token}","user":{"data":${JSON.stringify(this.user?.data)}}}` 
+    }
 }
 
 export { Client };

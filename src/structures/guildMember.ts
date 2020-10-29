@@ -12,4 +12,8 @@ export class GuildMember {
         this.guild = guild;
         this.client = client;
     }
+
+    toString() {
+        return `GuildMember {"data":${JSON.stringify(this.data)},"guild":{"data":${JSON.stringify(this.guild.data)}}}`
+    }
 }

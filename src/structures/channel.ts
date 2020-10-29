@@ -54,4 +54,8 @@ export class Channel {
     const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`, null, false)
     return response.status == 204 ? true : false;
   }
+
+  toString() {
+    return `Channel {"data":${JSON.stringify(this.data)},"guild":{"data":${JSON.stringify(this.guild?.data)}}}`
+  }
 }

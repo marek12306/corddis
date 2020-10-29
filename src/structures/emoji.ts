@@ -12,4 +12,8 @@ export class Emoji {
         this.guild = guild;
         this.client = client;
     }
+
+    toString() {
+        return `Emoji {"data":${JSON.stringify(this.data)},"guild":{"data":${JSON.stringify(this.guild.data)}}}`
+    }
 }
