@@ -17,9 +17,12 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
             object = new Message(data.d, client, channel, guild)
         } else {
-            var channel;
-            if (client.user?.isBot()) channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
-            else channel = await (await client.me()).createDM(channel_id) as Channel
+            let channel;
+            if (client.user?.isBot()) {
+                channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+            } else {
+                channel = await (await client.me()).createDM(channel_id) as Channel
+            }
             object = new Message(data.d, client, channel)
         }
         client.cache.set(id, object)
@@ -32,42 +35,70 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
             return [new Message(data.d, client, channel, guild)]
         } else {
-            var channel;
-            if (client.user?.isBot()) channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
-            else channel = await (await client.me()).createDM(channel_id) as Channel
+            let channel;
+            if (client.user?.isBot()) {
+                channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+            } else {
+                channel = await (await client.me()).createDM(channel_id) as Channel
+            }
             return [new Message(data.d, client, channel)]
         }
     } else if (data.t == "TYPING_START") {
-        const { member, guild_id, channel_id } = data.d
+        const { member, user_id, guild_id, channel_id } = data.d
         if (guild_id) {
             const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
             return [new GuildMember(member, guild, client), channel]
         } else {
-            client.emit("debug", "TYPING_START in DM is not implemented")
+            let channel;
+            if (client.user?.isBot()) {
+                channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+            } else {
+                channel = await (await client.me()).createDM(channel_id) as Channel
+            }
+            const user = await client.get(EntityType.USER, user_id as string) as User
+            return [user, channel]
         }
     } else if (data.t == "MESSAGE_REACTION_ADD") {
         const { emoji, member, message_id, channel_id, guild_id, user_id } = data.d
         if (guild_id) {
             const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
-            let message
+            let message = message_id
             if (client.cache.has(message_id)) message = client.cache.get(message_id)
-            return [new Emoji(emoji, guild, client), new GuildMember(member, guild, client), channel, message]
+            return [new Emoji(emoji, client, guild), new GuildMember(member, guild, client), channel, message]
         } else {
-            client.emit("debug", "MESSAGE_REACTION_ADD in DM is not implemented")
+            let channel;
+            if (client.user?.isBot()) {
+                channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+            } else {
+                channel = await (await client.me()).createDM(channel_id) as Channel
+            }
+            const user = await client.get(EntityType.USER, user_id as string) as User
+            let message = message_id
+            if (client.cache.has(message_id)) message = client.cache.get(message_id)
+            return [new Emoji(emoji, client), user, channel, message]
         }
     } else if (data.t == "MESSAGE_REACTION_REMOVE") {
         const { emoji, message_id, channel_id, guild_id, user_id } = data.d
         if (guild_id) {
             const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
-            let message
+            let message = message_id
             if (client.cache.has(message_id)) message = client.cache.get(message_id)
             const user = await client.get(EntityType.USER, user_id as string) as User;
-            return [new Emoji(emoji, guild, client), user, channel, message]
+            return [new Emoji(emoji, client, guild), user, channel, message]
         } else {
-            client.emit("debug", "MESSAGE_REACTION_ADD in DM is not implemented")
+            let channel;
+            if (client.user?.isBot()) {
+                channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+            } else {
+                channel = await (await client.me()).createDM(channel_id) as Channel
+            }
+            const user = await client.get(EntityType.USER, user_id as string) as User
+            let message = message_id
+            if (client.cache.has(message_id)) message = client.cache.get(message_id)
+            return [new Emoji(emoji, client), user, channel, message]
         }
     } else if (data.t == "MESSAGE_REACTION_REMOVE_ALL") {
         const { message_id, channel_id, guild_id } = data.d
@@ -76,11 +107,18 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
             let message = message_id
             if (client.cache.has(message_id)) message = client.cache.get(message_id)
-            return [message, guild, channel]
+            return [message, channel, guild]
         } else {
-            client.emit("debug", "MESSAGE_REACTION_REMOVE_ALL in DM is not implemented")
+            let channel;
+            if (client.user?.isBot()) {
+                channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+            } else {
+                channel = await (await client.me()).createDM(channel_id) as Channel
+            }
+            let message = message_id
+            if (client.cache.has(message_id)) message = client.cache.get(message_id)
+            return [message, channel]
         }
-        console.log(data.d)
     } else {
         client.emit("debug", `${data.t} not implemented`)
     }

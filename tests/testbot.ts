@@ -2,7 +2,8 @@ import { Client, Intents, Message, User, EmbedBuilder } from "../src/index.ts";
 import { token } from "./token.ts";
 
 (async () => {
-    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS)
+    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS)
+
     // to samo co:
     // let client = await new Client(token).addIntents(Intents.GUILD_MESSAGES)
     client.on('MESSAGE_CREATE', async (message: Message) => {

@@ -4,16 +4,16 @@ import { Guild } from "./guild.ts";
 
 export class Emoji {
     data: EmojiType;
-    guild: Guild;
+    guild: Guild | undefined;
     client: Client;
 
-    constructor(data: EmojiType, guild: Guild, client: Client) {
+    constructor(data: EmojiType, client: Client, guild?: Guild, ) {
         this.data = data;
         this.guild = guild;
         this.client = client;
     }
 
     toString() {
-        return `Emoji {"data":${JSON.stringify(this.data)},"guild":{"data":${JSON.stringify(this.guild.data)}}}`
+        return `Emoji {"data":${JSON.stringify(this.data)},"guild":${this.guild ? `{"data":${JSON.stringify(this.guild?.data)}` : "undefined"}}`
     }
 }
