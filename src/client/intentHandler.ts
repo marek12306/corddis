@@ -6,6 +6,7 @@ import { Guild } from "../structures/guild.ts"
 import { GuildMember } from "../structures/guildMember.ts"
 import { Emoji } from "../structures/emoji.ts"
 import { User } from "../structures/user.ts";
+import { ChannelTypeData } from "../types/channel.ts"
 
 const IntentHandler = async (client: Client, data: any): Promise<any> => {
     if (data.t == "MESSAGE_CREATE" || data.t == "MESSAGE_UPDATE") {
@@ -16,7 +17,9 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
             object = new Message(data.d, client, channel, guild)
         } else {
-            const channel = await (await client.me()).createDM(channel_id) as Channel
+            var channel;
+            if (client.user?.isBot()) channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+            else channel = await (await client.me()).createDM(channel_id) as Channel
             object = new Message(data.d, client, channel)
         }
         client.cache.set(id, object)
@@ -29,7 +32,9 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
             return [new Message(data.d, client, channel, guild)]
         } else {
-            const channel = await (await client.me()).createDM(channel_id) as Channel
+            var channel;
+            if (client.user?.isBot()) channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+            else channel = await (await client.me()).createDM(channel_id) as Channel
             return [new Message(data.d, client, channel)]
         }
     } else if (data.t == "TYPING_START") {
@@ -76,7 +81,7 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             client.emit("debug", "MESSAGE_REACTION_REMOVE_ALL in DM is not implemented")
         }
         console.log(data.d)
-    } else{
+    } else {
         client.emit("debug", `${data.t} not implemented`)
     }
 }
