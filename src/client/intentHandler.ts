@@ -65,7 +65,7 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             client.emit("debug", "MESSAGE_REACTION_ADD in DM is not implemented")
         }
     } else {
-        client.emit("debug", `${data.d} not implemented`)
+        client.emit("debug", `${data.t} not implemented`)
     }
 }
 
