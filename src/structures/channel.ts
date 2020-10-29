@@ -39,7 +39,7 @@ export class Channel {
   async editMessage(id: string, data: (MessageEditParamsType | string)): Promise<Message> {
     if (!id) throw Error("Message ID not provided")
     if (typeof data == "string") data = { content: data }
-    let json = await this.client._fetch<MessageType>("PATCH", `channels/${this.data.id}/messages/${id}`, JSON.stringify(data), true)
+    const json = await this.client._fetch<MessageType>("PATCH", `channels/${this.data.id}/messages/${id}`, JSON.stringify(data), true)
     return new Message(json, this.client, this, this.guild)
   }
 

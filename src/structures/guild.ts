@@ -21,7 +21,7 @@ export class Guild {
   }
 
   async delete(): Promise<boolean> {
-    let resp = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}`, null, false)
+    const resp = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}`, null, false)
     if (resp.status != 204) throw new Error(`Error ${resp.status}`);
     return true;
   }
@@ -81,7 +81,7 @@ export class Guild {
   }
 
   async leave(): Promise<boolean> {
-    let response = await this.client._fetch<Response>("DELETE", `users/@me/guilds/${this.data.id}`, null, false)
+    const response = await this.client._fetch<Response>("DELETE", `users/@me/guilds/${this.data.id}`, null, false)
     return response.status == 204 ? true : false;
   }
 
