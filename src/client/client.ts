@@ -135,7 +135,7 @@ class Client extends EventEmitter {
 
         if (t) {
             const intentObject = await IntentHandler(this, response)
-            if (intentObject) this.emit(t, intentObject);
+            if (intentObject) this.emit(t, ...intentObject);
         }
     }
 

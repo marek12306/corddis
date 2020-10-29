@@ -2,7 +2,7 @@ import { Client, Intents, Message, User, EmbedBuilder } from "../src/index.ts";
 import { token } from "./token.ts";
 
 (async () => {
-    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES)
+    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING)
     // to samo co:
     // let client = await new Client(token).addIntents(Intents.GUILD_MESSAGES)
     client.on('MESSAGE_CREATE', async (message: Message) => {
@@ -46,6 +46,7 @@ import { token } from "./token.ts";
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
 //    client.on("raw", console.log)
+    client.on("TYPING_START", console.log)
     client.on("debug", console.log)
     client.on("READY", (user: User) => console.log("Logged as " + user.data.username))
     client.login()

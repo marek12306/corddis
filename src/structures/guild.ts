@@ -36,7 +36,7 @@ export class Guild {
   async members(limit: number = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
     if (this.client.cache.has(`${this.data.id}mem`)) return this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
-    this.client.cache.set(`${this.data.id}mem`, json.map((data: GuildMemberType) => new GuildMember(data, this.client)))
+    this.client.cache.set(`${this.data.id}mem`, json.map((data: GuildMemberType) => new GuildMember(data, this, this.client)))
     return this.client.cache.get(`${this.data.id}mem`) as GuildMember[];
   }
 
@@ -45,7 +45,7 @@ export class Guild {
     if (this.isUser(userId)) userId = (userId as User).data.id
     const resp = await this.client._fetch<Response>("GET", `guilds/${this.data.id}/members/${userId}`, JSON.stringify({ accessToken: token, nick, roles, mute, deaf }), false)
     if ((await resp.text()).length == 0) return (await this.get(EntityType.USER, userId)) as GuildMember;
-    return new GuildMember(await resp.json(), this.client);
+    return new GuildMember(await resp.json(), this, this.client);
   }
 
   async get(type: EntityType, id: Snowflake): Promise<GuildMember | Channel> {
@@ -53,7 +53,7 @@ export class Guild {
       // deno-lint-ignore no-case-declarations
       case EntityType.GUILD_MEMBER:
         const user = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
-        this.client.cache.set(`${type}${id}`, new GuildMember(user, this.client))
+        this.client.cache.set(`${type}${id}`, new GuildMember(user, this, this.client))
         return this.client.cache.get(`${type}${id}`) as GuildMember|Channel;
       case EntityType.CHANNEL:
         return (await this.channels()).find(ch => ch.data.id == id) as Channel;
