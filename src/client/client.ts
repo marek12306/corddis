@@ -8,8 +8,6 @@ import { LRU } from "https://deno.land/x/lru/mod.ts";
 import { UserType, ActivityType, StatusType } from "./../types/user.ts"
 import { GuildType } from "./../types/guild.ts"
 import { IntentHandler } from "./intentHandler.ts";
-import { MessageType } from "../types/message.ts";
-import { Channel } from "../structures/channel.ts";
 
 class Client extends EventEmitter {
     public emit: any;
@@ -26,6 +24,7 @@ class Client extends EventEmitter {
     cache: LRU = new LRU(1000)
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     reconnect = false
+    lastReq = 0
 
     constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
@@ -42,34 +41,41 @@ class Client extends EventEmitter {
     }
 
     async _fetch<T>(method: string, path: string, body: any = "", json: boolean = true, contentType: any = "application/json", headers: any = {}): Promise<T> {
-        let response = await fetch(
-            `${this.constants.BASE_URL}/v${this.constants.VERSION}/${path}`,
-            {
-                method, body, headers: {
-                    "Authorization": `Bot ${this.token}`,
-                    "User-Agent": this.constants.USER_AGENT,
-                    "Content-Type": contentType
-                    ...headers,
-                },
+        var req = new Request(`${this.constants.BASE_URL}/v${this.constants.VERSION}/${path}`, {
+            method, body, headers: {
+                "Authorization": `Bot ${this.token}`,
+                "User-Agent": this.constants.USER_AGENT,
+                "Content-Type": contentType,
+                ...headers,
             },
-        );
+        })
+
+        var response = await this.performReq(req)
         if (response.status == 400) throw Error((await response.json()).message)
 
-        if (response.status == 429) {
-            let { retry_after } = await response.json();
+        return json ? await response.json() : response;
+    }
+
+    async performReq(req: Request): Promise<Response> {
+        var resp: Response;
+        if (this.lastReq == 0 || (Date.now() - this.lastReq > 250)) {
+            this.lastReq = Date.now();
+            resp = await fetch(req)
+        } else {
+            await this.sleep(Date.now() - (this.lastReq + 250))
+            this.lastReq = Date.now();
+            resp = await fetch(req);
+        }
+
+        if (resp.status == 429) {
+            let { retry_after } = await resp.json();
             this.emit("debug", `Ratelimit, waiting ${retry_after}`);
             await this.sleep(retry_after);
-            response = await this._fetch<Response>(method, path, body, false, contentType, headers)
-            return json ? await response.json() : response;
+            this.lastReq = Date.now();
+            resp = await this.performReq(req)
         }
 
-        var remaining = response.headers.get("x-ratelimit-remaining")
-        if (parseFloat(remaining ?? "1")) {
-            this.emit("debug", `Ratelimit, waiting ${remaining}`);
-            await this.sleep(parseFloat(remaining ?? "0"))
-        }
-
-        return json ? await response.json() : response;
+        return resp
     }
 
     _heartbeat() {
@@ -91,9 +97,10 @@ class Client extends EventEmitter {
     }
 
     async _message(event: any) {
-        let { op, response, t, s, d } = JSON.parse(event.data)
-        this.emit('raw', response)
-        if (s) this.sequenceNumber = response.s
+        let response = JSON.parse(event.data)
+        let { op, t, s, d } = response
+        this.emit('raw', event.data)
+        if (s) this.sequenceNumber = s
         if (op == 10) {
             this.gatewayInterval = setInterval(() => this._heartbeat.call(this), d.heartbeat_interval)
 

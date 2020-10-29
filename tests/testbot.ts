@@ -7,7 +7,8 @@ import { token } from "./token.ts";
     // let client = await new Client(token).addIntents(Intents.GUILD_MESSAGES)
     client.on('MESSAGE_CREATE', async (message: Message) => {
         if (message.data.content == "test") {
-            console.log(await message.delete())
+            await message.delete()
+            // console.log(await message.delete())
         } else if (message.data.content == "test2") {
             console.log(await message.reply("Test"))
         } else if (message.data.content == "test3") {
@@ -43,8 +44,8 @@ import { token } from "./token.ts";
             })
         }
     })
-    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
-    client.on("raw", console.log)
+//    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
+//    client.on("raw", console.log)
     client.on("debug", console.log)
     client.on("READY", (user: User) => console.log("Logged as " + user.data.username))
     client.login()
