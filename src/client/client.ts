@@ -68,7 +68,7 @@ class Client extends EventEmitter {
         }
 
         if (resp.status == 429) {
-            let { retry_after } = await resp.json();
+            const { retry_after } = await resp.json();
             this.emit("debug", `Ratelimit, waiting ${retry_after}`);
             await this.sleep(retry_after);
             this.lastReq = Date.now();
@@ -97,14 +97,14 @@ class Client extends EventEmitter {
     }
 
     async _message(event: any) {
-        let response = JSON.parse(event.data)
-        let { op, t, s, d } = response
+        const response = JSON.parse(event.data)
+        const { op, t, s, d } = response
         this.emit('raw', event.data)
         if (s) this.sequenceNumber = s
         if (op == 10) {
             this.gatewayInterval = setInterval(() => this._heartbeat.call(this), d.heartbeat_interval)
 
-            let intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
+            const intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
 
             this.socket.send(JSON.stringify({
                 op: 2, d: {
@@ -121,7 +121,7 @@ class Client extends EventEmitter {
             return
         }
         if (op == 11) {
-            let calculated = Date.now() - this._heartbeatTime
+            const calculated = Date.now() - this._heartbeatTime
             this.ping = calculated > 1 ? calculated : this.ping
             return;
         }
