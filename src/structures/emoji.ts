@@ -14,6 +14,6 @@ export class Emoji {
     }
 
     toString() {
-        return `Emoji {"data":${JSON.stringify(this.data)},"guild":${this.guild ? `{"data":${JSON.stringify(this.guild?.data)}` : "undefined"}}`
+        return `<${this.data.animated ? 'a' : ''}:${this.data.name}:${this.data.id}>`
     }
 }
