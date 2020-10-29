@@ -64,7 +64,19 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
         } else {
             client.emit("debug", "MESSAGE_REACTION_ADD in DM is not implemented")
         }
-    } else {
+    } else if (data.t == "MESSAGE_REACTION_REMOVE_ALL") {
+        const { message_id, channel_id, guild_id } = data.d
+        if (guild_id) {
+            const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
+            const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
+            let message = message_id
+            if (client.cache.has(message_id)) message = client.cache.get(message_id)
+            return [message, guild, channel]
+        } else {
+            client.emit("debug", "MESSAGE_REACTION_REMOVE_ALL in DM is not implemented")
+        }
+        console.log(data.d)
+    } else{
         client.emit("debug", `${data.t} not implemented`)
     }
 }
