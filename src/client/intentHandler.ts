@@ -4,6 +4,8 @@ import { EntityType } from "./../types/utils.ts"
 import { Channel } from "../structures/channel.ts"
 import { Guild } from "../structures/guild.ts"
 import { GuildMember } from "../structures/guildMember.ts"
+import { Emoji } from "../structures/emoji.ts"
+import { User } from "../structures/user.ts";
 
 const IntentHandler = async (client: Client, data: any): Promise<any> => {
     if (data.t == "MESSAGE_CREATE" || data.t == "MESSAGE_UPDATE") {
@@ -38,6 +40,29 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             return [new GuildMember(member, guild, client), channel]
         } else {
             client.emit("debug", "TYPING_START in DM is not implemented")
+        }
+    } else if (data.t == "MESSAGE_REACTION_ADD") {
+        const { emoji, member, message_id, channel_id, guild_id, user_id } = data.d
+        if (guild_id) {
+            const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
+            const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
+            let message
+            if (client.cache.has(message_id)) message = client.cache.get(message_id)
+            return [new Emoji(emoji, guild, client), new GuildMember(member, guild, client), channel, message]
+        } else {
+            client.emit("debug", "MESSAGE_REACTION_ADD in DM is not implemented")
+        }
+    } else if (data.t == "MESSAGE_REACTION_REMOVE") {
+        const { emoji, message_id, channel_id, guild_id, user_id } = data.d
+        if (guild_id) {
+            const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
+            const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as Channel;
+            let message
+            if (client.cache.has(message_id)) message = client.cache.get(message_id)
+            const user = await client.get(EntityType.USER, user_id as string) as User;
+            return [new Emoji(emoji, guild, client), user, channel, message]
+        } else {
+            client.emit("debug", "MESSAGE_REACTION_ADD in DM is not implemented")
         }
     } else {
         client.emit("debug", `${data.d} not implemented`)

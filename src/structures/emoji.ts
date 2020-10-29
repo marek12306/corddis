@@ -1,13 +1,13 @@
 import { Client } from "../client/client.ts";
-import { GuildMemberType } from "../types/guild.ts";
+import { EmojiType } from "../types/emoji.ts";
 import { Guild } from "./guild.ts";
 
-export class GuildMember {
-    data: GuildMemberType;
+export class Emoji {
+    data: EmojiType;
     guild: Guild;
     client: Client;
 
-    constructor(data: GuildMemberType, guild: Guild, client: Client) {
+    constructor(data: EmojiType, guild: Guild, client: Client) {
         this.data = data;
         this.guild = guild;
         this.client = client;
