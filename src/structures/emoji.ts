@@ -1,5 +1,5 @@
 import { Client } from "../client/client.ts";
-import { EmojiType } from "../types/emoji.ts";
+import { EmojiEditType, EmojiType } from "../types/emoji.ts";
 import { Guild } from "./guild.ts";
 
 export class Emoji {
@@ -11,6 +11,18 @@ export class Emoji {
         this.data = data;
         this.guild = guild;
         this.client = client;
+    }
+
+    async delete(): Promise<boolean> {
+        if (!this.guild) throw "Guild not found in emoji"
+        const respnose = await this.client._fetch<Response>("DELETE", `guilds/${this.guild.data.id}/emojis/${this.data.id}`, null, false)
+        return respnose.status == 204 ? true : false
+    }
+
+    async modify(data: EmojiEditType): Promise<Emoji> {
+        if (!this.guild) throw "Guild not found in emoji"
+        this.data = await this.client._fetch<EmojiType>("PATCH", `guilds/${this.guild.data.id}/emojis/${this.data.id}`, JSON.stringify(data), true)
+        return this
     }
 
     toString() {

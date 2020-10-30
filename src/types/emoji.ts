@@ -1,3 +1,5 @@
+import { Snowflake } from "./utils.ts";
+
 export interface EmojiType {
   name: string;
   roles: any[];
@@ -6,4 +8,9 @@ export interface EmojiType {
   managed: boolean;
   animated: boolean;
   available: boolean;
+}
+
+export interface EmojiEditType {
+  name?: string;
+  roles?: Snowflake[];
 }
