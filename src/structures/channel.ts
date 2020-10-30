@@ -30,6 +30,13 @@ export class Channel {
     return new Message(json, this.client, this, this.guild);
   }
 
+  async fetchMessage(id: string): Promise<Message> {
+    const json = await this.client._fetch<MessageType>("GET", `channels/${this.data.id}/messages/${id}`, null, true)
+    const message = new Message(json, this.client, this, this.guild)
+    this.client.cache.set(id, message)
+    return message
+  }
+
   async deleteMessage(id: string): Promise<boolean> {
     if (!id) throw Error("Message ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}`, null, false)
