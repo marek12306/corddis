@@ -29,7 +29,13 @@ export class GuildMember {
     }
 
     async nickname(name: string) {
-        return this.guild.nickname(name, this.data.user?.id)
+        if (!this.data.user?.id) throw "User is not found in guild member data.";
+        return this.guild.nickname(name, this.data.user.id)
+    }
+
+    async addRole(role_id: string) {
+        if (!this.data.user?.id) throw "User is not found in guild member data.";
+        return this.guild.addRole(this.data.user.id, role_id)
     }
 
     toString() {
