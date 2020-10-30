@@ -103,8 +103,8 @@ export class Guild {
     return response.status == 204 ? true : false;
   }
 
-  async nickname(nick: string): Promise<boolean> {
-    const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/@me/nick`, JSON.stringify({ nick }), false)
+  async nickname(nick: string, id?: string): Promise<boolean> {
+    const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/${id ?? "@me"}${id ? "" : "/nick"}`, JSON.stringify({ nick }), false)
     return response.status == 200 ? true : false
   }
 

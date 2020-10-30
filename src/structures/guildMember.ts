@@ -28,6 +28,10 @@ export class GuildMember {
         return roles.every((p: string) =>  bits & BigInt(permissions[PermissionEnum[permission]]))
     }
 
+    async nickname(name: string) {
+        return this.guild.nickname(name, this.data.user?.id)
+    }
+
     toString() {
         return `GuildMember {"data":${JSON.stringify(this.data)},"guild":{"data":${JSON.stringify(this.guild.data)}}}`
     }
