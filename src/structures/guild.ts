@@ -117,6 +117,11 @@ export class Guild {
     return await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
   }
 
+  async deleteRole(id: string): Promise<boolean> {
+    const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/roles/${id}`, null, false)
+    return response.status == 204 ? true : false
+  }
+
   toString() {
     return `Guild {"data":${JSON.stringify(this.data)}}`
   }
