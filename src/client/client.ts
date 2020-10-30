@@ -139,6 +139,17 @@ class Client extends EventEmitter {
         }
     }
 
+    async game(name: string) {
+        return this.setStatus({
+            since: null,
+            status: this.status.status,
+            activities: [{
+                name, type: 0
+            }],
+            afk: false
+        })
+    }
+
     async setStatus(d: StatusType) {
         this.socket.send(JSON.stringify({
             op: 3, d
