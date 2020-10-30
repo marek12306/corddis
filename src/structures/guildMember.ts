@@ -25,9 +25,7 @@ export class GuildMember {
             return bits
         }, BigInt(0))
         if (bits & BigInt(permissions.ADMINISTRATOR)) return true;
-        return roles.every((p: string) => {
-            return bits & BigInt(permissions[PermissionEnum[permission]])
-        })
+        return roles.every((p: string) =>  bits & BigInt(permissions[PermissionEnum[permission]]))
     }
 
     toString() {
