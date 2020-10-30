@@ -7,6 +7,7 @@ import { GuildMember } from "../structures/guildMember.ts"
 import { Emoji } from "../structures/emoji.ts"
 import { User } from "../structures/user.ts";
 import { ChannelTypeData } from "../types/channel.ts"
+import { RoleType } from "../types/role.ts"
 
 const IntentHandler = async (client: Client, data: any): Promise<any> => {
     if (data.t == "MESSAGE_CREATE" || data.t == "MESSAGE_UPDATE") {
@@ -119,15 +120,34 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             if (client.cache.has(message_id)) message = client.cache.get(message_id)
             return [message, channel]
         }
-    } else if (data.t == "GUILD_CREATE" || data.d == "GUILD_UPDATE") {
+    } else if (data.t == "GUILD_CREATE" || data.t == "GUILD_UPDATE") {
         const guild = new Guild(data.d, client)
         client.cache.set(data.d.id, guild)
         return [guild]
-    } else if (data.d == "GUILD_DELETE") {
+    } else if (data.t == "GUILD_DELETE") {
         const { id } = data.d
         if (client.cache.has(id)) return [client.cache.get(id)]
         client.cache.remove(id)
         return [id]
+    } else if (data.t == "GUILD_ROLE_CREATE" || data.t == "GUILD_ROLE_UPDATE") {
+        const { guild_id, role } = data.d
+        let guild
+        if (client.cache.has(guild_id)) {
+            guild = client.cache.get(guild_id) as Guild
+            if (data.t == "GUILD_ROLE_CREATE") {
+                guild.data.roles.push(role)
+            } else {
+                guild.data.roles = guild.data.roles.map((r: RoleType) => 
+                    r.id == role.id ? role : r
+                )
+            }
+            client.cache.set(guild_id, guild)
+            return [guild]
+        } else {
+            guild = await client.get(EntityType.GUILD, guild_id) as Guild
+            client.cache.set(guild_id, guild)
+            return [guild]
+        }
     } else {
         client.emit("debug", `${data.t} not implemented`)
     }
