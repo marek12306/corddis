@@ -15,7 +15,7 @@ export class GuildMember {
         this.client = client;
     }
 
-    async hasPermission(permission: PermissionEnum): Promise<boolean> {
+    async hasPermission(permission: PermissionEnum): Promise<boolean> { 
         if (this.data.user?.id == this.guild.data.owner_id) return true;
         console.log(this.guild.data.roles)
         const roles = this.data.roles.map((id: string) => this.guild.data.roles.find((x: RoleType) => x.id == id)?.permissions)
@@ -26,8 +26,7 @@ export class GuildMember {
         }, BigInt(0))
         if (bits & BigInt(permissions.ADMINISTRATOR)) return true;
         return roles.every((p: string) => {
-            console.log(permission.toString(), bits, permissions[permission.toString()])
-            bits & BigInt(permissions[permission.toString()])
+            return bits & BigInt(permissions[PermissionEnum[permission]])
         })
     }
 
