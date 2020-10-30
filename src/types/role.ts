@@ -8,3 +8,11 @@ export interface RoleType {
   managed: boolean;
   mentionable: boolean;
 }
+
+export interface RoleEditType {
+  name?: string;
+  permissions?: string;
+  color?: number;
+  hoist?: boolean;
+  mentionable?: boolean;
+}

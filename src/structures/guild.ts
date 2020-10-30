@@ -5,6 +5,7 @@ import { Channel } from "./channel.ts";
 import { GuildMember } from "./guildMember.ts";
 import { EntityType, Snowflake } from "../types/utils.ts";
 import { User } from "./user.ts";
+import { RoleEditType, RoleType } from "../types/role.ts";
 
 export class Guild {
   data: GuildType;
@@ -106,6 +107,14 @@ export class Guild {
   async nickname(nick: string, id?: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/${id ?? "@me"}${id ? "" : "/nick"}`, JSON.stringify({ nick }), false)
     return response.status == 200 ? true : false
+  }
+
+  async createRole(role: RoleEditType): Promise<RoleType> {
+    return await this.client._fetch<RoleType>("POST", `guilds/${this.data.id}/roles`, JSON.stringify(role), true)
+  }
+
+  async editRole(id: string, role: RoleEditType): Promise<RoleType> {
+    return await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
   }
 
   toString() {
