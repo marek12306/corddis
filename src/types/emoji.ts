@@ -14,3 +14,10 @@ export interface EmojiEditType {
   name?: string;
   roles?: Snowflake[];
 }
+
+export interface NewEmojiType {
+  name: string;
+  image: Blob;
+  roles: Snowflake[];
+  file_format: string;
+}

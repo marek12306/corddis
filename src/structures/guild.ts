@@ -6,6 +6,10 @@ import { GuildMember } from "./guildMember.ts";
 import { EntityType, Snowflake } from "../types/utils.ts";
 import { User } from "./user.ts";
 import { RoleEditType, RoleType } from "../types/role.ts";
+import { fromUint8Array } from "https://deno.land/x/base64@v0.2.0/mod.ts";
+import { lookup } from "https://deno.land/x/media_types/mod.ts";
+import { Emoji } from "./emoji.ts";
+import { EmojiType, NewEmojiType } from "../types/emoji.ts";
 
 export class Guild {
   data: GuildType;
@@ -131,6 +135,14 @@ export class Guild {
   async addRole(member_id: string, role_id: string) {
     const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/members/${member_id}/roles/${role_id}`, null, false)
     return response.status == 204 ? true : false
+  }
+
+  async addEmoji(data: NewEmojiType): Promise<Emoji> {
+    const response = await this.client._fetch<Response>("POST", `guilds/${this.data.id}/emojis`, JSON.stringify({
+      name: data.name, roles: data.roles,
+      image: `data:${lookup(data.file_format)};base64,${fromUint8Array(data.image.arrayBuffer())}`
+    }), false)
+    return new Emoji(await response.json(), this.client, this)
   }
 
   toString() {
