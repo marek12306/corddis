@@ -31,6 +31,7 @@ export class Channel {
   }
 
   async fetchMessage(id: string): Promise<Message> {
+    if (this.client.cache.has(id)) return this.client.cache.get(id) as Message
     const json = await this.client._fetch<MessageType>("GET", `channels/${this.data.id}/messages/${id}`, null, true)
     const message = new Message(json, this.client, this, this.guild)
     this.client.cache.set(id, message)
