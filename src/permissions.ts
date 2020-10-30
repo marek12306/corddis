@@ -1,4 +1,6 @@
-export default {
+type permissionsType = { [index: string]: number }
+
+const permissions: permissionsType = {
     CREATE_INSTANT_INVITE: 0x00000001,
     KICK_MEMBERS: 0x00000002,
     BAN_MEMBERS: 0x00000004,
@@ -31,3 +33,40 @@ export default {
     MANAGE_WEBHOOKS: 0x20000000,
     MANAGE_EMOJIS: 0x40000000,
 }
+
+enum PermissionEnum {
+    CREATE_INSTANT_INVITE,
+    KICK_MEMBERS,
+    BAN_MEMBERS,
+    ADMINISTRATOR,
+    MANAGE_CHANNELS,
+    MANAGE_GUILD,
+    ADD_REACTIONS,
+    VIEW_AUDIT_LOG,
+    PRIORITY_SPEAKER,
+    STREA,
+    VIEW_CHANNEL,
+    SEND_MESSAGES,
+    SEND_TTS_MESSAGES,
+    MANAGE_MESSAGES,
+    EMBED_LINKS,
+    ATTACH_FILES,
+    READ_MESSAGE_HISTORY,
+    MENTION_EVERYONE,
+    USE_EXTERNAL_EMOJIS,
+    VIEW_GUILD_INSIGHTS,
+    CONNECT,
+    SPEAK,
+    MUTE_MEMBERS,
+    DEAFEN_MEMBERS,
+    MOVE_MEMBERS,
+    USE_VAD,
+    CHANGE_NICKNAME,
+    MANAGE_NICKNAMES,
+    MANAGE_ROLES,
+    MANAGE_WEBHOOKS,
+    MANAGE_EMOJIS,
+}
+
+
+export { permissions, PermissionEnum }

@@ -1,4 +1,6 @@
-import { Client, Intents, Message, User, EmbedBuilder } from "../src/index.ts";
+import { Client, Intents, Message, User, EmbedBuilder, EntityType } from "../src/index.ts";
+import { PermissionEnum } from "../src/permissions.ts";
+import { GuildMember } from "../src/structures/guildMember.ts";
 import { token } from "./token.ts";
 
 (async () => {
@@ -43,6 +45,9 @@ import { token } from "./token.ts";
                 ],
                 afk: false
             })
+        } else if (message.data.content == "asdf") {
+            const member = await message.guild?.get(EntityType.GUILD_MEMBER, "721964514018590802") as GuildMember
+            console.log(await member.hasPermission(PermissionEnum.MANAGE_WEBHOOKS))
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
