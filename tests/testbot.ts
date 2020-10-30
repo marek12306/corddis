@@ -50,6 +50,13 @@ import { token } from "./token.ts";
             console.log(await member.hasPermission(PermissionEnum.MANAGE_WEBHOOKS))
         } else if (message.data.content == "fdsa") {
             console.log(await message.guild?.fetchInvites())
+        } else if (message.data.content == "zz") {
+            console.log(await message.guild?.addEmoji({
+                name: "test420",
+                roles: [],
+                image: await Deno.readFile("./h.jpg"),
+                file_format: "jpg"
+            }))
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))

@@ -79,7 +79,7 @@ class Client extends EventEmitter {
     }
 
     _heartbeat() {
-        if (this.socket.readyState != 1 || this.reconnect) return;
+        if (this.socket.readyState != 1) return;
         this._heartbeatTime = Date.now()
         this.socket.send(JSON.stringify({ op: 1, d: this.sequenceNumber }))
         this.emit("debug", "Sending heartbeat")
@@ -91,6 +91,7 @@ class Client extends EventEmitter {
 
     async _close() {
         if (this.socket.readyState == 1) return;
+        clearInterval(this.gatewayInterval)
         this.emit("debug", "Connection closed trying to reconnect")
         this.reconnect = true
         this.login()
@@ -117,6 +118,8 @@ class Client extends EventEmitter {
                     }, intents
                 }
             }))
+
+            this.reconnect = false
 
             return
         }

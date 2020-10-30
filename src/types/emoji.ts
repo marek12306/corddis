@@ -17,7 +17,7 @@ export interface EmojiEditType {
 
 export interface NewEmojiType {
   name: string;
-  image: Blob;
+  image: Uint8Array;
   roles: Snowflake[];
   file_format: string;
 }
