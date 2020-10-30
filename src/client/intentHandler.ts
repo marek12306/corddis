@@ -119,6 +119,15 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             if (client.cache.has(message_id)) message = client.cache.get(message_id)
             return [message, channel]
         }
+    } else if (data.t == "GUILD_CREATE" || data.d == "GUILD_UPDATE") {
+        const guild = new Guild(data.d, client)
+        client.cache.set(data.d.id, guild)
+        return [guild]
+    } else if (data.d == "GUILD_DELETE") {
+        const { id } = data.d
+        if (client.cache.has(id)) return [client.cache.get(id)]
+        client.cache.remove(id)
+        return [id]
     } else {
         client.emit("debug", `${data.t} not implemented`)
     }
