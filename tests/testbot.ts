@@ -4,7 +4,7 @@ import { GuildMember } from "../src/structures/guildMember.ts";
 import { token } from "./token.ts";
 
 (async () => {
-    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS)
+    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS, Intents.GUILDS)
 
     // to samo co:
     // let client = await new Client(token).addIntents(Intents.GUILD_MESSAGES)
@@ -61,6 +61,7 @@ import { token } from "./token.ts";
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
 //    client.on("raw", console.log)
+    client.on("CHANNEL_DELETE", console.log)
     client.on("MESSAGE_REACTION_REMOVE", console.log)
     client.on("debug", console.log)
     client.on("READY", (user: User) => {

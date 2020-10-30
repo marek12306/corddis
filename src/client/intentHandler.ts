@@ -163,17 +163,43 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             client.cache.set(guild_id, guild)
             return [null, guild]
         }
-    } else if (data.t == "CHANNEL_CREATE") {
+    } else if (data.t == "CHANNEL_CREATE" || data.t == "CHANNEL_UPDATE") {
         const { guild_id } = data.d
         const guild = await client.get(EntityType.GUILD, guild_id) as Guild
         const channel = new Channel(data.d, client, guild)
         if (client.cache.has(`${guild_id}ch`)) {
-            const channels = client.cache.get(`${guild_id}ch`) as Channel[]
-            if (!channels.find((x: Channel) => x.data.id == data.d.id)) channels.push(channel)
+            let channels = client.cache.get(`${guild_id}ch`) as Channel[]
+            if (data.t == "CHANNEL_CREATE") {
+                if (!channels.find((x: Channel) => x.data.id == data.d.id)) channels.push(channel)
+            } else {
+                const found = channels.find((x: Channel) => x.data.id == data.d.id)
+                if (!found) {
+                    channels.push(channel)
+                } else {
+                    channels = channels.map((x: Channel) =>
+                        x.data.id == data.d.id ? channel : x
+                    )
+                }
+            }
+            client.cache.set(`${guild_id}ch`, channels)
             return [channel]
         } else {
             await guild.channels()
             return [channel]
+        }
+    } else if (data.t == "CHANNEL_DELETE") {
+        const { id, guild_id } = data.d
+        if (guild_id) {
+            let guild
+            if (client.cache.has(guild_id)) {
+                guild = client.cache.get(guild_id) as Guild
+            } else {
+                guild = await client.get(EntityType.GUILD, guild_id) as Guild
+            }
+            await guild.channels()
+            return [new Channel(data.d, client, guild)]
+        } else {
+            return [new Channel(data.d, client)]
         }
     } else {
         client.emit("debug", `${data.t} not implemented`)
