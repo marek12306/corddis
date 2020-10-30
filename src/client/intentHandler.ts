@@ -148,6 +148,21 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             client.cache.set(guild_id, guild)
             return [guild]
         }
+    } else if (data.t == "GUILD_ROLE_DELETE") {
+        const { guild_id, role_id } = data.d
+        if (client.cache.has(guild_id)) {
+            const guild = await client.cache.get(guild_id) as Guild
+            const found = guild.data.roles.find((x: RoleType) => x.id == role_id)
+            if (!found) return [role_id]
+            const index = guild.data.roles.indexOf(found)
+            if (index != -1) guild.data.roles.splice(index, 1)
+            client.cache.set(guild_id, guild)
+            return [found, guild]
+        } else {
+            const guild = await client.get(EntityType.GUILD, guild_id) as Guild
+            client.cache.set(guild_id, guild)
+            return [null, guild]
+        }
     } else {
         client.emit("debug", `${data.t} not implemented`)
     }
