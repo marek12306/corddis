@@ -6,7 +6,7 @@ import { Guild } from "../structures/guild.ts"
 import { GuildMember } from "../structures/guildMember.ts"
 import { Emoji } from "../structures/emoji.ts"
 import { User } from "../structures/user.ts";
-import { ChannelTypeData } from "../types/channel.ts"
+import { ChannelType, ChannelTypeData } from "../types/channel.ts"
 import { RoleType } from "../types/role.ts"
 
 const IntentHandler = async (client: Client, data: any): Promise<any> => {
@@ -162,6 +162,18 @@ const IntentHandler = async (client: Client, data: any): Promise<any> => {
             const guild = await client.get(EntityType.GUILD, guild_id) as Guild
             client.cache.set(guild_id, guild)
             return [null, guild]
+        }
+    } else if (data.t == "CHANNEL_CREATE") {
+        const { guild_id } = data.d
+        const guild = await client.get(EntityType.GUILD, guild_id) as Guild
+        const channel = new Channel(data.d, client, guild)
+        if (client.cache.has(`${guild_id}ch`)) {
+            const channels = client.cache.get(`${guild_id}ch`) as Channel[]
+            if (!channels.find((x: Channel) => x.data.id == data.d.id)) channels.push(channel)
+            return [channel]
+        } else {
+            await guild.channels()
+            return [channel]
         }
     } else {
         client.emit("debug", `${data.t} not implemented`)
