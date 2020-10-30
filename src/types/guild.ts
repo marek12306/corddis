@@ -72,3 +72,46 @@ export interface IconAttributesType {
   size?: number;
   format?: string;
 }
+
+export interface WelcomeScreenType {
+  id: string;
+  name: string;
+  type: number;
+}
+
+export interface PartialGuildType {
+  id: string;
+  name: string;
+  splash?: string;
+  banner?: string;
+  description: string;
+  icon?: string;
+  features: string[];
+  verification_level: number;
+  vanity_url_code?: string;
+  welcome_screen?: WelcomeScreenType;
+}
+
+export interface PartialChannelType {
+  id: string;
+  name: string;
+  type: number;
+}
+
+export interface PartialUserType {
+  id: string;
+  username: string;
+  avatar: string;
+  discriminator: string;
+}
+
+export interface InviteType {
+  code: string;
+  guild?: PartialGuildType;
+  channel: PartialChannelType;
+  inviter?: PartialUserType;
+  target_user?: PartialUserType;
+  target_user_type?: number;
+  approximate_presence_count?: number;
+  approximate_member_count?: number;
+}

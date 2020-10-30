@@ -1,4 +1,4 @@
-import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType } from "../types/guild.ts";
+import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType, InviteType } from "../types/guild.ts";
 import { ChannelCreateType, ChannelType } from "../types/channel.ts";
 import { Client } from "./../client/client.ts";
 import { Channel } from "./channel.ts";
@@ -10,6 +10,7 @@ import { RoleEditType, RoleType } from "../types/role.ts";
 export class Guild {
   data: GuildType;
   client: Client;
+  invites: InviteType[] = [];
 
   constructor(data: GuildType, client: Client) {
     this.data = data;
@@ -120,6 +121,11 @@ export class Guild {
   async deleteRole(id: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/roles/${id}`, null, false)
     return response.status == 204 ? true : false
+  }
+
+  async fetchInvites(): Promise<InviteType[]> {
+    this.invites = await this.client._fetch<InviteType[]>("GET", `guilds/${this.data.id}/invites`, null, true)
+    return this.invites
   }
 
   toString() {

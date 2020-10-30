@@ -48,6 +48,8 @@ import { token } from "./token.ts";
         } else if (message.data.content == "asdf") {
             const member = await message.guild?.get(EntityType.GUILD_MEMBER, "721964514018590802") as GuildMember
             console.log(await member.hasPermission(PermissionEnum.MANAGE_WEBHOOKS))
+        } else if (message.data.content == "fdsa") {
+            console.log(await message.guild?.fetchInvites())
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
