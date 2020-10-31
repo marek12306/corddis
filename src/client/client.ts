@@ -6,9 +6,10 @@ import { Me } from "./me.ts";
 import EventEmitter from "https://deno.land/x/events/mod.ts";
 import { LRU } from "https://deno.land/x/lru/mod.ts";
 import { UserType, StatusType } from "./../types/user.ts"
-import { GuildType } from "./../types/guild.ts"
+import { GuildType, InviteType } from "./../types/guild.ts"
 import { IntentHandler } from "./intentHandler.ts";
 import IntentHandlers from "../intents/index.ts"
+import { Invite } from "../structures/invite.ts";
 
 class Client extends EventEmitter {
     public emit: any;
@@ -205,6 +206,11 @@ class Client extends EventEmitter {
         const user = await this._fetch<UserType>("GET", `users/@me`, null, true)
         this.cache.set("me", new Me(user, this))
         return this.cache.get("me") as Me;
+    }
+
+    async deleteInvite(id: string|Invite): Promise<InviteType> {
+        if (id instanceof Invite) id = id.data.code
+        return this._fetch<InviteType>("DELETE", `invites/${id}`, null, true)
     }
 
     toString() {

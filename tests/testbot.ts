@@ -49,7 +49,8 @@ import { token } from "./token.ts";
             const member = await message.guild?.get(EntityType.GUILD_MEMBER, "721964514018590802") as GuildMember
             console.log(await member.hasPermission(PermissionEnum.MANAGE_WEBHOOKS))
         } else if (message.data.content == "fdsa") {
-            console.log(await message.guild?.fetchInvites())
+            const invites = await message.guild?.fetchInvites()
+            if (invites && invites.length > 0) client.deleteInvite(invites[0])
         } else if (message.data.content == "zz") {
             console.log(await message.guild?.addEmoji({
                 name: "test420",

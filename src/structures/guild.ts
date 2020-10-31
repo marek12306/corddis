@@ -10,11 +10,12 @@ import { fromUint8Array } from "https://deno.land/x/base64@v0.2.0/mod.ts";
 import { lookup } from "https://deno.land/x/media_types/mod.ts";
 import { Emoji } from "./emoji.ts";
 import { EmojiType, NewEmojiType } from "../types/emoji.ts";
+import { Invite } from "./invite.ts";
 
 export class Guild {
   data: GuildType;
   client: Client;
-  invites: InviteType[] = [];
+  invites: Invite[] = [];
 
   constructor(data: GuildType, client: Client) {
     this.data = data;
@@ -127,8 +128,9 @@ export class Guild {
     return response.status == 204 ? true : false
   }
 
-  async fetchInvites(): Promise<InviteType[]> {
-    this.invites = await this.client._fetch<InviteType[]>("GET", `guilds/${this.data.id}/invites`, null, true)
+  async fetchInvites(): Promise<Invite[]> {
+    const invites = await this.client._fetch<InviteType[]>("GET", `guilds/${this.data.id}/invites`, null, true)
+    this.invites = invites.map((x: InviteType) => new Invite(x, this.client, this))
     return this.invites
   }
 
