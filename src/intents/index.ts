@@ -17,6 +17,8 @@ import TYPING_START from "./TYPING_START.ts"
 import GUILD_BAN_ADD from "./GUILD_BAN_ADD.ts"
 import GUILD_BAN_REMOVE from "./GUILD_BAN_REMOVE.ts"
 import MESSAGE_DELETE_BULK from "./MESSAGE_DELETE_BULK.ts"
+import INVITE_CREATE from "./INVITE_CREATE.ts"
+import INVITE_DELETE from "./INVITE_DELETE.ts"
 
 type IntentImports = {
     [index: string]: (client: Client, data: any) => Promise<any>
@@ -41,6 +43,8 @@ const intents: IntentImports = {
     GUILD_BAN_ADD,
     GUILD_BAN_REMOVE,
     MESSAGE_DELETE_BULK,
+    INVITE_CREATE,
+    INVITE_DELETE,
 }
 
 export default intents
