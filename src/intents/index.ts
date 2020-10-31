@@ -16,6 +16,7 @@ import MESSAGE_UPDATE from "./MESSAGE_UPDATE.ts"
 import TYPING_START from "./TYPING_START.ts"
 import GUILD_BAN_ADD from "./GUILD_BAN_ADD.ts"
 import GUILD_BAN_REMOVE from "./GUILD_BAN_REMOVE.ts"
+import MESSAGE_DELETE_BULK from "./MESSAGE_DELETE_BULK.ts"
 
 type IntentImports = {
     [index: string]: (client: Client, data: any) => Promise<any>
@@ -39,6 +40,7 @@ const intents: IntentImports = {
     TYPING_START,
     GUILD_BAN_ADD,
     GUILD_BAN_REMOVE,
+    MESSAGE_DELETE_BULK,
 }
 
 export default intents
