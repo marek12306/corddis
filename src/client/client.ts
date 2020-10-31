@@ -5,9 +5,10 @@ import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 import EventEmitter from "https://deno.land/x/events/mod.ts";
 import { LRU } from "https://deno.land/x/lru/mod.ts";
-import { UserType, ActivityType, StatusType } from "./../types/user.ts"
+import { UserType, StatusType } from "./../types/user.ts"
 import { GuildType } from "./../types/guild.ts"
 import { IntentHandler } from "./intentHandler.ts";
+import IntentHandlers from "../intents/index.ts"
 
 class Client extends EventEmitter {
     public emit: any;
@@ -25,6 +26,7 @@ class Client extends EventEmitter {
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     reconnect = false
     lastReq = 0
+    intentHandlers: Map<string, (client: Client, data: any) => Promise<any>> = new Map()
 
     constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
@@ -33,6 +35,10 @@ class Client extends EventEmitter {
         super()
         this.token = token;
         this.intents = intents;
+
+        for (const intent in IntentHandlers) {
+            this.intentHandlers.set(intent, IntentHandlers[intent])
+        }
     }
 
     addIntents(...intent: number[]) {
