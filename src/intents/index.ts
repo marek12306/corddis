@@ -14,6 +14,8 @@ import MESSAGE_REACTION_REMOVE from "./MESSAGE_REACTION_REMOVE.ts"
 import MESSAGE_REACTION_REMOVE_ALL from "./MESSAGE_REACTION_REMOVE_ALL.ts"
 import MESSAGE_UPDATE from "./MESSAGE_UPDATE.ts"
 import TYPING_START from "./TYPING_START.ts"
+import GUILD_BAN_ADD from "./GUILD_BAN_ADD.ts"
+import GUILD_BAN_REMOVE from "./GUILD_BAN_REMOVE.ts"
 
 type IntentImports = {
     [index: string]: (client: Client, data: any) => Promise<any>
@@ -35,6 +37,8 @@ const intents: IntentImports = {
     MESSAGE_REACTION_REMOVE,
     MESSAGE_REACTION_REMOVE_ALL,
     TYPING_START,
+    GUILD_BAN_ADD,
+    GUILD_BAN_REMOVE,
 }
 
 export default intents
