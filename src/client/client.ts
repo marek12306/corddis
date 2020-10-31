@@ -208,8 +208,18 @@ class Client extends EventEmitter {
         return this.cache.get("me") as Me;
     }
 
+    async fetchInvite(id: string): Promise<Invite> {
+        if (this.cache.has(id)) return this.cache.get(id) as Invite
+        const invite = await this._fetch<InviteType>("GET", `invites/${id}?with_counts=true`, null, true)
+        let guild
+        if (invite.guild) guild = await this.get(EntityType.GUILD, invite.guild.id) as Guild
+        this.cache.set(id, new Invite(invite, this, guild))
+        return this.cache.get(id) as Invite
+    }
+
     async deleteInvite(id: string|Invite): Promise<InviteType> {
         if (id instanceof Invite) id = id.data.code
+        if (this.cache.has(id)) this.cache.remove(id)
         return this._fetch<InviteType>("DELETE", `invites/${id}`, null, true)
     }
 

@@ -15,6 +15,7 @@ export class Invite {
 
     async delete(): Promise<Invite> {
         const response = await this.client._fetch<Response>("DELETE", `invites/${this.data.code}`, null, false)
+        this.client.cache.remove(this.data.code)
         return this
     }
 
