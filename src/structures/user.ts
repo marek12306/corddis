@@ -10,7 +10,7 @@ export class User {
         this.client = client;
     }
 
-    avatar(format: string = "png", size: number = 1024): string {
+    avatar(format = "png", size = 1024): string {
         return `https://cdn.discordapp.com/avatars/${this.data.id}/${this.data.avatar}?format=${this.data.avatar?.startsWith("a_") ? "gif" : format}&size=${size}`
     }
 

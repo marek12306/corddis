@@ -51,7 +51,7 @@ export default class {
         return this
     }
 
-    field(name: string, value: string, inline: boolean = false) {
+    field(name: string, value: string, inline = false) {
         if (!this.embed.fields) this.embed.fields = []
         this.embed.fields.push({ name, value, inline })
         return this

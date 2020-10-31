@@ -39,14 +39,14 @@ export class Guild {
     return this.client.cache.get(`${this.data.id}ch`) as Channel[];
   }
 
-  async members(limit: number = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
+  async members(limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
     if (this.client.cache.has(`${this.data.id}mem`)) return this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
     this.client.cache.set(`${this.data.id}mem`, json.map((data: GuildMemberType) => new GuildMember(data, this, this.client)))
     return this.client.cache.get(`${this.data.id}mem`) as GuildMember[];
   }
 
-  async addMember(token: string, userId: Snowflake | User, nick: string = "", roles: Snowflake[] = [], mute: boolean = false, deaf: boolean = false): Promise<GuildMember> {
+  async addMember(token: string, userId: Snowflake | User, nick = "", roles: Snowflake[] = [], mute = false, deaf = false): Promise<GuildMember> {
     if (!this.client.user) throw Error("Invalid user token")
     if (this.isUser(userId)) userId = (userId as User).data.id
     const resp = await this.client._fetch<Response>("GET", `guilds/${this.data.id}/members/${userId}`, JSON.stringify({ accessToken: token, nick, roles, mute, deaf }), false)

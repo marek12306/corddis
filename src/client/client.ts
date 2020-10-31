@@ -46,7 +46,7 @@ class Client extends EventEmitter {
         return this
     }
 
-    async _fetch<T>(method: string, path: string, body: any = "", json: boolean = true, contentType: any = "application/json", headers: any = {}): Promise<T> {
+    async _fetch<T>(method: string, path: string, body: any = "", json = true, contentType: any = "application/json", headers: any = {}): Promise<T> {
         var req = new Request(`${this.constants.BASE_URL}/v${this.constants.VERSION}/${path}`, {
             method, body, headers: {
                 "Authorization": `Bot ${this.token}`,
