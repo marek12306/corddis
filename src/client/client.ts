@@ -19,9 +19,9 @@ class Client extends EventEmitter {
     gatewayInterval: any
     intents: number[] = []
     sequenceNumber: any = null
-    _heartbeatTime: number = -1
-    ping: number = -1
-    sessionID: string = ""
+    _heartbeatTime = -1
+    ping = -1
+    sessionID = ""
     cache: LRU = new LRU(1000)
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     reconnect = false
