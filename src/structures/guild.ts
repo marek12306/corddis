@@ -40,11 +40,32 @@ export class Guild {
     return this.client.cache.get(`${this.data.id}ch`) as Channel[];
   }
 
-  async members(limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
-    if (this.client.cache.has(`${this.data.id}mem`)) return this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
+  async members(refresh = false, limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
+    if (!refresh && this.client.cache.has(`${this.data.id}mem`)) return this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
     this.client.cache.set(`${this.data.id}mem`, json.map((data: GuildMemberType) => new GuildMember(data, this, this.client)))
     return this.client.cache.get(`${this.data.id}mem`) as GuildMember[];
+  }
+
+  async member(id: string, refresh = false): Promise<GuildMember> {
+    let members: GuildMember[] = []
+    let found
+    if (this.client.cache.has(`${this.data.id}mem`)) {
+      members = this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
+      found = members.find((x: GuildMember) => x.data.user?.id == id)
+      if (found && !refresh) return found
+    }
+    const json = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
+    const member = new GuildMember(json, this, this.client)
+    if (found) {
+      members = members.map((x: GuildMember) =>
+        x.data.user?.id == id ? member : x
+      )
+    } else {
+      members.push(member)
+    }
+    this.client.cache.set(`${this.data.id}mem`, members)
+    return member
   }
 
   async addMember(token: string, userId: Snowflake | User, nick = "", roles: Snowflake[] = [], mute = false, deaf = false): Promise<GuildMember> {

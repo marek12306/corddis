@@ -19,6 +19,9 @@ import GUILD_BAN_REMOVE from "./GUILD_BAN_REMOVE.ts"
 import MESSAGE_DELETE_BULK from "./MESSAGE_DELETE_BULK.ts"
 import INVITE_CREATE from "./INVITE_CREATE.ts"
 import INVITE_DELETE from "./INVITE_DELETE.ts"
+import GUILD_MEMBER_ADD from "./GUILD_MEMBER_ADD.ts"
+import GUILD_MEMBER_REMOVE from "./GUILD_MEMBER_REMOVE.ts"
+import GUILD_MEMBER_UPDATE from "./GUILD_MEMBER_UPDATE.ts"
 
 type IntentImports = {
     [index: string]: (client: Client, data: any) => Promise<any>
@@ -45,6 +48,9 @@ const intents: IntentImports = {
     MESSAGE_DELETE_BULK,
     INVITE_CREATE,
     INVITE_DELETE,
+    GUILD_MEMBER_ADD,
+    GUILD_MEMBER_REMOVE,
+    GUILD_MEMBER_UPDATE,
 }
 
 export default intents
