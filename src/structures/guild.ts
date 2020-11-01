@@ -240,7 +240,7 @@ export class Guild {
    * @param {NewEmojiType} data raw emoji data to send
    * @returns {Promise<Emoji>} created emoji
    */
-  async addEmoji(data: NewEmojiType): Promise<Emoji> {
+  async createEmoji(data: NewEmojiType): Promise<Emoji> {
     const response = await this.client._fetch<Response>("POST", `guilds/${this.data.id}/emojis`, JSON.stringify({
       name: data.name, roles: data.roles,
       image: `data:${lookup(data.file_format)};base64,${fromUint8Array(data.image)}`

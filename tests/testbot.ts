@@ -52,7 +52,7 @@ import { token } from "./token.ts";
             const invites = await message.guild?.fetchInvites()
             if (invites && invites.length > 0) client.deleteInvite(invites[0])
         } else if (message.data.content == "zz") {
-            console.log(await message.guild?.addEmoji({
+            console.log(await message.guild?.createEmoji({
                 name: "test420",
                 roles: [],
                 image: await Deno.readFile("./h.jpg"),
