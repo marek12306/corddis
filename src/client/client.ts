@@ -30,7 +30,12 @@ class Client extends EventEmitter {
 
     constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
-
+    /**
+     * Creates a new client insance
+     * @class
+     * @param  {string=""} token User client token
+     * @param  {number[]} intents Array of intents
+     */
     constructor(token: string = "", ...intents: number[]) {
         super()
         this.token = token;
@@ -41,7 +46,13 @@ class Client extends EventEmitter {
         }
     }
 
-    addIntents(...intent: number[]) {
+    /**
+     * Add intents to client
+     * @param  {number[]} intent Intent(s) to receive
+     * @returns {Client} current client instance
+     */
+
+    addIntents(...intent: number[]): Client {
         this.intents.push(...intent);
         return this
     }
@@ -56,13 +67,13 @@ class Client extends EventEmitter {
             },
         })
 
-        var response = await this.performReq(req)
+        var response = await this._performReq(req)
         if (response.status == 400) throw Error((await response.json()).message)
 
         return json ? await response.json() : response;
     }
 
-    async performReq(req: Request): Promise<Response> {
+    async _performReq(req: Request): Promise<Response> {
         var resp: Response;
         if (this.lastReq == 0 || (Date.now() - this.lastReq > 250)) {
             this.lastReq = Date.now();
@@ -78,7 +89,7 @@ class Client extends EventEmitter {
             this.emit("debug", `Ratelimit, waiting ${retry_after}`);
             await this.sleep(retry_after);
             this.lastReq = Date.now();
-            resp = await this.performReq(req)
+            resp = await this._performReq(req)
         }
 
         return resp
@@ -148,7 +159,14 @@ class Client extends EventEmitter {
         }
     }
 
-    async game(name: string) {
+
+    /**
+     * Shortcut just to set client game 
+     * @param  {string} name A game to set
+     * @returns {Promise<StatusType>} new presence
+     */
+
+    async game(name: string): Promise<StatusType> {
         return this.setStatus({
             since: null,
             status: this.status.status,
@@ -158,15 +176,23 @@ class Client extends EventEmitter {
             afk: false
         })
     }
-
-    async setStatus(d: StatusType) {
+    /**
+     * Set custom presence
+     * @param  {StatusType} data Client presence
+     * @returns {Promise<StatusType>} new presence
+     */
+    async setStatus(d: StatusType): Promise<StatusType> {
         this.socket.send(JSON.stringify({
             op: 3, d
         }))
         this.status = d
         return d
     }
-
+    /**
+     * Login with a certain token
+     * @param  {string=this.token} token Token to login with
+     * @returns {Promise<boolean>} true if user has been succesfully logged in
+     */
     async login(token: string = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
@@ -179,7 +205,12 @@ class Client extends EventEmitter {
 
         return true;
     }
-
+    /**
+     * Fetch entities from discord api
+     * @param  {EntityType} entity entity type to fetch
+     * @param  {Snowflake} id id of entity to fetch
+     * @returns {Promise<User | Guild>} Fetched entity
+     */
     async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {
         if (!this.user) throw Error("Not logged in");
         if (this.cache.has(id)) return this.cache.get(id) as User | Guild;
@@ -198,7 +229,10 @@ class Client extends EventEmitter {
                 throw Error("Wrong EntityType")
         }
     }
-
+    /**
+     * Get current user as Me class
+     * @returns {Promise<Me>} current user
+     */
     async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
         if (this.cache.has("me")) return this.cache.get("me") as Me
@@ -206,6 +240,11 @@ class Client extends EventEmitter {
         this.cache.set("me", new Me(user, this))
         return this.cache.get("me") as Me;
     }
+    /**
+     * Fetch invite with a certain id
+     * @param  {string} id Id of the invite
+     * @returns {Promise<Invite>}
+     */
 
     async fetchInvite(id: string): Promise<Invite> {
         if (this.cache.has(id)) return this.cache.get(id) as Invite
@@ -215,15 +254,20 @@ class Client extends EventEmitter {
         this.cache.set(id, new Invite(invite, this, guild))
         return this.cache.get(id) as Invite
     }
+    /**
+     * Deletes a invite
+     * @param  {string|Invite} id id or invite object to delete
+     * @returns {Promise<InviteType>} deleted invite
+     */
 
-    async deleteInvite(id: string|Invite): Promise<InviteType> {
+    async deleteInvite(id: string | Invite): Promise<InviteType> {
         if (id instanceof Invite) id = id.data.code
         if (this.cache.has(id)) this.cache.remove(id)
         return this._fetch<InviteType>("DELETE", `invites/${id}`, null, true)
     }
 
     toString() {
-        return `Client {"ping":${this.ping},"sessionID":"${this.sessionID}","token":"${this.token}","user":{"data":${JSON.stringify(this.user?.data)}}}` 
+        return `Client {"ping":${this.ping},"sessionID":"${this.sessionID}","token":"${this.token}","user":{"data":${JSON.stringify(this.user?.data)}}}`
     }
 }
 
