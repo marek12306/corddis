@@ -15,37 +15,60 @@ export class Guild {
   data: GuildType;
   client: Client;
   invites: Invite[] = [];
-
+  /**
+   * Creates a guild instance.
+   * @param {GuildType} data raw guild data from Discord API
+   * @param {Client} client client instance
+   */
   constructor(data: GuildType, client: Client) {
     this.data = data;
     this.client = client;
   }
-
+  /**
+   * Updates a guild.
+   * @param {GuildUpdateType} data raw guild updating data to send
+   * @returns {Promise<Guild>} updated guild
+   */
   async update(data: GuildUpdateType): Promise<Guild> {
     const guild = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
     return new Guild(guild, this.client);
   }
-
+  /**
+   * Deletes a guild.
+   * @returns {Promise<boolean>} true if task was successful
+   */
   async delete(): Promise<boolean> {
     const resp = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}`, null, false)
     if (resp.status != 204) throw new Error(`Error ${resp.status}`);
     return true;
   }
-
+  /**
+   * Fetches all channels in guild (or gets them from cache).
+   * @returns {Promise<Channel[]>} fetched channels
+   */
   async channels(): Promise<Channel[]> {
     if (this.client.cache.has(`${this.data.id}ch`)) return this.client.cache.get(`${this.data.id}ch`) as Channel[]
     const json = await this.client._fetch<ChannelType[]>("GET", `guilds/${this.data.id}/channels`, null, true)
     this.client.cache.set(`${this.data.id}ch`, json.map((data: ChannelType) => new Channel(data, this.client, this)))
     return this.client.cache.get(`${this.data.id}ch`) as Channel[];
   }
-
+  /**
+   * Fetches all members from guild (or gets them from cache).
+   * @param {boolean} refresh chooses whether to update the cache or not
+   * @param {number} limit limit of members to fetch
+   * @param {Snowflake} after after which member to fetch
+   */
   async members(refresh = false, limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
     if (!refresh && this.client.cache.has(`${this.data.id}mem`)) return this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
     this.client.cache.set(`${this.data.id}mem`, json.map((data: GuildMemberType) => new GuildMember(data, this, this.client)))
     return this.client.cache.get(`${this.data.id}mem`) as GuildMember[];
   }
-
+  /**
+   * Fetches a single member from guild (or gets him from cache).
+   * @param {string} id member (user) ID
+   * @param {boolean} refresh chooses whether to update the cache or not
+   */
   async member(id: string, refresh = false): Promise<GuildMember> {
     let members: GuildMember[] = []
     let found
@@ -74,7 +97,11 @@ export class Guild {
     if ((await resp.text()).length == 0) return (await this.get(EntityType.USER, userId)) as GuildMember;
     return new GuildMember(await resp.json(), this, this.client);
   }
-
+  /**
+   * Fetches guild entites from Discord API
+   * @param {EntityType} type entity to fetch
+   * @param id 
+   */
   async get(type: EntityType, id: Snowflake): Promise<GuildMember | Channel> {
     switch (type) {
       // deno-lint-ignore no-case-declarations
@@ -88,16 +115,27 @@ export class Guild {
         throw Error("Wrong EntityType")
     }
   }
-
+  /**
+   * Checks if the item is a user.
+   * @param {any} item item to check
+   * @returns {boolean} true if item is a user
+   */
   isUser(item: any): item is User {
     return (item as User).isMe() !== undefined
   }
-
+  /**
+   * Creates a channel.
+   * @param {ChannelCreateType} data raw channel data to send
+   * @returns {Promise<Channel>} created channel
+   */
   async createChannel(data: ChannelCreateType): Promise<Channel> {
     const json = await this.client._fetch<ChannelType>("POST", `guilds/${this.data.id}/channels`, JSON.stringify(data), true)
     return new Channel(json, this.client, this);
   }
-
+  /**
+   * Generates a guild icon URL.
+   * @param {IconAttributesType} attr icon attributes
+   */
   async icon(attr: IconAttributesType = {}): Promise<string> {
     if (attr.size && this.client.constants.IMAGE_SIZES.includes(attr.size))
       throw new Error(`Size must be one of ${this.client.constants.IMAGE_SIZES.join(", ")}`);
@@ -106,60 +144,102 @@ export class Guild {
 
     return `https://cdn.discordapp.com/icons/${this.data.id}/${this.data.icon}.${'png' ?? attr.format}?size=${4096 ?? attr.size}`
   }
-
+  /**
+   * Leaves from guild.
+   * @returns {Promise<boolean>} true if task was successful
+   */
   async leave(): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `users/@me/guilds/${this.data.id}`, null, false)
     return response.status == 204 ? true : false;
   }
-
+  /**
+   * Bans a member.
+   * @param {string} id member (user) ID to ban
+   * @param {string} [reason] ban reason 
+   */
   async ban(id: string, reason?: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/bans/${id}`, JSON.stringify({ reason }), false)
     return response.status == 204 ? true : false;
   }
-
+  /**
+   * Revokes a ban from user.
+   * @param {string} id member ID
+   * @returns {Promise<boolean>} true if operation was successful
+   */
   async unban(id: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/bans/${id}`, null, false)
     return response.status == 204 ? true : false;
   }
-
+  /**
+   * Kicks a member from guild.
+   * @param {string} id member (user) ID to kick
+   */
   async kick(id: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/members/${id}`, null, false)
     return response.status == 204 ? true : false;
   }
-
+  /**
+   * Changes a bot or other member nickname.
+   * @param {string} nick nickname
+   * @param {string} [id] member (user) ID to change, defaults to bot 
+   */
   async nickname(nick: string, id?: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/${id ?? "@me"}${id ? "" : "/nick"}`, JSON.stringify({ nick }), false)
     return response.status == 200 ? true : false
   }
-
+  /**
+   * Creates a role.
+   * @param {RoleEditType} role raw role data to send
+   */
   async createRole(role: RoleEditType): Promise<RoleType> {
     return await this.client._fetch<RoleType>("POST", `guilds/${this.data.id}/roles`, JSON.stringify(role), true)
   }
-
+  /**
+   * Edits a role.
+   * @param {string} id role ID to edit
+   * @param {RoleEditType} role raw role data to send
+   * @returns {Promise<RoleType>} raw edited role
+   */
   async editRole(id: string, role: RoleEditType): Promise<RoleType> {
     return await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
   }
-
+  /**
+   * Edits a role.
+   * @param {string} id role ID to edit
+   * @returns {Promise<boolean>} true if task was successful
+   */
   async deleteRole(id: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/roles/${id}`, null, false)
     return response.status == 204 ? true : false
   }
-
+  /**
+   * Fetches all guild invites.
+   * @returns {Promise<Invite[]>} fetched invites
+   */
   async fetchInvites(): Promise<Invite[]> {
     const invites = await this.client._fetch<InviteType[]>("GET", `guilds/${this.data.id}/invites`, null, true)
     this.invites = invites.map((x: InviteType) => new Invite(x, this.client, this))
     this.invites.forEach((x: Invite) => this.client.cache.set(x.data.code, x))
     return this.invites
   }
-
+  /**
+   * Adds a new role to member.
+   * @param {string} member_id member ID to which role will be added
+   * @param {string} role_id role ID to add
+   * @returns {Promise<boolean>} true if task was successful
+   */
   async addRole(member_id: string, role_id: string) {
     const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/members/${member_id}/roles/${role_id}`, null, false)
     return response.status == 204 ? true : false
   }
-
+  /**
+   * Creates a new emoji.
+   * @param {NewEmojiType} data raw emoji data to send
+   * @returns {Promise<Emoji>} created emoji
+   */
   async addEmoji(data: NewEmojiType): Promise<Emoji> {
     const response = await this.client._fetch<Response>("POST", `guilds/${this.data.id}/emojis`, JSON.stringify({
       name: data.name, roles: data.roles,

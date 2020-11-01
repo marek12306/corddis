@@ -45,13 +45,11 @@ class Client extends EventEmitter {
             this.intentHandlers.set(intent, IntentHandlers[intent])
         }
     }
-
     /**
      * Add intents to client
      * @param  {number[]} intent Intent(s) to receive
      * @returns {Client} current client instance
-     */
-
+     */    
     addIntents(...intent: number[]): Client {
         this.intents.push(...intent);
         return this
@@ -158,14 +156,11 @@ class Client extends EventEmitter {
             if (intentObject) this.emit(t, ...intentObject);
         }
     }
-
-
     /**
      * Shortcut just to set client game 
      * @param  {string} name A game to set
      * @returns {Promise<StatusType>} new presence
-     */
-
+     */    
     async game(name: string): Promise<StatusType> {
         return this.setStatus({
             since: null,
@@ -177,7 +172,17 @@ class Client extends EventEmitter {
         })
     }
     /**
-     * Set custom presence
+     * Set custom presence. Sends raw data to gateway.
+     * @example
+     * client.setStatus({
+     *     since: null,
+     *     status: "dnd",
+     *     activities: [{
+     *         name: "a game",
+     *         type: 0
+     *     }],
+     *     afk: false
+     * })
      * @param  {StatusType} data Client presence
      * @returns {Promise<StatusType>} new presence
      */
@@ -206,7 +211,9 @@ class Client extends EventEmitter {
         return true;
     }
     /**
-     * Fetch entities from discord api
+     * Fetch entities from Discord API
+     * @example
+     * client.get(EntityType.GUILD, "id") as Guild
      * @param  {EntityType} entity entity type to fetch
      * @param  {Snowflake} id id of entity to fetch
      * @returns {Promise<User | Guild>} Fetched entity
@@ -245,7 +252,6 @@ class Client extends EventEmitter {
      * @param  {string} id Id of the invite
      * @returns {Promise<Invite>}
      */
-
     async fetchInvite(id: string): Promise<Invite> {
         if (this.cache.has(id)) return this.cache.get(id) as Invite
         const invite = await this._fetch<InviteType>("GET", `invites/${id}?with_counts=true`, null, true)
@@ -259,7 +265,6 @@ class Client extends EventEmitter {
      * @param  {string|Invite} id id or invite object to delete
      * @returns {Promise<InviteType>} deleted invite
      */
-
     async deleteInvite(id: string | Invite): Promise<InviteType> {
         if (id instanceof Invite) id = id.data.code
         if (this.cache.has(id)) this.cache.remove(id)

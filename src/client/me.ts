@@ -39,7 +39,7 @@ export class Me extends User {
         return this.client.cache.get("medm") as Channel[];
     }
     /**
-     * Create dm with a user
+     * Create a DM with a user
      * @param  {Snowflake} user user id to create dm with
      * @returns {Promise<Channel>} newly created dm channel
      */
