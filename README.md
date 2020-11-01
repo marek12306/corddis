@@ -15,6 +15,7 @@ Deno Discord API wrapper made mainly for learning. Still in early stages of deve
   - [ ] User presence
   - [ ] Webhooks
   - [ ] Pinned messages
+  - [ ] More structures
 - Low priority
   - [ ] More control over the cache
   - [ ] Templates
