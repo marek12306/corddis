@@ -3,8 +3,7 @@ import { Guild } from "./../structures/guild.ts";
 import { EntityType, Snowflake } from "./../types/utils.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
-import EventEmitter from "https://deno.land/x/events/mod.ts";
-import { LRU } from "https://deno.land/x/lru/mod.ts";
+import { EventEmitter, LRU } from "../../deps.ts"
 import { UserType, StatusType } from "./../types/user.ts"
 import { GuildType, InviteType } from "./../types/guild.ts"
 import { IntentHandler } from "./intentHandler.ts";

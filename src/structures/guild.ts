@@ -6,8 +6,7 @@ import { GuildMember } from "./guildMember.ts";
 import { EntityType, Snowflake } from "../types/utils.ts";
 import { User } from "./user.ts";
 import { RoleEditType, RoleType } from "../types/role.ts";
-import { fromUint8Array } from "https://deno.land/x/base64@v0.2.0/mod.ts";
-import { lookup } from "https://deno.land/x/media_types/mod.ts";
+import { fromUint8Array, lookup } from "../../deps.ts"
 import { Emoji } from "./emoji.ts";
 import { EmojiType, NewEmojiType } from "../types/emoji.ts";
 import { Invite } from "./invite.ts";

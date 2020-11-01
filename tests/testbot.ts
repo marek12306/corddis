@@ -1,4 +1,4 @@
-import { Client, Intents, Message, User, EmbedBuilder, EntityType } from "../src/index.ts";
+import { Client, Intents, Message, User, EmbedBuilder, EntityType } from "../mod.ts";
 import { PermissionEnum } from "../src/permissions.ts";
 import { GuildMember } from "../src/structures/guildMember.ts";
 import { token } from "./token.ts";
