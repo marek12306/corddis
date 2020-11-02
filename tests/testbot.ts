@@ -58,6 +58,9 @@ import { token } from "./token.ts";
                 image: await Deno.readFile("./h.jpg"),
                 file_format: "jpg"
             }))
+        } else if (message.data.content == "test420") {
+            const member = await message.guild?.get(EntityType.GUILD_MEMBER, "682522825043422930")
+            console.log(member)
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))

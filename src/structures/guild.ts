@@ -83,6 +83,7 @@ export class Guild {
           if (found && !refresh) return found
         }
         const json = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
+        if (!json.joined_at) return undefined
         const member = new GuildMember(json, this, this.client)
         if (found) {
           this.members = this.members.map((x: GuildMember) => x.data.user?.id == id ? member : x)
