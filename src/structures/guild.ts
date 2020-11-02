@@ -73,7 +73,7 @@ export class Guild {
    * @param {EntityType} type entity to fetch
    * @param id 
    */
-  async get(type: EntityType, id: Snowflake, refresh = false): Promise<GuildMember | Channel> {
+  async get(type: EntityType, id: Snowflake, refresh = false): Promise<GuildMember | Channel | Role | undefined> {
     switch (type) {
       // deno-lint-ignore no-case-declarations
       case EntityType.GUILD_MEMBER:
@@ -91,7 +91,9 @@ export class Guild {
         }
         return member
       case EntityType.CHANNEL:
-        return (await this.fetchChannels()).find(ch => ch.data.id == id) as Channel;
+        return (await this.fetchChannels()).find(ch => ch.data.id == id);
+      case EntityType.ROLE:
+        return this.roles.find(r => r.data.id == id)
       default:
         throw Error("Wrong EntityType")
     }

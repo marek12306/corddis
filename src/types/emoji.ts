@@ -1,8 +1,9 @@
+import { RoleType } from "./role.ts";
 import { Snowflake } from "./utils.ts";
 
 export interface EmojiType {
   name: string;
-  roles: any[];
+  roles: string[];
   id: string;
   require_colons: boolean;
   managed: boolean;
