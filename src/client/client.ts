@@ -1,6 +1,6 @@
 import { User } from "./../structures/user.ts";
 import { Guild } from "./../structures/guild.ts";
-import { EntityType, GetGatewayType, Snowflake } from "./../types/utils.ts";
+import { EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 import { EventEmitter, LRU } from "../../deps.ts"
@@ -67,6 +67,11 @@ class Client extends EventEmitter {
 
         var response = await this._performReq(req)
         if (response.status == 400) throw Error((await response.json()).message)
+        
+        if (json) {
+            const respJson = await response.json() as ErrorType
+            if ((respJson as ErrorType).message) throw Error((respJson as ErrorType).message)
+        }
 
         return json ? await response.json() : response;
     }

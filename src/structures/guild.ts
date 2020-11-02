@@ -3,7 +3,7 @@ import { ChannelCreateType, ChannelType } from "../types/channel.ts";
 import { Client } from "./../client/client.ts";
 import { Channel } from "./channel.ts";
 import { GuildMember } from "./guildMember.ts";
-import { EntityType, Snowflake } from "../types/utils.ts";
+import { EntityType, ErrorType, Snowflake } from "../types/utils.ts";
 import { User } from "./user.ts";
 import { RoleEditType, RoleType } from "../types/role.ts";
 import { fromUint8Array, lookup } from "../../deps.ts"
@@ -83,7 +83,6 @@ export class Guild {
           if (found && !refresh) return found
         }
         const json = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
-        if (!json.joined_at) return undefined
         const member = new GuildMember(json, this, this.client)
         if (found) {
           this.members = this.members.map((x: GuildMember) => x.data.user?.id == id ? member : x)
@@ -190,7 +189,7 @@ export class Guild {
   async editRole(id: string, role: RoleEditType): Promise<Role> {
     const edited = await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
     const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
-    if (foundRaw >= 0) this.data.roles[foundRaw] = edited
+    if (foundRaw >= 0) this.data.roles[foundRaw] = edited 
     const foundRole = this.roles.findIndex((x: Role) => x.data.id == id)
     if (foundRole >= 0) {
       this.roles[foundRole].data = edited
@@ -207,6 +206,7 @@ export class Guild {
    */
   async deleteRole(id: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/roles/${id}`, null, false)
+    if (response.status != 204) return false
     const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
     if (foundRaw >= 0) this.data.roles.splice(foundRaw, 1)
     const foundRole = this.roles.findIndex((x: Role) => x.data.id == id)

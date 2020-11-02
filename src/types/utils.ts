@@ -62,3 +62,8 @@ export interface ConnectionType {
     show_activity: boolean;
     visibility: number;
 }
+
+export interface ErrorType {
+    message: string;
+    code: number;
+}

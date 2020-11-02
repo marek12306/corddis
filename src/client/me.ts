@@ -4,7 +4,7 @@ import { User } from "../structures/user.ts";
 import { ChannelType } from "../types/channel.ts";
 import { GuildType } from "../types/guild.ts";
 import { UserType } from "../types/user.ts";
-import { ConnectionType, Snowflake } from "../types/utils.ts";
+import { ConnectionType, ErrorType, Snowflake } from "../types/utils.ts";
 import { Client } from "./client.ts";
 
 export class Me extends User {
@@ -53,7 +53,7 @@ export class Me extends User {
      */
     async getConnections(): Promise<ConnectionType[]> {
         if (this.client.cache.has("conn")) return this.client.cache.get("conn") as ConnectionType[]
-        const connections = this.client._fetch<ConnectionType[]>("GET", `users/@me/connections`, null, true)
+        const connections = await this.client._fetch<ConnectionType[]>("GET", `users/@me/connections`, null, true)
         this.client.cache.set("conn", connections)
         return connections
     }
