@@ -68,12 +68,14 @@ class Client extends EventEmitter {
         var response = await this._performReq(req)
         if (response.status == 400) throw Error((await response.json()).message)
         
+        // deno-lint-ignore no-explicit-any
+        let respJson: any
         if (json) {
-            const respJson = await response.json() as ErrorType
+            respJson = await response.json()
             if ((respJson as ErrorType).message) throw Error((respJson as ErrorType).message)
         }
 
-        return json ? await response.json() : response;
+        return json ? respJson : response;
     }
 
     async _performReq(req: Request): Promise<Response> {
