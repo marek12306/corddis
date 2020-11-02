@@ -9,13 +9,12 @@ export default async (client: Client, data: any): Promise<any> => {
     const guild = await client.get(EntityType.GUILD, guild_id) as Guild
     const userObj = new User(user, client)
 
-    if (client.cache.has(`${guild_id}mem`)) {
-        const guildMembers =  client.cache.get(`${guild_id}mem`) as GuildMember[]
-        const found = guildMembers.find((x: GuildMember) => x.data.user?.id == userObj.data.id)
+    if (guild.members.length > 0) {
+        const found = guild.members.find((x: GuildMember) => x.data.user?.id == userObj.data.id)
         if (!found) return [userObj, guild]
-        const index = guildMembers.indexOf(found)
-        if (index != -1) guildMembers.splice(index, 1)
-        client.cache.set(`${guild_id}mem`, guildMembers)
+        const index = guild.members.indexOf(found)
+        if (index != -1) guild.members.splice(index, 1)
+        client.cache.set(guild_id, guild)
     } 
     
     return [userObj, guild]

@@ -15,6 +15,7 @@ export class Guild {
   data: GuildType;
   client: Client;
   invites: Invite[] = [];
+  members: GuildMember[] = [];
   /**
    * Creates a guild instance.
    * @param {GuildType} data raw guild data from Discord API
@@ -53,62 +54,40 @@ export class Guild {
     return this.client.cache.get(`${this.data.id}ch`) as Channel[];
   }
   /**
-   * Fetches all members from guild (or gets them from cache).
+   * Fetches all members from guild.
    * @param {boolean} refresh chooses whether to update the cache or not
    * @param {number} limit limit of members to fetch
    * @param {Snowflake} after after which member to fetch
    */
-  async members(refresh = false, limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
-    if (!refresh && this.client.cache.has(`${this.data.id}mem`)) return this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
+  async fetchMembers(refresh = false, limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
-    this.client.cache.set(`${this.data.id}mem`, json.map((data: GuildMemberType) => new GuildMember(data, this, this.client)))
-    return this.client.cache.get(`${this.data.id}mem`) as GuildMember[];
-  }
-  /**
-   * Fetches a single member from guild (or gets him from cache).
-   * @param {string} id member (user) ID
-   * @param {boolean} refresh chooses whether to update the cache or not
-   */
-  async member(id: string, refresh = false): Promise<GuildMember> {
-    let members: GuildMember[] = []
-    let found
-    if (this.client.cache.has(`${this.data.id}mem`)) {
-      members = this.client.cache.get(`${this.data.id}mem`) as GuildMember[]
-      found = members.find((x: GuildMember) => x.data.user?.id == id)
-      if (found && !refresh) return found
-    }
-    const json = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
-    const member = new GuildMember(json, this, this.client)
-    if (found) {
-      members = members.map((x: GuildMember) =>
-        x.data.user?.id == id ? member : x
-      )
-    } else {
-      members.push(member)
-    }
-    this.client.cache.set(`${this.data.id}mem`, members)
-    return member
-  }
-
-  async addMember(token: string, userId: Snowflake | User, nick = "", roles: Snowflake[] = [], mute = false, deaf = false): Promise<GuildMember> {
-    if (!this.client.user) throw Error("Invalid user token")
-    if (this.isUser(userId)) userId = (userId as User).data.id
-    const resp = await this.client._fetch<Response>("GET", `guilds/${this.data.id}/members/${userId}`, JSON.stringify({ accessToken: token, nick, roles, mute, deaf }), false)
-    if ((await resp.text()).length == 0) return (await this.get(EntityType.USER, userId)) as GuildMember;
-    return new GuildMember(await resp.json(), this, this.client);
+    this.members = json.map((data: GuildMemberType) => new GuildMember(data, this, this.client))
+    return this.members
   }
   /**
    * Fetches guild entites from Discord API
    * @param {EntityType} type entity to fetch
    * @param id 
    */
-  async get(type: EntityType, id: Snowflake): Promise<GuildMember | Channel> {
+  async get(type: EntityType, id: Snowflake, refresh = false): Promise<GuildMember | Channel> {
     switch (type) {
       // deno-lint-ignore no-case-declarations
       case EntityType.GUILD_MEMBER:
-        const user = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
-        this.client.cache.set(`${type}${id}`, new GuildMember(user, this, this.client))
-        return this.client.cache.get(`${type}${id}`) as GuildMember|Channel;
+        let found
+        if (this.members.length > 0) {
+          found = this.members.find((x: GuildMember) => x.data.user?.id == id)
+          if (found && !refresh) return found
+        }
+        const json = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
+        const member = new GuildMember(json, this, this.client)
+        if (found) {
+          this.members = this.members.map((x: GuildMember) =>
+            x.data.user?.id == id ? member : x
+          )
+        } else {
+          this.members.push(member)
+        }
+        return member
       case EntityType.CHANNEL:
         return (await this.channels()).find(ch => ch.data.id == id) as Channel;
       default:
