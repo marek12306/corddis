@@ -10,7 +10,8 @@ Deno Discord API wrapper made mainly for learning. Still in early stages of deve
 
 ## Todo
 - High priority
-  - [x] ~~Documentation~~ (mostly done)
+  - [ ] Support for channels other than text
+  - [x] ~~Documentation~~
   - [ ] User presence
   - [ ] Webhooks
   - [ ] Pinned messages
