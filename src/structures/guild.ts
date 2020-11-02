@@ -210,7 +210,7 @@ export class Guild {
    * @param {string} role_id role ID to add
    * @returns {Promise<boolean>} true if task was successful
    */
-  async addRole(member_id: string, role_id: string) {
+  async addRole(member_id: string, role_id: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/members/${member_id}/roles/${role_id}`, null, false)
     return response.status == 204 ? true : false
   }

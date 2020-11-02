@@ -11,7 +11,7 @@ export class Emoji {
      * @class
      * @param {EmojiType} data raw emoji data from Discord API
      * @param {Client} client client instance
-     * @param {Guild} guild the guild from which the emoji
+     * @param {Guild} guild the guild from which the emoji is
      */
     constructor(data: EmojiType, client: Client, guild?: Guild, ) {
         this.data = data;
