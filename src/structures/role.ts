@@ -6,29 +6,17 @@ export class Role {
     data: RoleType
     guild: Guild
     client: Client
-    /**
-     * Creates a role instance.
-     * @param {RoleType} data raw data from Discord API
-     * @param {Client} client client instance
-     * @param {Guild} guild the guild from which the role is from
-     */
+    /** Creates a role instance. */
     constructor(data: RoleType, client: Client, guild: Guild) {
         this.data = data
         this.guild = guild
         this.client = client
     }
-    /**
-     * Deletes a role.
-     * @returns {Promise<boolean>} true if task was successful
-     */
+    /** Deletes a role. */
     async delete(): Promise<boolean> {
         return this.guild.deleteRole(this.data.id)
     }
-    /**
-     * Edits a role.
-     * @param {RoleEditType} data raw data to send
-     * @returns {Promise<Role>} edited role
-     */
+    /** Edits a role. */
     async edit(data: RoleEditType): Promise<Role> {
         this.data = (await this.guild.editRole(this.data.id, data)).data
         return this

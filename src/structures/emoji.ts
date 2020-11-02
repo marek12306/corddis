@@ -6,22 +6,13 @@ export class Emoji {
     data: EmojiType;
     guild: Guild | undefined;
     client: Client;
-    /**
-     * Class for emoji.
-     * @class
-     * @param {EmojiType} data raw emoji data from Discord API
-     * @param {Client} client client instance
-     * @param {Guild} guild the guild from which the emoji is
-     */
+    /** Class for emoji. */
     constructor(data: EmojiType, client: Client, guild?: Guild, ) {
         this.data = data;
         this.guild = guild;
         this.client = client;
     }
-    /**
-     * Deletes a emoji.
-     * @returns {Promise<boolean>} true if task was successful
-     */
+    /** Deletes a emoji. */
     async delete(): Promise<boolean> {
         if (!this.guild) throw "Guild not found in emoji"
         const response = await this.client._fetch<Response>("DELETE", `guilds/${this.guild.data.id}/emojis/${this.data.id}`, null, false)
@@ -29,8 +20,7 @@ export class Emoji {
     }
     /**
      * Modifies an emoji.
-     * @param {EmojiEditType} data raw emoji editing data to send
-     * @returns {Promise<Emoji>} edited emoji
+     * @return edited emoji
      */
     async modify(data: EmojiEditType): Promise<Emoji> {
         if (!this.guild) throw "Guild not found in emoji"

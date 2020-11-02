@@ -6,12 +6,7 @@ export class Invite {
     data: InviteType;
     guild: Guild | undefined;
     client: Client;
-    /**
-     * Creates new Invite instance.
-     * @param {InviteType} data raw data from Discord API
-     * @param {Client} client client instance
-     * @param {Guild} [guild] the guild from which the invite is
-     */
+    /** Creates new Invite instance. */
     constructor(data: InviteType, client: Client, guild?: Guild) {
         this.data = data;
         this.client = client;
@@ -19,7 +14,7 @@ export class Invite {
     }
     /**
      * Deletes a invite.
-     * @returns {Promise<Invite>} deleted invite
+     * @return deleted invite
      */
     async delete(): Promise<Invite> {
         const response = await this.client._fetch<Response>("DELETE", `invites/${this.data.code}`, null, false)

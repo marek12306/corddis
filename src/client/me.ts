@@ -8,19 +8,11 @@ import { ConnectionType, ErrorType, Snowflake } from "../types/utils.ts";
 import { Client } from "./client.ts";
 
 export class Me extends User {
-    /**
-     * Creates a new insance of a Me class
-     * @constructor 
-     * @param  {UserType} data User data
-     * @param  {Client} client Client object
-     */
+
     constructor(data: UserType, client: Client) {
         super(data, client)
     }
-    /**
-     * Get user guilds
-     * @returns {Promise<Guild[]>} Array of guilds that user is part of
-     */
+    /** Get user guilds */
     async guilds(): Promise<Guild[]> {
         if (this.client.cache.has("meg")) return this.client.cache.get("meg") as Guild[];
         const guildsJSON = await this.client._fetch<GuildType[]>("GET", `users/@me/guilds`, null, true)
@@ -29,7 +21,7 @@ export class Me extends User {
     }
     /**
      * Get user DM channels
-     * @returns {Promise<Channel[]>} User dm channels, empty array if user is a bot.
+     * @return User dm channels, empty array if user is a bot.
      */
     async getDM(): Promise<Channel[]> {
         if (this.client.user?.isBot()) return [];
@@ -40,17 +32,13 @@ export class Me extends User {
     }
     /**
      * Create a DM with a user
-     * @param  {Snowflake} user user id to create dm with
-     * @returns {Promise<Channel>} newly created dm channel
+     * @return newly created dm channel
      */
     async createDM(recipent_id: Snowflake): Promise<Channel> {
         const channel = await this.client._fetch<ChannelType>("POST", `users/@me/channels`, JSON.stringify({ recipent_id }), true)
         return new Channel(channel, this.client)
     }
-    /**
-     * Get user connections
-     * @returns {Promise<any>} Connections
-     */
+    /** Get user connections */
     async getConnections(): Promise<ConnectionType[]> {
         if (this.client.cache.has("conn")) return this.client.cache.get("conn") as ConnectionType[]
         const connections = await this.client._fetch<ConnectionType[]>("GET", `users/@me/connections`, null, true)

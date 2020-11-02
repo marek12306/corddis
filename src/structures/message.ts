@@ -8,56 +8,30 @@ export class Message {
     client: Client;
     channel: Channel;
     guild?: Guild;
-    /**
-     * Creates a Message instance.
-     * @class
-     * @param {MessageType} data raw data from Discord API
-     * @param {Client} client client instance
-     * @param {Channel} channel the channel from which the message was sent
-     * @param {Guild} guild the guild from which the message was sent
-     */
+    /** Creates a Message instance. */
     constructor(data: MessageType, client: Client, channel: Channel, guild?: Guild) {
         this.data = data;
         this.client = client;
         this.channel = channel;
         this.guild = guild;
     }
-    /**
-     * Replies to a message with some text content.
-     * @param {string} content message content
-     * @returns {Promise<Message>} message that was sent
-     */
+    /** Replies to a message with some text content. */
     async reply(content: string): Promise<Message> {
         return this.channel.sendMessage({ content })
     }
-    /**
-     * Deletes message.
-     * @returns {Promise<boolean>} true if task was successful
-     */
+    /** Deletes message. */
     async delete(): Promise<boolean> {
         return this.channel.deleteMessage(this.data.id)
     }
-    /**
-     * Edits message.
-     * @param {MessageEditParamsType|string} data raw message edit data to send or text content
-     * @returns {Promise<Message>} edited message
-     */
+    /** Edits a message. */
     async edit(data: (MessageEditParamsType | string)): Promise<Message> {
         return this.channel.editMessage(this.data.id, data)
     }
-    /**
-     * Reacts to a message with emoji
-     * @param {string} emoji emoji
-     * @returns {Promise<boolean>} true if task was successful
-     */
+    /** Reacts to a message with emoji */
     async react(emoji: string): Promise<boolean> {
         return this.channel.react(this.data.id, emoji)
     }
-    /**
-     * Deletes previously added reaction from a message.
-     * @param {string} emoji emoji
-     * @returns {Promise<boolean>} true if task was successful
-     */
+    /** Deletes previously added reaction from a message. */
     async unreact(emoji: string): Promise<boolean> {
         return this.channel.unreact(this.data.id, emoji)
     }

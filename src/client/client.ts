@@ -10,6 +10,7 @@ import { IntentHandler } from "./intentHandler.ts";
 import IntentHandlers from "../intents/index.ts"
 import { Invite } from "../structures/invite.ts";
 
+/** Client which communicates with gateway and manages REST API communication. */
 class Client extends EventEmitter {
     token: string;
     user: User | null = null;
@@ -29,12 +30,7 @@ class Client extends EventEmitter {
     intentHandlers: Map<string, (client: Client, data: any) => Promise<any>> = new Map()
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
-    /**
-     * Creates a new client insance
-     * @class
-     * @param  {string=""} token User client token
-     * @param  {number[]} intents Array of intents
-     */
+
     constructor(token: string = "", ...intents: number[]) {
         super()
         this.token = token;
@@ -45,9 +41,8 @@ class Client extends EventEmitter {
         }
     }
     /**
-     * Add intents to client
-     * @param  {number[]} intent Intent(s) to receive
-     * @returns {Client} current client instance
+     * Adds intents to client
+     * @return current client instance
      */
     addIntents(...intent: number[]): Client {
         this.intents.push(...intent);
@@ -160,9 +155,8 @@ class Client extends EventEmitter {
         }
     }
     /**
-     * Shortcut just to set client game 
-     * @param  {string} name A game to set
-     * @returns {Promise<StatusType>} new presence
+     * Shortcut just to set client game
+     * @return new presence
      */
     async game(name: string): Promise<StatusType> {
         return this.setStatus({
@@ -175,19 +169,17 @@ class Client extends EventEmitter {
         })
     }
     /**
-     * Set custom presence. Sends raw data to gateway.
-     * @example
-     * client.setStatus({
-     *     since: null,
-     *     status: "dnd",
-     *     activities: [{
-     *         name: "a game",
-     *         type: 0
-     *     }],
-     *     afk: false
-     * })
-     * @param  {StatusType} data Client presence
-     * @returns {Promise<StatusType>} new presence
+     * Sets custom presence. Sends raw data to gateway.
+     *      client.setStatus({
+     *          since: null,
+     *          status: "dnd",
+     *          activities: [{
+     *              name: "a game",
+     *              type: 0
+     *          }],
+     *          afk: false
+     *      })
+     * @return new presence
      */
     async setStatus(d: StatusType): Promise<StatusType> {
         this.socket.send(JSON.stringify({
@@ -196,11 +188,7 @@ class Client extends EventEmitter {
         this.status = d
         return d
     }
-    /**
-     * Login with a certain token
-     * @param  {string=this.token} token Token to login with
-     * @returns {Promise<boolean>} true if user has been succesfully logged in
-     */
+    /** Logins with a certain token */
     async login(token: string = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
@@ -214,12 +202,8 @@ class Client extends EventEmitter {
         return true;
     }
     /**
-     * Fetch entities from Discord API
-     * @example
-     * client.get(EntityType.GUILD, "id") as Guild
-     * @param  {EntityType} entity entity type to fetch
-     * @param  {Snowflake} id id of entity to fetch
-     * @returns {Promise<User | Guild>} Fetched entity
+     * Fetches entities from Discord API
+     *      client.get(EntityType.GUILD, "id") as Guild
      */
     async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {
         if (!this.user) throw Error("Not logged in");
@@ -239,10 +223,7 @@ class Client extends EventEmitter {
                 throw Error("Wrong EntityType")
         }
     }
-    /**
-     * Get current user as Me class
-     * @returns {Promise<Me>} current user
-     */
+    /** Gets current user as Me class */
     async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
         if (this.cache.has("me")) return this.cache.get("me") as Me
@@ -250,11 +231,7 @@ class Client extends EventEmitter {
         this.cache.set("me", new Me(user, this))
         return this.cache.get("me") as Me;
     }
-    /**
-     * Fetch invite with a certain id
-     * @param  {string} id Id of the invite
-     * @returns {Promise<Invite>}
-     */
+    /** Fetches invite with a certain id */
     async fetchInvite(id: string): Promise<Invite> {
         if (this.cache.has(id)) return this.cache.get(id) as Invite
         const invite = await this._fetch<InviteType>("GET", `invites/${id}?with_counts=true`, null, true)
@@ -263,11 +240,7 @@ class Client extends EventEmitter {
         this.cache.set(id, new Invite(invite, this, guild))
         return this.cache.get(id) as Invite
     }
-    /**
-     * Deletes a invite
-     * @param  {string|Invite} id id or invite object to delete
-     * @returns {Promise<InviteType>} deleted invite
-     */
+    /** Deletes a invite */
     async deleteInvite(id: string | Invite): Promise<InviteType> {
         if (id instanceof Invite) id = id.data.code
         if (this.cache.has(id)) this.cache.remove(id)
