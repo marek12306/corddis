@@ -7,7 +7,7 @@ export default async (client: Client, data: any): Promise<any> => {
     const { guild_id } = data.d
     if (guild_id) {
         const guild = await client.get(EntityType.GUILD, guild_id) as Guild
-        await guild.channels()
+        await guild.fetchChannels()
         client.cache.set(guild_id, guild)
         return [new Channel(data.d, client, guild)]
     } else {

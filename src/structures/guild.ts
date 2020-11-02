@@ -16,6 +16,7 @@ export class Guild {
   client: Client;
   invites: Invite[] = [];
   members: GuildMember[] = [];
+  channels: Channel[] = [];
   /**
    * Creates a guild instance.
    * @param {GuildType} data raw guild data from Discord API
@@ -47,11 +48,11 @@ export class Guild {
    * Fetches all channels in guild (or gets them from cache).
    * @returns {Promise<Channel[]>} fetched channels
    */
-  async channels(): Promise<Channel[]> {
-    if (this.client.cache.has(`${this.data.id}ch`)) return this.client.cache.get(`${this.data.id}ch`) as Channel[]
+  async fetchChannels(): Promise<Channel[]> {
+    if (this.channels.length > 0) return this.channels
     const json = await this.client._fetch<ChannelType[]>("GET", `guilds/${this.data.id}/channels`, null, true)
-    this.client.cache.set(`${this.data.id}ch`, json.map((data: ChannelType) => new Channel(data, this.client, this)))
-    return this.client.cache.get(`${this.data.id}ch`) as Channel[];
+    this.channels = json.map((data: ChannelType) => new Channel(data, this.client, this))
+    return this.channels
   }
   /**
    * Fetches all members from guild.
@@ -89,7 +90,7 @@ export class Guild {
         }
         return member
       case EntityType.CHANNEL:
-        return (await this.channels()).find(ch => ch.data.id == id) as Channel;
+        return (await this.fetchChannels()).find(ch => ch.data.id == id) as Channel;
       default:
         throw Error("Wrong EntityType")
     }
