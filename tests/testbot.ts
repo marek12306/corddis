@@ -13,7 +13,7 @@ import { token } from "./token.ts";
             await message.delete()
             // console.log(await message.delete())
         } else if (message.data.content == "test2") {
-            console.log(await message.reply("Test"))
+            console.log(await message.guild?.roles)
         } else if (message.data.content == "test3") {
             console.log(await message.react(":Neil_Patel:666343612077834254"))
         } else if (message.data.content == "test4") {

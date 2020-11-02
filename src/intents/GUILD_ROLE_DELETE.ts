@@ -1,18 +1,27 @@
 import { Client } from "../client/client.ts"
 import { EntityType } from "./../types/utils.ts"
 import { Guild } from "../structures/guild.ts"
+import { Role } from "../structures/role.ts"
 import { RoleType } from "../types/role.ts"
 
 export default async (client: Client, data: any): Promise<any> => {
     const { guild_id, role_id } = data.d
     if (client.cache.has(guild_id)) {
         const guild = await client.cache.get(guild_id) as Guild
-        const found = guild.data.roles.find((x: RoleType) => x.id == role_id)
-        if (!found) return [role_id, guild]
-        const index = guild.data.roles.indexOf(found)
-        if (index != -1) guild.data.roles.splice(index, 1)
+        const foundRaw = guild.data.roles.find((x: RoleType) => x.id == role_id)
+        const foundRole = guild.roles.find((x: Role) => x.data.id == role_id)
+        if (foundRaw) {
+            const index = guild.data.roles.indexOf(foundRaw)
+            if (index != -1) guild.data.roles.splice(index, 1)
+        }
+        if (foundRole) {
+            const index = guild.roles.indexOf(foundRole)
+            if (index != -1) guild.roles.splice(index, 1)
+            client.cache.set(guild_id, guild)
+            return [foundRole, guild]
+        }
         client.cache.set(guild_id, guild)
-        return [found, guild]
+        return [role_id, guild]
     } else {
         const guild = await client.get(EntityType.GUILD, guild_id) as Guild
         client.cache.set(guild_id, guild)

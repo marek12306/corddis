@@ -10,6 +10,7 @@ import { fromUint8Array, lookup } from "../../deps.ts"
 import { Emoji } from "./emoji.ts";
 import { EmojiType, NewEmojiType } from "../types/emoji.ts";
 import { Invite } from "./invite.ts";
+import { Role } from "./role.ts";
 
 export class Guild {
   data: GuildType;
@@ -17,6 +18,7 @@ export class Guild {
   invites: Invite[] = [];
   members: GuildMember[] = [];
   channels: Channel[] = [];
+  roles: Role[] = [];
   /**
    * Creates a guild instance.
    * @param {GuildType} data raw guild data from Discord API
@@ -25,6 +27,7 @@ export class Guild {
   constructor(data: GuildType, client: Client) {
     this.data = data;
     this.client = client;
+    this.roles = data.roles.map((r: RoleType) => new Role(r, client, this))
   }
   /**
    * Updates a guild.
@@ -183,8 +186,23 @@ export class Guild {
    * @param {RoleEditType} role raw role data to send
    * @returns {Promise<RoleType>} raw edited role
    */
-  async editRole(id: string, role: RoleEditType): Promise<RoleType> {
-    return await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
+  async editRole(id: string, role: RoleEditType): Promise<Role> {
+    const edited = await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
+    const foundRaw = this.data.roles.find((x: RoleType) => x.id == id)
+    if (foundRaw) {
+      const index = this.data.roles.indexOf(foundRaw)
+      if (index != -1) this.data.roles[index] = edited
+    }
+    const foundRole = this.roles.find((x: Role) => x.data.id == id)
+    if (foundRole) {
+      const index = this.roles.indexOf(foundRole)
+      if (index != -1) this.roles[index].data = edited
+      return foundRole
+    } else {
+      const role = new Role(edited, this.client, this)
+      this.roles.push(role)
+      return role
+    }
   }
   /**
    * Edits a role.
@@ -193,6 +211,16 @@ export class Guild {
    */
   async deleteRole(id: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/roles/${id}`, null, false)
+    const foundRaw = this.data.roles.find((x: RoleType) => x.id == id)
+    if (foundRaw) {
+      const index = this.data.roles.indexOf(foundRaw)
+      if (index != -1) this.data.roles.splice(index, 1)
+    }
+    const foundRole = this.roles.find((x: Role) => x.data.id == id)
+    if (foundRole) {
+      const index = this.roles.indexOf(foundRole)
+      if (index != -1) this.roles.splice(index, 1)
+    }
     return response.status == 204 ? true : false
   }
   /**
