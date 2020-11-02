@@ -18,6 +18,7 @@ Deno Discord API wrapper made mainly for learning. Still in early stages of deve
   - [x] More structures
 - Low priority
   - [ ] More control over the cache
+  - [ ] Compression
   - [ ] Templates
   - [ ] OAuth2
   - [ ] Sharding
