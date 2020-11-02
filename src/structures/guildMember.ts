@@ -25,17 +25,13 @@ export class GuildMember {
      * @param {PermissionEnum} permission permission to check
      * @returns {Promise<boolean>} true if task was successful
      */
-    async hasPermission(permission: PermissionEnum): Promise<boolean> { 
+    async hasPermission(permission: PermissionEnum): Promise<boolean> {
         if (this.data.user?.id == this.guild.data.owner_id) return true;
-        console.log(this.guild.data.roles)
         const roles = this.data.roles.map((id: string) => this.guild.data.roles.find((x: RoleType) => x.id == id)?.permissions)
-            .filter((x: string|undefined) => x != undefined) as string[]
-        const bits = roles.reduce((bits: any, permissionss: any) => {
-            bits |= BigInt(permissionss)
-            return bits
-        }, BigInt(0))
+            .filter((x: string | undefined) => x) as string[]
+        const bits = roles.reduce((bits: any, permissionss: any) => bits | BigInt(permissionss), BigInt(0))
         if (bits & BigInt(permissions.ADMINISTRATOR)) return true;
-        return roles.every((p: string) =>  bits & BigInt(permissions[PermissionEnum[permission]]))
+        return roles.every((p: string) => bits & BigInt(permissions[PermissionEnum[permission]]))
     }
     /**
      * Changes member nickname

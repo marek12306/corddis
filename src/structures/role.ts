@@ -30,8 +30,7 @@ export class Role {
      * @returns {Promise<Role>} edited role
      */
     async edit(data: RoleEditType): Promise<Role> {
-        const edited = await this.guild.editRole(this.data.id, data)
-        this.data = edited.data
+        this.data = (await this.guild.editRole(this.data.id, data)).data
         return this
     }
 

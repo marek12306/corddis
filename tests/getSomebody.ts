@@ -1,4 +1,4 @@
-import { Client, EntityType } from "../src/index.ts";
+import { Client, EntityType } from "../mod.ts";
 import { User } from "../src/structures/user.ts";
 import { token } from "./token.ts"
 

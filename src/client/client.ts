@@ -28,7 +28,6 @@ class Client extends EventEmitter {
     lastReq = 0
     intentHandlers: Map<string, (client: Client, data: any) => Promise<any>> = new Map()
 
-    constants = constants;
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
     /**
      * Creates a new client insance
@@ -49,17 +48,17 @@ class Client extends EventEmitter {
      * Add intents to client
      * @param  {number[]} intent Intent(s) to receive
      * @returns {Client} current client instance
-     */    
+     */
     addIntents(...intent: number[]): Client {
         this.intents.push(...intent);
         return this
     }
 
     async _fetch<T>(method: string, path: string, body: any = "", json = true, contentType: any = "application/json", headers: any = {}): Promise<T> {
-        var req = new Request(`${this.constants.BASE_URL}/v${this.constants.VERSION}/${path}`, {
+        var req = new Request(`${constants.BASE_URL}/v${constants.VERSION}/${path}`, {
             method, body, headers: {
                 "Authorization": `Bot ${this.token}`,
-                "User-Agent": this.constants.USER_AGENT,
+                "User-Agent": constants.USER_AGENT,
                 "Content-Type": contentType,
                 ...headers,
             },
@@ -98,10 +97,6 @@ class Client extends EventEmitter {
         this._heartbeatTime = Date.now()
         this.socket.send(JSON.stringify({ op: 1, d: this.sequenceNumber }))
         this.emit("debug", "Sending heartbeat")
-    }
-
-    async _open(event: any) {
-        this.emit("debug", "Connected to WebSocket")
     }
 
     async _close() {
@@ -160,7 +155,7 @@ class Client extends EventEmitter {
      * Shortcut just to set client game 
      * @param  {string} name A game to set
      * @returns {Promise<StatusType>} new presence
-     */    
+     */
     async game(name: string): Promise<StatusType> {
         return this.setStatus({
             since: null,
@@ -203,8 +198,8 @@ class Client extends EventEmitter {
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
         this.gatewayData = await this._fetch<any>("GET", "gateway/bot", null, true)
 
-        this.socket = new WebSocket(`${this.gatewayData.url}?v=${this.constants.VERSION}&encoding=json`)
-        this.socket.addEventListener('open', (ev: Event) => this._open.call(this, ev))
+        this.socket = new WebSocket(`${this.gatewayData.url}?v=${constants.VERSION}&encoding=json`)
+        this.socket.addEventListener('open', (ev: Event) => (() => { this.emit("debug", "Connected to WebSocket") }).call(this))
         this.socket.addEventListener('message', (ev: Event) => this._message.call(this, ev))
         this.socket.addEventListener('close', (ev: Event) => this._close.call(this))
 
@@ -226,12 +221,12 @@ class Client extends EventEmitter {
             case EntityType.GUILD:
                 const guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
                 this.cache.set(id, new Guild(guild, this))
-                return this.cache.get(id) as User | Guild
+                return this.cache.get(id) as Guild
             // deno-lint-ignore no-case-declarations
             case EntityType.USER:
                 const user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
                 this.cache.set(id, new User(user, this))
-                return this.cache.get(id) as User | Guild
+                return this.cache.get(id) as User
             default:
                 throw Error("Wrong EntityType")
         }

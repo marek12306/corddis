@@ -14,11 +14,8 @@ export default async (client: Client, data: any): Promise<any> => {
         return [new GuildMember(member, guild, client), channel]
     } else {
         let channel;
-        if (client.user?.isBot()) {
-            channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
-        } else {
-            channel = await (await client.me()).createDM(channel_id) as Channel
-        }
+        if (client.user?.isBot()) channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+        else channel = await (await client.me()).createDM(channel_id) as Channel
         const user = await client.get(EntityType.USER, user_id as string) as User
         return [user, channel]
     }

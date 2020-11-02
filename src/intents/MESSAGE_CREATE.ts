@@ -14,11 +14,8 @@ export default async (client: Client, data: any): Promise<any> => {
         object = new Message(data.d, client, channel, guild)
     } else {
         let channel;
-        if (client.user?.isBot()) {
-            channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
-        } else {
-            channel = await (await client.me()).createDM(channel_id) as Channel
-        }
+        if (client.user?.isBot()) channel = new Channel({ id: channel_id, type: ChannelTypeData.DM }, client)
+        else channel = await (await client.me()).createDM(channel_id) as Channel
         object = new Message(data.d, client, channel)
     }
     client.cache.set(id, object)

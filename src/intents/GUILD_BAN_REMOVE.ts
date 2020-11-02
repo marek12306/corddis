@@ -1,6 +1,5 @@
 import { EntityType } from "../types/utils.ts"
 import { Client } from "../client/client.ts"
-import { GuildMember } from "../structures/guildMember.ts"
 import { Guild } from "../structures/guild.ts"
 import { User } from "../structures/user.ts"
 

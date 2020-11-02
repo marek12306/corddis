@@ -25,7 +25,7 @@ export class Emoji {
     async delete(): Promise<boolean> {
         if (!this.guild) throw "Guild not found in emoji"
         const response = await this.client._fetch<Response>("DELETE", `guilds/${this.guild.data.id}/emojis/${this.data.id}`, null, false)
-        return response.status == 204 ? true : false
+        return response.status == 204
     }
     /**
      * Modifies an emoji.

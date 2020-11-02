@@ -8,9 +8,10 @@ import { User } from "./user.ts";
 import { RoleEditType, RoleType } from "../types/role.ts";
 import { fromUint8Array, lookup } from "../../deps.ts"
 import { Emoji } from "./emoji.ts";
-import { EmojiType, NewEmojiType } from "../types/emoji.ts";
+import { NewEmojiType } from "../types/emoji.ts";
 import { Invite } from "./invite.ts";
 import { Role } from "./role.ts";
+import constants from "../constants.ts";
 
 export class Guild {
   data: GuildType;
@@ -63,10 +64,9 @@ export class Guild {
    * @param {number} limit limit of members to fetch
    * @param {Snowflake} after after which member to fetch
    */
-  async fetchMembers(refresh = false, limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
+  async fetchMembers(limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
-    this.members = json.map((data: GuildMemberType) => new GuildMember(data, this, this.client))
-    return this.members
+    return this.members = json.map((data: GuildMemberType) => new GuildMember(data, this, this.client))
   }
   /**
    * Fetches guild entites from Discord API
@@ -85,9 +85,7 @@ export class Guild {
         const json = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
         const member = new GuildMember(json, this, this.client)
         if (found) {
-          this.members = this.members.map((x: GuildMember) =>
-            x.data.user?.id == id ? member : x
-          )
+          this.members = this.members.map((x: GuildMember) => x.data.user?.id == id ? member : x)
         } else {
           this.members.push(member)
         }
@@ -120,10 +118,10 @@ export class Guild {
    * @param {IconAttributesType} attr icon attributes
    */
   async icon(attr: IconAttributesType = {}): Promise<string> {
-    if (attr.size && this.client.constants.IMAGE_SIZES.includes(attr.size))
-      throw new Error(`Size must be one of ${this.client.constants.IMAGE_SIZES.join(", ")}`);
-    if (attr.format && this.client.constants.IMAGE_FORMATS.includes(attr.format))
-      throw new Error(`Format must be one of ${this.client.constants.IMAGE_FORMATS.join(", ")}`);
+    if (attr.size && constants.IMAGE_SIZES.includes(attr.size))
+      throw new Error(`Size must be one of ${constants.IMAGE_SIZES.join(", ")}`);
+    if (attr.format && constants.IMAGE_FORMATS.includes(attr.format))
+      throw new Error(`Format must be one of ${constants.IMAGE_FORMATS.join(", ")}`);
 
     return `https://cdn.discordapp.com/icons/${this.data.id}/${this.data.icon}.${'png' ?? attr.format}?size=${4096 ?? attr.size}`
   }
@@ -133,7 +131,7 @@ export class Guild {
    */
   async leave(): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `users/@me/guilds/${this.data.id}`, null, false)
-    return response.status == 204 ? true : false;
+    return response.status == 204
   }
   /**
    * Bans a member.
@@ -143,7 +141,7 @@ export class Guild {
   async ban(id: string, reason?: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/bans/${id}`, JSON.stringify({ reason }), false)
-    return response.status == 204 ? true : false;
+    return response.status == 204
   }
   /**
    * Revokes a ban from user.
@@ -153,7 +151,7 @@ export class Guild {
   async unban(id: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/bans/${id}`, null, false)
-    return response.status == 204 ? true : false;
+    return response.status == 204
   }
   /**
    * Kicks a member from guild.
@@ -162,7 +160,7 @@ export class Guild {
   async kick(id: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/members/${id}`, null, false)
-    return response.status == 204 ? true : false;
+    return response.status == 204
   }
   /**
    * Changes a bot or other member nickname.
@@ -171,7 +169,7 @@ export class Guild {
    */
   async nickname(nick: string, id?: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/${id ?? "@me"}${id ? "" : "/nick"}`, JSON.stringify({ nick }), false)
-    return response.status == 200 ? true : false
+    return response.status == 200
   }
   /**
    * Creates a role.
@@ -188,21 +186,16 @@ export class Guild {
    */
   async editRole(id: string, role: RoleEditType): Promise<Role> {
     const edited = await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
-    const foundRaw = this.data.roles.find((x: RoleType) => x.id == id)
-    if (foundRaw) {
-      const index = this.data.roles.indexOf(foundRaw)
-      if (index != -1) this.data.roles[index] = edited
+    const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
+    if (foundRaw >= 0) this.data.roles[foundRaw] = edited
+    const foundRole = this.roles.findIndex((x: Role) => x.data.id == id)
+    if (foundRole >= 0) {
+      this.roles[foundRole].data = edited
+      return this.roles[foundRole]
     }
-    const foundRole = this.roles.find((x: Role) => x.data.id == id)
-    if (foundRole) {
-      const index = this.roles.indexOf(foundRole)
-      if (index != -1) this.roles[index].data = edited
-      return foundRole
-    } else {
-      const role = new Role(edited, this.client, this)
-      this.roles.push(role)
-      return role
-    }
+    const editedRole = new Role(edited, this.client, this)
+    this.roles.push(editedRole)
+    return editedRole
   }
   /**
    * Edits a role.
@@ -211,17 +204,11 @@ export class Guild {
    */
   async deleteRole(id: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/roles/${id}`, null, false)
-    const foundRaw = this.data.roles.find((x: RoleType) => x.id == id)
-    if (foundRaw) {
-      const index = this.data.roles.indexOf(foundRaw)
-      if (index != -1) this.data.roles.splice(index, 1)
-    }
-    const foundRole = this.roles.find((x: Role) => x.data.id == id)
-    if (foundRole) {
-      const index = this.roles.indexOf(foundRole)
-      if (index != -1) this.roles.splice(index, 1)
-    }
-    return response.status == 204 ? true : false
+    const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
+    if (foundRaw >= 0) this.data.roles.splice(foundRaw, 1)
+    const foundRole = this.roles.findIndex((x: Role) => x.data.id == id)
+    if (foundRole >= 0) this.roles.splice(foundRole, 1)
+    return response.status == 204
   }
   /**
    * Fetches all guild invites.
@@ -241,7 +228,7 @@ export class Guild {
    */
   async addRole(member_id: string, role_id: string): Promise<boolean> {
     const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/members/${member_id}/roles/${role_id}`, null, false)
-    return response.status == 204 ? true : false
+    return response.status == 204
   }
   /**
    * Creates a new emoji.
@@ -250,8 +237,7 @@ export class Guild {
    */
   async createEmoji(data: NewEmojiType): Promise<Emoji> {
     const response = await this.client._fetch<Response>("POST", `guilds/${this.data.id}/emojis`, JSON.stringify({
-      name: data.name, roles: data.roles,
-      image: `data:${lookup(data.file_format)};base64,${fromUint8Array(data.image)}`
+      name: data.name, roles: data.roles, image: `data:${lookup(data.file_format)};base64,${fromUint8Array(data.image)}`
     }), false)
     return new Emoji(await response.json(), this.client, this)
   }

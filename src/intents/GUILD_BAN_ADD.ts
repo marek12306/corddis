@@ -5,7 +5,7 @@ import { Guild } from "../structures/guild.ts"
 import { User } from "../structures/user.ts"
 
 export default async (client: Client, data: any): Promise<any> => {
-    const { guild_id, user } = data.d
+    const { guild_id } = data.d
     const guild = await client.get(EntityType.GUILD, guild_id) as Guild
     const userObj = new User(data.d, client)
     if (client.cache.has(`${guild_id}mem`)) {

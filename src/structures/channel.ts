@@ -33,13 +33,11 @@ export class Channel {
    */
   async sendMessage(data: MessageCreateParamsType): Promise<Message> {
     if (!data) throw Error("Content for message is not provided");
-    let body;
+    let body: any = JSON.stringify(data)
     if (data?.file) {
       body = new FormData();
       body.append("file", data.file.content, data.file.name)
       body.append("payload_json", JSON.stringify({ ...data, file: undefined }))
-    } else {
-      body = JSON.stringify(data)
     }
     const json = await this.client._fetch<MessageType>("POST", `channels/${this.data.id}/messages`, body, true, data?.file ? false : "application/json")
     return new Message(json, this.client, this, this.guild);
@@ -64,7 +62,7 @@ export class Channel {
   async deleteMessage(id: string): Promise<boolean> {
     if (!id) throw Error("Message ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}`, null, false)
-    return response.status == 204 ? true : false;
+    return response.status == 204;
   }
   /**
    * Edits a previously sent message.
@@ -87,7 +85,7 @@ export class Channel {
   async react(id: string, emoji: string): Promise<boolean> {
     if (!id) throw Error("Message ID is not provided");
     const response = await this.client._fetch<Response>("PUT", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`, null, false);
-    return response.status == 204 ? true : false;
+    return response.status == 204;
   }
   /**
    * Deletes previous added reaction from a message.
@@ -98,7 +96,7 @@ export class Channel {
   async unreact(id: string, emoji: string): Promise<boolean> {
     if (!id) throw Error("Message ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`, null, false)
-    return response.status == 204 ? true : false;
+    return response.status == 204;
   }
 
   toString() {

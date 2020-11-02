@@ -1,4 +1,4 @@
-import { Client } from "../src/index.ts";
+import { Client } from "../mod.ts";
 import { token } from "./token.ts"
 
 (async () => {

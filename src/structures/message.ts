@@ -1,6 +1,5 @@
 import { Client } from "./../client/client.ts";
 import { MessageType, MessageEditParamsType } from "../types/message.ts";
-import { EntityType } from "../types/utils.ts";
 import { Guild } from "./guild.ts";
 import { Channel } from "./channel.ts";
 
