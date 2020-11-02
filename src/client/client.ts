@@ -1,6 +1,6 @@
 import { User } from "./../structures/user.ts";
 import { Guild } from "./../structures/guild.ts";
-import { EntityType, Snowflake } from "./../types/utils.ts";
+import { EntityType, GetGatewayType, Snowflake } from "./../types/utils.ts";
 import constants from "./../constants.ts"
 import { Me } from "./me.ts";
 import { EventEmitter, LRU } from "../../deps.ts"
@@ -11,14 +11,13 @@ import IntentHandlers from "../intents/index.ts"
 import { Invite } from "../structures/invite.ts";
 
 class Client extends EventEmitter {
-    public emit: any;
     token: string;
     user: User | null = null;
-    gatewayData: any
+    gatewayData: GetGatewayType | undefined;
     socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
-    gatewayInterval: any
+    gatewayInterval = -1
     intents: number[] = []
-    sequenceNumber: any = null
+    sequenceNumber: number|null = null
     _heartbeatTime = -1
     ping = -1
     sessionID = ""
@@ -26,6 +25,7 @@ class Client extends EventEmitter {
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     reconnect = false
     lastReq = 0
+    // deno-lint-ignore no-explicit-any
     intentHandlers: Map<string, (client: Client, data: any) => Promise<any>> = new Map()
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
@@ -54,12 +54,13 @@ class Client extends EventEmitter {
         return this
     }
 
-    async _fetch<T>(method: string, path: string, body: any = "", json = true, contentType: any = "application/json", headers: any = {}): Promise<T> {
+    // deno-lint-ignore no-explicit-any
+    async _fetch<T>(method: string, path: string, body: string|FormData|null = "", json = true, contentType: string|boolean = "application/json", headers: any = {}): Promise<T> {
+        if (contentType) headers["Content-Type"] = contentType
         var req = new Request(`${constants.BASE_URL}/v${constants.VERSION}/${path}`, {
             method, body, headers: {
                 "Authorization": `Bot ${this.token}`,
                 "User-Agent": constants.USER_AGENT,
-                "Content-Type": contentType,
                 ...headers,
             },
         })
@@ -107,7 +108,7 @@ class Client extends EventEmitter {
         this.login()
     }
 
-    async _message(event: any) {
+    async _message(event: MessageEvent) {
         const response = JSON.parse(event.data)
         const { op, t, s, d } = response
         this.emit('raw', event.data)
@@ -196,12 +197,12 @@ class Client extends EventEmitter {
     async login(token: string = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
-        this.gatewayData = await this._fetch<any>("GET", "gateway/bot", null, true)
+        this.gatewayData = await this._fetch<GetGatewayType>("GET", "gateway/bot", null, true)
 
         this.socket = new WebSocket(`${this.gatewayData.url}?v=${constants.VERSION}&encoding=json`)
         this.socket.addEventListener('open', (ev: Event) => (() => { this.emit("debug", "Connected to WebSocket") }).call(this))
-        this.socket.addEventListener('message', (ev: Event) => this._message.call(this, ev))
-        this.socket.addEventListener('close', (ev: Event) => this._close.call(this))
+        this.socket.addEventListener('message', (ev: MessageEvent) => this._message.call(this, ev))
+        this.socket.addEventListener('close', (ev: CloseEvent) => this._close.call(this))
 
         return true;
     }

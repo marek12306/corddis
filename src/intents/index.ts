@@ -24,6 +24,7 @@ import GUILD_MEMBER_REMOVE from "./GUILD_MEMBER_REMOVE.ts"
 import GUILD_MEMBER_UPDATE from "./GUILD_MEMBER_UPDATE.ts"
 
 type IntentImports = {
+    // deno-lint-ignore no-explicit-any
     [index: string]: (client: Client, data: any) => Promise<any>
 }
 

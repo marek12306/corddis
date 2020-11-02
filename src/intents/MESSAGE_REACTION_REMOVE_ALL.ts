@@ -4,6 +4,7 @@ import { Channel } from "../structures/channel.ts"
 import { Guild } from "../structures/guild.ts"
 import { ChannelTypeData } from "../types/channel.ts"
 
+// deno-lint-ignore no-explicit-any
 export default async (client: Client, data: any): Promise<any> => {
     const { message_id, channel_id, guild_id } = data.d
     if (guild_id) {

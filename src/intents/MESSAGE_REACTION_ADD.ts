@@ -7,6 +7,7 @@ import { Emoji } from "../structures/emoji.ts"
 import { User } from "../structures/user.ts";
 import { ChannelTypeData } from "../types/channel.ts"
 
+// deno-lint-ignore no-explicit-any
 export default async (client: Client, data: any): Promise<any> => {
     const { emoji, member, message_id, channel_id, guild_id, user_id } = data.d
     if (guild_id) {

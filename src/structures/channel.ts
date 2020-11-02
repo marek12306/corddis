@@ -33,7 +33,7 @@ export class Channel {
    */
   async sendMessage(data: MessageCreateParamsType): Promise<Message> {
     if (!data) throw Error("Content for message is not provided");
-    let body: any = JSON.stringify(data)
+    let body: FormData|string = JSON.stringify(data)
     if (data?.file) {
       body = new FormData();
       body.append("file", data.file.content, data.file.name)

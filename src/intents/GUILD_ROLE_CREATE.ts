@@ -4,6 +4,7 @@ import { Guild } from "../structures/guild.ts"
 import { RoleType } from "../types/role.ts"
 import { Role } from "../structures/role.ts"
 
+// deno-lint-ignore no-explicit-any
 export default async (client: Client, data: any): Promise<any> => {
     const { guild_id, role } = data.d
     let guild

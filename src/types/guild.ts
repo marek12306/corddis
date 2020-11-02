@@ -60,7 +60,7 @@ export interface GuildUpdateType {
 
 export interface GuildMemberType {
   user?: UserType;
-  nick: String | null;
+  nick: string | null;
   roles: Snowflake[];
   joined_at: Timestamp;
   premium_since?: Timestamp | null;

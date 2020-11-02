@@ -3,6 +3,7 @@ import { EntityType } from "../types/utils.ts"
 import { Channel } from "../structures/channel.ts"
 import { Guild } from "../structures/guild.ts"
 
+// deno-lint-ignore no-explicit-any
 export default async (client: Client, data: any): Promise<any> => {
     const { guild_id } = data.d
     const guild = await client.get(EntityType.GUILD, guild_id) as Guild

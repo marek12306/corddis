@@ -3,6 +3,7 @@ import { Guild } from "../structures/guild.ts"
 import { EntityType } from "../types/utils.ts"
 import { Invite } from "../structures/invite.ts"
 
+// deno-lint-ignore no-explicit-any
 export default async (client: Client, data: any): Promise<any> => {
     const { code, guild_id } = data.d
     let invite = code
