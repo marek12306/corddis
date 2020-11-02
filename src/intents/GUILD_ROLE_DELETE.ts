@@ -12,11 +12,11 @@ export default async (client: Client, data: any): Promise<any> => {
         const foundRole = guild.roles.find((x: Role) => x.data.id == role_id)
         if (foundRaw) {
             const index = guild.data.roles.indexOf(foundRaw)
-            if (index != -1) guild.data.roles.splice(index, 1)
+            guild.data.roles.splice(index, 1)
         }
         if (foundRole) {
             const index = guild.roles.indexOf(foundRole)
-            if (index != -1) guild.roles.splice(index, 1)
+            guild.roles.splice(index, 1)
             client.cache.set(guild_id, guild)
             return [foundRole, guild]
         }
