@@ -20,7 +20,7 @@ export class Guild {
   members: GuildMember[] = [];
   channels: Channel[] = [];
   roles: Role[] = [];
-  /** Creates a guild instance. */
+
   constructor(data: GuildType, client: Client) {
     this.data = data;
     this.client = client;

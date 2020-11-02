@@ -8,7 +8,7 @@ export class GuildMember {
     data: GuildMemberType;
     guild: Guild;
     client: Client;
-    /** Creates a Guild Member instance. */
+
     constructor(data: GuildMemberType, guild: Guild, client: Client) {
         this.data = data;
         this.guild = guild;

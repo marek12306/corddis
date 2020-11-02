@@ -10,7 +10,7 @@ export class Channel {
   data: ChannelType;
   client: Client;
   guild?: Guild;
-  /** Creates a channel instance. */
+
   constructor(data: ChannelType, client: Client, guild?: Guild) {
     this.data = data;
     this.client = client;

@@ -11,7 +11,7 @@ import IntentHandlers from "../intents/index.ts"
 import { Invite } from "../structures/invite.ts";
 
 /** Client which communicates with gateway and manages REST API communication. */
-class Client extends EventEmitter {
+export class Client extends EventEmitter {
     token: string;
     user: User | null = null;
     gatewayData: GetGatewayType | undefined;
@@ -30,7 +30,7 @@ class Client extends EventEmitter {
     intentHandlers: Map<string, (client: Client, data: any) => Promise<any>> = new Map()
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
-    /** Creates a client instance. */
+
     constructor(token: string = "", ...intents: number[]) {
         super()
         this.token = token;
@@ -251,5 +251,3 @@ class Client extends EventEmitter {
         return `Client {"ping":${this.ping},"sessionID":"${this.sessionID}","token":"${this.token}","user":{"data":${JSON.stringify(this.user?.data)}}}`
     }
 }
-
-export { Client };

@@ -6,7 +6,7 @@ export class Emoji {
     data: EmojiType;
     guild: Guild | undefined;
     client: Client;
-    /** Class for emoji. */
+
     constructor(data: EmojiType, client: Client, guild?: Guild, ) {
         this.data = data;
         this.guild = guild;

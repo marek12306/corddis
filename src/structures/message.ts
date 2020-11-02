@@ -8,7 +8,7 @@ export class Message {
     client: Client;
     channel: Channel;
     guild?: Guild;
-    /** Creates a Message instance. */
+
     constructor(data: MessageType, client: Client, channel: Channel, guild?: Guild) {
         this.data = data;
         this.client = client;

@@ -6,7 +6,7 @@ export class Invite {
     data: InviteType;
     guild: Guild | undefined;
     client: Client;
-    /** Creates new Invite instance. */
+
     constructor(data: InviteType, client: Client, guild?: Guild) {
         this.data = data;
         this.client = client;

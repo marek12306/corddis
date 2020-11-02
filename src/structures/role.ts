@@ -6,7 +6,7 @@ export class Role {
     data: RoleType
     guild: Guild
     client: Client
-    /** Creates a role instance. */
+
     constructor(data: RoleType, client: Client, guild: Guild) {
         this.data = data
         this.guild = guild
