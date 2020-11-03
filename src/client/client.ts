@@ -68,6 +68,8 @@ export class Client extends EventEmitter {
         if (json) {
             respJson = await response.json()
             if ((respJson as ErrorType).message) throw Error((respJson as ErrorType).message)
+        } else {
+            if (response.status > 299 && response.status < 200) throw Error(await response.text())
         }
 
         return json ? respJson : response;
