@@ -1,5 +1,7 @@
+import { Snowflake } from "../../mod.ts";
+
 export interface RoleType {
-  id: string;
+  id: Snowflake;
   name: string;
   permissions: string;
   position: number;

@@ -22,7 +22,7 @@ export interface GuildType {
   afk_timeout: number;
   system_channel_id: null;
   widget_enabled: boolean;
-  widget_channel_id: string;
+  widget_channel_id: Snowflake;
   verification_level: number;
   roles: RoleType[];
   default_message_notifications: number;
@@ -80,7 +80,7 @@ export interface WelcomeScreenType {
 }
 
 export interface PartialGuildType {
-  id: string;
+  id: Snowflake;
   name: string;
   splash?: string;
   banner?: string;
@@ -93,7 +93,7 @@ export interface PartialGuildType {
 }
 
 export interface PartialChannelType {
-  id: string;
+  id: Snowflake;
   name: string;
   type: number;
 }

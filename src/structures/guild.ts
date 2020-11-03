@@ -113,19 +113,19 @@ export class Guild {
     return response.status == 204
   }
   /** Bans a member. */
-  async ban(id: string, reason?: string): Promise<boolean> {
+  async ban(id: Snowflake, reason?: string): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/bans/${id}`, JSON.stringify({ reason }), false)
     return response.status == 204
   }
   /** Revokes a ban from user. */
-  async unban(id: string): Promise<boolean> {
+  async unban(id: Snowflake): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/bans/${id}`, null, false)
     return response.status == 204
   }
   /** Kicks a member from guild. */
-  async kick(id: string): Promise<boolean> {
+  async kick(id: Snowflake): Promise<boolean> {
     if (!id) throw Error("Member ID is not provided");
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/members/${id}`, null, false)
     return response.status == 204
@@ -135,7 +135,7 @@ export class Guild {
    * @param nick nickname
    * @param id member (user) ID to change, defaults to bot 
    */
-  async nickname(nick: string, id?: string): Promise<boolean> {
+  async nickname(nick: string, id?: Snowflake): Promise<boolean> {
     const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/${id ?? "@me"}${id ? "" : "/nick"}`, JSON.stringify({ nick }), false)
     return response.status == 200
   }
@@ -144,7 +144,7 @@ export class Guild {
     return await this.client._fetch<RoleType>("POST", `guilds/${this.data.id}/roles`, JSON.stringify(role), true)
   }
   /** Edits a role. */
-  async editRole(id: string, role: RoleEditType): Promise<Role> {
+  async editRole(id: Snowflake, role: RoleEditType): Promise<Role> {
     const edited = await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
     const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
     if (foundRaw >= 0) this.data.roles[foundRaw] = edited 
@@ -158,7 +158,7 @@ export class Guild {
     return editedRole
   }
   /** Edits a role. */
-  async deleteRole(id: string): Promise<boolean> {
+  async deleteRole(id: Snowflake): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/roles/${id}`, null, false)
     if (response.status != 204) return false
     const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
@@ -175,7 +175,7 @@ export class Guild {
     return this.invites
   }
   /** Adds a new role to member. */
-  async addRole(member_id: string, role_id: string): Promise<boolean> {
+  async addRole(member_id: Snowflake, role_id: Snowflake): Promise<boolean> {
     const response = await this.client._fetch<Response>("PUT", `guilds/${this.data.id}/members/${member_id}/roles/${role_id}`, null, false)
     return response.status == 204
   }

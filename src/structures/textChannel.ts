@@ -5,6 +5,7 @@ import { Message } from "./message.ts";
 import { MessageCreateParamsType, MessageEditParamsType } from "../types/message.ts";
 import { Guild } from "./guild.ts";
 import { Channel } from "./channel.ts"
+import { Snowflake } from "../../mod.ts";
 
 export class TextChannel extends Channel {
     constructor(data: ChannelType, client: Client, guild?: Guild) {
@@ -61,7 +62,7 @@ export class TextChannel extends Channel {
         return response.status == 204;
     }
     /** Crossposts a message */
-    async crosspost(id: string):Promise<Message> { throw Error("Message channel is not a news channel") }
+    async crosspost(id: Snowflake): Promise<Message> { throw Error("Message channel is not a news channel") }
 
     toString() {
         return `TextChannel {"data":${JSON.stringify(this.data)}}`
