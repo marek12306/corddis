@@ -9,6 +9,8 @@ import { Snowflake } from "../../mod.ts";
 
 export class TextChannel extends Channel {
     pins: Message[] = [];
+    pinsUpdated: Date|null = null
+    pinsViewed: Date|null = null
 
     constructor(data: ChannelType, client: Client, guild?: Guild) {
         super(data, client, guild)
@@ -65,8 +67,10 @@ export class TextChannel extends Channel {
     }
     /** Fetch channel pins. */
     async fetchPins(): Promise<Message[]> {
+        if (this.pinsUpdated && this.pinsViewed && this.pinsUpdated.getTime() < this.pinsViewed.getTime()) return this.pins
         const pins = await this.client._fetch<MessageType[]>("GET", `channels/${this.data.id}/pins`, null, true)
         this.pins = pins.map((x: MessageType) => new Message(x, this.client, this, this.guild))
+        this.pinsUpdated = this.pinsViewed = new Date()
         return this.pins
     }
     /** Pins a message. */

@@ -1,6 +1,5 @@
 import { Client } from "../client/client.ts"
 import { EntityType } from "../types/utils.ts"
-import { Channel } from "../structures/channel.ts"
 import { Guild } from "../structures/guild.ts"
 import { ChannelStructures } from "../constants.ts"
 

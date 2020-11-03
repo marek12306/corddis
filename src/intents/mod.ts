@@ -22,6 +22,7 @@ import INVITE_DELETE from "./INVITE_DELETE.ts"
 import GUILD_MEMBER_ADD from "./GUILD_MEMBER_ADD.ts"
 import GUILD_MEMBER_REMOVE from "./GUILD_MEMBER_REMOVE.ts"
 import GUILD_MEMBER_UPDATE from "./GUILD_MEMBER_UPDATE.ts"
+import CHANNEL_PINS_UPDATE from "./CHANNEL_PINS_UPDATE.ts"
 import { DictionaryType } from "../../mod.ts"
 
 const intents: DictionaryType = {
@@ -48,6 +49,7 @@ const intents: DictionaryType = {
     GUILD_MEMBER_ADD,
     GUILD_MEMBER_REMOVE,
     GUILD_MEMBER_UPDATE,
+    CHANNEL_PINS_UPDATE,
 }
 
 export default intents
