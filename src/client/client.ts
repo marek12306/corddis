@@ -7,7 +7,7 @@ import { EventEmitter, LRU } from "../../deps.ts"
 import { UserType, StatusType } from "./../types/user.ts"
 import { GuildType, InviteType } from "./../types/guild.ts"
 import { IntentHandler } from "./intentHandler.ts";
-import IntentHandlers from "../intents/index.ts"
+import IntentHandlers from "../intents/mod.ts"
 import { Invite } from "../structures/invite.ts";
 
 /** Client which communicates with gateway and manages REST API communication. */
