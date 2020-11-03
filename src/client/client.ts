@@ -1,7 +1,7 @@
 import { User } from "./../structures/user.ts";
 import { Guild } from "./../structures/guild.ts";
 import { EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
-import constants from "./../constants.ts"
+import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
 import { EventEmitter, LRU } from "../../deps.ts"
 import { UserType, StatusType } from "./../types/user.ts"
@@ -52,10 +52,10 @@ export class Client extends EventEmitter {
     // deno-lint-ignore no-explicit-any
     async _fetch<T>(method: string, path: string, body: string|FormData|null = "", json = true, contentType: string|boolean = "application/json", headers: any = {}): Promise<T> {
         if (contentType) headers["Content-Type"] = contentType
-        var req = new Request(`${constants.BASE_URL}/v${constants.VERSION}/${path}`, {
+        var req = new Request(`${Constants.BASE_URL}/v${Constants.VERSION}/${path}`, {
             method, body, headers: {
                 "Authorization": `Bot ${this.token}`,
-                "User-Agent": constants.USER_AGENT,
+                "User-Agent": Constants.USER_AGENT,
                 ...headers,
             },
         })
@@ -194,7 +194,7 @@ export class Client extends EventEmitter {
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
         this.gatewayData = await this._fetch<GetGatewayType>("GET", "gateway/bot", null, true)
 
-        this.socket = new WebSocket(`${this.gatewayData.url}?v=${constants.VERSION}&encoding=json`)
+        this.socket = new WebSocket(`${this.gatewayData.url}?v=${Constants.VERSION}&encoding=json`)
         this.socket.addEventListener('open', (ev: Event) => (() => { this.emit("debug", "Connected to WebSocket") }).call(this))
         this.socket.addEventListener('message', (ev: MessageEvent) => this._message.call(this, ev))
         this.socket.addEventListener('close', (ev: CloseEvent) => this._close.call(this))

@@ -7,6 +7,11 @@ export enum EntityType {
     GUILD, USER, CHANNEL, BAN, ROLE, GUILD_MEMBER
 }
 
+// deno-lint-ignore no-explicit-any
+export type DictionaryType = { [index: string]: any }
+// deno-lint-ignore no-explicit-any
+export type NumberDictionaryType = { [index: number]: any }
+
 export interface SessionStartLimitType {
     total: number;
     remaining: number;

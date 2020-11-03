@@ -1,6 +1,4 @@
-import { Client, Intents, Message, User, EmbedBuilder, EntityType } from "../mod.ts";
-import { PermissionEnum } from "../src/permissions.ts";
-import { GuildMember } from "../src/structures/guildMember.ts";
+import { Client, Intents, Message, User, EmbedBuilder, EntityType, PermissionEnum, GuildMember } from "../mod.ts";
 import { token } from "./token.ts";
 
 (async () => {
@@ -59,7 +57,7 @@ import { token } from "./token.ts";
                 file_format: "jpg"
             }))
         } else if (message.data.content == "test420") {
-            const member = await message.guild?.get(EntityType.GUILD_MEMBER, "682522825043422930")
+            const member = await message.guild?.get(EntityType.CHANNEL, "676033234106318859")
             console.log(member)
         }
     })

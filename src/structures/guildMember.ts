@@ -1,5 +1,5 @@
 import { Client } from "../client/client.ts";
-import { PermissionEnum, permissions } from "../permissions.ts";
+import { PermissionEnum, Permissions } from "../constants.ts";
 import { GuildMemberType } from "../types/guild.ts";
 import { RoleType } from "../types/role.ts";
 import { Guild } from "./guild.ts";
@@ -21,8 +21,8 @@ export class GuildMember {
             .filter((x: string | undefined) => x) as string[]
         // deno-lint-ignore no-explicit-any
         const bits = roles.reduce((bits: any, permissionss: any) => bits | BigInt(permissionss), BigInt(0))
-        if (bits & BigInt(permissions.ADMINISTRATOR)) return true;
-        return roles.every((p: string) => bits & BigInt(permissions[PermissionEnum[permission]]))
+        if (bits & BigInt(Permissions.ADMINISTRATOR)) return true;
+        return roles.every((p: string) => bits & BigInt(Permissions[PermissionEnum[permission]]))
     }
     /** Changes member nickname */
     async nickname(name: string): Promise<boolean> {

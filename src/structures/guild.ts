@@ -11,7 +11,7 @@ import { Emoji } from "./emoji.ts";
 import { NewEmojiType } from "../types/emoji.ts";
 import { Invite } from "./invite.ts";
 import { Role } from "./role.ts";
-import constants from "../constants.ts";
+import { ChannelStructures, Constants } from "../constants.ts";
 
 export class Guild {
   data: GuildType;
@@ -44,7 +44,7 @@ export class Guild {
   async fetchChannels(): Promise<Channel[]> {
     if (this.channels.length > 0) return this.channels
     const json = await this.client._fetch<ChannelType[]>("GET", `guilds/${this.data.id}/channels`, null, true)
-    this.channels = json.map((data: ChannelType) => new Channel(data, this.client, this))
+    this.channels = json.map((data: ChannelType) => new ChannelStructures[data.type](data, this.client, this))
     return this.channels
   }
   /**
@@ -96,14 +96,14 @@ export class Guild {
    */
   async createChannel(data: ChannelCreateType): Promise<Channel> {
     const json = await this.client._fetch<ChannelType>("POST", `guilds/${this.data.id}/channels`, JSON.stringify(data), true)
-    return new Channel(json, this.client, this);
+    return new ChannelStructures[json.type](json, this.client, this);
   }
   /** Generates a guild icon URL. */
   async icon(attr: IconAttributesType = {}): Promise<string> {
-    if (attr.size && constants.IMAGE_SIZES.includes(attr.size))
-      throw new Error(`Size must be one of ${constants.IMAGE_SIZES.join(", ")}`);
-    if (attr.format && constants.IMAGE_FORMATS.includes(attr.format))
-      throw new Error(`Format must be one of ${constants.IMAGE_FORMATS.join(", ")}`);
+    if (attr.size && Constants.IMAGE_SIZES.includes(attr.size))
+      throw new Error(`Size must be one of ${Constants.IMAGE_SIZES.join(", ")}`);
+    if (attr.format && Constants.IMAGE_FORMATS.includes(attr.format))
+      throw new Error(`Format must be one of ${Constants.IMAGE_FORMATS.join(", ")}`);
 
     return `https://cdn.discordapp.com/icons/${this.data.id}/${this.data.icon}.${'png' ?? attr.format}?size=${4096 ?? attr.size}`
   }

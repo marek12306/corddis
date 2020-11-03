@@ -1,15 +1,15 @@
 import { Client } from "./../client/client.ts";
 import { MessageType, MessageEditParamsType } from "../types/message.ts";
 import { Guild } from "./guild.ts";
-import { Channel } from "./channel.ts";
+import { TextChannel } from "./textChannel.ts";
 
 export class Message {
     data: MessageType;
     client: Client;
-    channel: Channel;
+    channel: TextChannel;
     guild?: Guild;
 
-    constructor(data: MessageType, client: Client, channel: Channel, guild?: Guild) {
+    constructor(data: MessageType, client: Client, channel: TextChannel, guild?: Guild) {
         this.data = data;
         this.client = client;
         this.channel = channel;

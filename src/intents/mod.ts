@@ -22,13 +22,9 @@ import INVITE_DELETE from "./INVITE_DELETE.ts"
 import GUILD_MEMBER_ADD from "./GUILD_MEMBER_ADD.ts"
 import GUILD_MEMBER_REMOVE from "./GUILD_MEMBER_REMOVE.ts"
 import GUILD_MEMBER_UPDATE from "./GUILD_MEMBER_UPDATE.ts"
+import { DictionaryType } from "../../mod.ts"
 
-type IntentImports = {
-    // deno-lint-ignore no-explicit-any
-    [index: string]: (client: Client, data: any) => Promise<any>
-}
-
-const intents: IntentImports = {
+const intents: DictionaryType = {
     CHANNEL_CREATE,
     CHANNEL_DELETE,
     CHANNEL_UPDATE,
