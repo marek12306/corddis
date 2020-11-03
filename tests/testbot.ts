@@ -57,8 +57,7 @@ import { token } from "./token.ts";
                 file_format: "jpg"
             }))
         } else if (message.data.content == "test420") {
-            const member = await message.guild?.get(EntityType.CHANNEL, "676033234106318859")
-            console.log(member)
+            console.log(await message.pin())
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
@@ -68,7 +67,7 @@ import { token } from "./token.ts";
     client.on("debug", console.log)
     client.on("READY", (user: User) => {
         console.log("Logged as " + user.data.username)
-        console.log(client.toString())
+        //console.log(client.toString())
     })
     client.login()
 })()

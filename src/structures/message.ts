@@ -48,6 +48,10 @@ export class Message {
         this.data = message.data
         return this
     }
+    /** Pins a message. */
+    async pin(): Promise<boolean> {
+       return this.channel.pin(this.data.id) 
+    }
 
     toString() {
         return `Message {"data":${JSON.stringify(this.data)},"channel":{"data":${JSON.stringify(this.channel.data)}},"guild":${this.guild ? `{"data":${JSON.stringify(this.guild.data)}}` : "undefined"}}`

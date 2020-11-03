@@ -8,6 +8,8 @@ import { Channel } from "./channel.ts"
 import { Snowflake } from "../../mod.ts";
 
 export class TextChannel extends Channel {
+    pins: Message[] = [];
+
     constructor(data: ChannelType, client: Client, guild?: Guild) {
         super(data, client, guild)
     }
@@ -60,6 +62,18 @@ export class TextChannel extends Channel {
         if (!id) throw Error("Message ID is not provided");
         const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`, null, false)
         return response.status == 204;
+    }
+    /** Fetch channel pins. */
+    async fetchPins(): Promise<Message[]> {
+        const pins = await this.client._fetch<MessageType[]>("GET", `channels/${this.data.id}/pins`, null, true)
+        this.pins = pins.map((x: MessageType) => new Message(x, this.client, this, this.guild))
+        return this.pins
+    }
+    /** Pins a message. */
+    async pin(id: Snowflake): Promise<boolean> {
+        if (!id) throw Error("Message ID is not provided")
+        const response = await this.client._fetch<Response>("PUT", `channels/${this.data.id}/pins/${id}`, null, false)
+        return response.status == 204
     }
     /** Crossposts a message */
     async crosspost(id: Snowflake): Promise<Message> { throw Error("Message channel is not a news channel") }
