@@ -57,7 +57,7 @@ import { token } from "./token.ts";
                 file_format: "jpg"
             }))
         } else if (message.data.content == "test420") {
-            console.log(await message.channel.pin("720419942209683487"))
+            console.log(await message.channel.fetchWebhooks())
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))

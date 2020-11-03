@@ -1,3 +1,4 @@
+import { User } from "../../mod.ts";
 import { OverwriteType } from "./overwrite.ts";
 import { UserType } from "./user.ts";
 import { Snowflake } from "./utils.ts";
@@ -51,4 +52,16 @@ export enum ChannelTypeData {
   GUILD_CATEGORY,
   GUILD_NEWS,
   GUILD_STORE,
+}
+
+export interface WebhookType {
+  id: Snowflake;
+  type: number;
+  guild_id?: Snowflake;
+  channel_id: Snowflake;
+  user?: User;
+  name?: string;
+  avatar?: string;
+  token?: string;
+  application_id: Snowflake;
 }

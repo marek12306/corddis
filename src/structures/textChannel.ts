@@ -1,5 +1,5 @@
 import { Client } from "./../client/client.ts";
-import { ChannelType } from "../types/channel.ts";
+import { ChannelType, WebhookType } from "../types/channel.ts";
 import { MessageType } from "../types/message.ts"
 import { Message } from "./message.ts";
 import { MessageCreateParamsType, MessageEditParamsType } from "../types/message.ts";
@@ -11,6 +11,7 @@ export class TextChannel extends Channel {
     pins: Message[] = [];
     pinsUpdated: Date|null = null
     pinsViewed: Date|null = null
+    webhooks: WebhookType[] = []
 
     constructor(data: ChannelType, client: Client, guild?: Guild) {
         super(data, client, guild)
@@ -72,6 +73,11 @@ export class TextChannel extends Channel {
         this.pins = pins.map((x: MessageType) => new Message(x, this.client, this, this.guild))
         this.pinsUpdated = this.pinsViewed = new Date()
         return this.pins
+    }
+    /** Fetches channel webhooks. */
+    async fetchWebhooks(): Promise<WebhookType[]> {
+        this.webhooks = await this.client._fetch<WebhookType[]>("GET", `channels/${this.data.id}/webhooks`)
+        return this.webhooks
     }
     /** Pins a message. */
     async pin(id: Snowflake): Promise<boolean> {
