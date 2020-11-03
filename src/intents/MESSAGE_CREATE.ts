@@ -4,6 +4,7 @@ import { EntityType } from "../types/utils.ts"
 import { TextChannel } from "../structures/textChannel.ts"
 import { Guild } from "../structures/guild.ts"
 import { ChannelTypeData } from "../types/channel.ts"
+import { ChannelStructures } from "../constants.ts"
 
 // deno-lint-ignore no-explicit-any
 export default async (client: Client, data: any): Promise<any> => {

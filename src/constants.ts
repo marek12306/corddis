@@ -1,4 +1,6 @@
 import { Channel } from "./structures/channel.ts"
+import { NewsChannel } from "./structures/newsChannel.ts"
+import { ChannelTypeData } from "./types/channel.ts"
 import { TextChannel } from "./structures/textChannel.ts"
 import { DictionaryType, NumberDictionaryType } from "./types/utils.ts"
 
@@ -98,11 +100,11 @@ export enum PermissionEnum {
 }
 
 export const ChannelStructures: NumberDictionaryType = {
-    0: TextChannel,
-    1: TextChannel,
-    2: Channel,
-    3: TextChannel,
-    4: Channel,
-    5: TextChannel,
-    6: Channel
+    [ChannelTypeData.GUILD_TEXT]: TextChannel,
+    [ChannelTypeData.DM]: TextChannel,
+    [ChannelTypeData.GUILD_VOICE]: Channel,
+    [ChannelTypeData.GROUP_DM]: TextChannel,
+    [ChannelTypeData.GUILD_CATEGORY]: Channel,
+    [ChannelTypeData.GUILD_NEWS]: NewsChannel,
+    [ChannelTypeData.GUILD_STORE]: Channel
 }
