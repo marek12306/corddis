@@ -65,3 +65,9 @@ export interface WebhookType {
   token?: string;
   application_id: Snowflake;
 }
+
+export interface WebhookEditType {
+  name?: string;
+  avatar?: Uint8Array;
+  channel_id?: Snowflake;
+}

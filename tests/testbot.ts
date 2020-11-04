@@ -57,7 +57,10 @@ import { token } from "./token.ts";
                 file_format: "jpg"
             }))
         } else if (message.data.content == "test420") {
-            console.log(await message.channel.fetchWebhooks())
+            const webhooks = await message.channel.fetchWebhooks()
+            await webhooks[0].send({
+                content: "testxx"
+            })
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))

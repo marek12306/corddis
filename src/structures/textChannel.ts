@@ -6,12 +6,13 @@ import { MessageCreateParamsType, MessageEditParamsType } from "../types/message
 import { Guild } from "./guild.ts";
 import { Channel } from "./channel.ts"
 import { Snowflake } from "../../mod.ts";
+import { Webhook } from "./webhook.ts";
 
 export class TextChannel extends Channel {
     pins: Message[] = [];
     pinsUpdated: Date|null = null
     pinsViewed: Date|null = null
-    webhooks: WebhookType[] = []
+    webhooks: Webhook[] = []
 
     constructor(data: ChannelType, client: Client, guild?: Guild) {
         super(data, client, guild)
@@ -26,9 +27,9 @@ export class TextChannel extends Channel {
         if (!data) throw Error("Content for message is not provided");
         let body: FormData|string = JSON.stringify(data)
         if (data?.file) {
-        body = new FormData();
-        body.append("file", data.file.content, data.file.name)
-        body.append("payload_json", JSON.stringify({ ...data, file: undefined }))
+            body = new FormData();
+            body.append("file", data.file.content, data.file.name)
+            body.append("payload_json", JSON.stringify({ ...data, file: undefined }))
         }
         const json = await this.client._fetch<MessageType>("POST", `channels/${this.data.id}/messages`, body, true, data?.file ? false : "application/json")
         return new Message(json, this.client, this, this.guild);
@@ -75,8 +76,9 @@ export class TextChannel extends Channel {
         return this.pins
     }
     /** Fetches channel webhooks. */
-    async fetchWebhooks(): Promise<WebhookType[]> {
-        this.webhooks = await this.client._fetch<WebhookType[]>("GET", `channels/${this.data.id}/webhooks`)
+    async fetchWebhooks(): Promise<Webhook[]> {
+        const webhooks = await this.client._fetch<WebhookType[]>("GET", `channels/${this.data.id}/webhooks`)
+        this.webhooks = webhooks.map((x: WebhookType) => new Webhook(x, this.client))
         return this.webhooks
     }
     /** Pins a message. */
