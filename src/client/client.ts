@@ -24,7 +24,7 @@ export class Client extends EventEmitter {
     sessionID = ""
     cache: LRU = new LRU(1000)
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
-    reconnect = false
+    ready = false
     lastReq = 0
     // deno-lint-ignore no-explicit-any
     intentHandlers: Map<string, (client: Client, data: any) => Promise<any>> = new Map()
@@ -108,7 +108,6 @@ export class Client extends EventEmitter {
         if (this.socket.readyState == 1) return;
         clearInterval(this.gatewayInterval)
         this.emit("debug", "Connection closed trying to reconnect")
-        this.reconnect = true
         this.login()
     }
 
@@ -134,8 +133,6 @@ export class Client extends EventEmitter {
                 }
             }))
 
-            this.reconnect = false
-
             return
         }
         if (op == 11) {
@@ -147,7 +144,8 @@ export class Client extends EventEmitter {
         if (t == "READY") {
             this.sessionID = d.session_id
             this.user = new User(d.user, this)
-            this.emit("READY", this.user)
+            this.emit("READY", this.user, this.ready)
+            this.ready = true
             return
         }
 
