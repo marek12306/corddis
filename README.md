@@ -1,7 +1,7 @@
 # corddis 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
-Deno Discord API wrapper made mainly for learning. Still in early stages of development.
+Deno Discord API wrapper made mainly for learning. Still in early stage of development.
 
 - Inspired by discord.js, but still original
 - Close to the API
