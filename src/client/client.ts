@@ -126,7 +126,7 @@ export class Client extends EventEmitter {
                 op: 2, d: {
                     token: "Bot " + this.token,
                     properties: {
-                        $os: "linux", $browser: this.mobile ? "Discord iOS" : "corddis", $device: "corddis"
+                        $os: Deno.build.os, $browser: this.mobile ? "Discord iOS" : "corddis", $device: "corddis"
                     },
                     presence: {
                         status: "online", afk: false
