@@ -21,7 +21,7 @@ export class Client extends EventEmitter {
     sequenceNumber: number|null = null
     _heartbeatTime = -1
     ping = -1
-    sessionID = ""
+    sessionID: string|null = ""
     cache: LRU = new LRU(1000)
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     ready = false
@@ -201,6 +201,11 @@ export class Client extends EventEmitter {
         this.socket.addEventListener('close', (ev: CloseEvent) => this._close.call(this))
 
         return true;
+    }
+    /** Reconnects client to the gateway. */
+    reconnect(hard = false) {
+        if (hard) this.sessionID = this.sequenceNumber = null
+        this.socket.close()
     }
     /**
      * Fetches entities from Discord API
