@@ -28,6 +28,7 @@ export class Client extends EventEmitter {
     lastReq = 0
     // deno-lint-ignore no-explicit-any
     intentHandlers: Map<string, (client: Client, data: any) => Promise<any>> = new Map()
+    mobile = false
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
@@ -125,7 +126,7 @@ export class Client extends EventEmitter {
                 op: 2, d: {
                     token: "Bot " + this.token,
                     properties: {
-                        $os: "linux", $browser: "corddis", $device: "corddis"
+                        $os: "linux", $browser: this.mobile ? "Discord iOS" : "corddis", $device: "corddis"
                     },
                     presence: {
                         status: "online", afk: false
