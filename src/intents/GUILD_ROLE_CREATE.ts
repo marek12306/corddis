@@ -14,9 +14,7 @@ export default async (client: Client, data: any): Promise<any> => {
             guild.data.roles.push(role)
             guild.roles.push(new Role(role, client, guild))
         } else {
-            guild.data.roles = guild.data.roles.map((r: RoleType) => 
-                r.id == role.id ? role : r
-            )
+            guild.data.roles = guild.data.roles.map((r: RoleType) => r.id == role.id ? role : r)
             guild.roles = guild.roles.map((r: Role) => {
                 if (r.data.id != role.id) return r
                 r.data = role.data
@@ -24,9 +22,6 @@ export default async (client: Client, data: any): Promise<any> => {
             })
         }
         client.cache.set(guild_id, guild)
-        return [guild]
-    } else {
-        guild = await client.get(EntityType.GUILD, guild_id) as Guild
-        return [guild]
-    }
+    } else guild = await client.get(EntityType.GUILD, guild_id) as Guild
+    return [guild]
 }

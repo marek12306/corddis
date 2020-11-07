@@ -10,10 +10,9 @@ export default async (client: Client, data: any): Promise<any> => {
     const guild = await client.get(EntityType.GUILD, guild_id) as Guild
     const userObj = new User(data.d, client)
     if (guild.members.length > 0) {
-        const found = guild.members.find((x: GuildMember) => x.data.user?.id == userObj.data.id)
-        if (!found) return [userObj, guild]
-        const index = guild.members.indexOf(found)
-        guild.members.splice(index, 1)
+        const foundIndex = guild.members.findIndex((x: GuildMember) => x.data.user?.id == userObj.data.id)
+        if (foundIndex < 0) return [userObj, guild]
+        guild.members.splice(foundIndex, 1)
         client.cache.set(guild_id, guild)
     }
     return [userObj, guild]

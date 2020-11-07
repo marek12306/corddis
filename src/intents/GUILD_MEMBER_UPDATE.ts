@@ -10,20 +10,14 @@ export default async (client: Client, data: any): Promise<any> => {
     const updatedMember = data.d
     delete updatedMember.guild_id
     const guild = await client.get(EntityType.GUILD, guild_id) as Guild
-    let member
 
-    const found = guild.members.find((x: GuildMember) => x.data.user?.id == updatedMember.user.id)
-    if (found) {
-        guild.members = guild.members.map((x: GuildMember) => {
-            if (x.data.user?.id != updatedMember.user.id) return x
-            x.data = { ...x.data, ...updatedMember }
-            return x
-        })
-    } else {
-        member = await guild.get(EntityType.GUILD_MEMBER, updatedMember.user.id) as GuildMember
-        guild.members.push(member)
-    }
+    const foundIndex = guild.members.findIndex((x: GuildMember) => x.data.user?.id == updatedMember.user.id)
+    if (foundIndex > -1)
+        guild.members[foundIndex].data = { ...guild.members[foundIndex].data, ...updatedMember }
+    else
+        guild.members.push(await guild.get(EntityType.GUILD_MEMBER, updatedMember.user.id) as GuildMember)
+
     client.cache.set(guild_id, guild)
 
-    return [member]
+    return [foundIndex > -1 ? guild.members[foundIndex] : guild.members[guild.members.length - 1]]
 }

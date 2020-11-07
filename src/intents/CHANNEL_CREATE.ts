@@ -9,19 +9,10 @@ export default async (client: Client, data: any): Promise<any> => {
     const { guild_id } = data.d
     const guild = await client.get(EntityType.GUILD, guild_id) as Guild
     const channel = new ChannelStructures[data.d.type](data.d, client, guild)
+    const existingChannel = guild.channels.findIndex((x: Channel) => x.data.id == data.d.id)
     if (guild.members.length > 0) {
-        if (data.t == "CHANNEL_CREATE") {
-            if (!guild.channels.find((x: Channel) => x.data.id == data.d.id)) guild.channels.push(channel)
-        } else {
-            const found = guild.channels.find((x: Channel) => x.data.id == data.d.id)
-            if (!found) {
-                guild.channels.push(channel)
-            } else {
-                guild.channels = guild.channels.map((x: Channel) =>
-                    x.data.id == data.d.id ? channel : x
-                )
-            }
-        }
+        if (existingChannel < 0) guild.channels.push(channel)
+        else guild.channels[existingChannel] = channel
         client.cache.set(guild_id, guild)
         return [channel]
     } else {
