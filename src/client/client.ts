@@ -117,6 +117,11 @@ export class Client extends EventEmitter {
         const { op, t, s, d } = response
         this.emit('raw', event.data)
         if (s) this.sequenceNumber = s
+        if (op == 9) {
+            this.emit("debug", "Invalid session, trying to reconnect after 5 seconds...")
+            return setTimeout(() => this.reconnect(), 5000)
+        }
+
         if (op == 10) {
             this.gatewayInterval = setInterval(() => this._heartbeat.call(this), d.heartbeat_interval)
 
