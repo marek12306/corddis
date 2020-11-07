@@ -6,9 +6,8 @@ import { Invite } from "../structures/invite.ts"
 // deno-lint-ignore no-explicit-any
 export default async (client: Client, data: any): Promise<any> => {
     const { code, guild_id } = data.d
-    let invite = code
+    let invite, guild;
     if (client.cache.has(code)) invite = client.cache.get(code) as Invite
-    let guild = guild_id
     if (guild_id) guild = await client.get(EntityType.GUILD, guild_id) as Guild
     return [invite, guild]
 }
