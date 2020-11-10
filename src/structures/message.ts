@@ -4,6 +4,7 @@ import { Guild } from "./guild.ts";
 import { TextChannel } from "./textChannel.ts";
 import { NewsChannel } from "./newsChannel.ts"
 import { ChannelTypeData } from "../types/channel.ts";
+import { EmbedType } from "../types/embed.ts";
 
 export class Message {
     data: MessageType;
@@ -17,9 +18,11 @@ export class Message {
         this.channel = channel;
         this.guild = guild;
     }
-    /** Replies to a message with some text content. */
-    async reply(content: string): Promise<Message> {
-        return this.channel.sendMessage({ content })
+    /** Replies to a message with some text content or an embed. */
+    async reply(content: string|EmbedType): Promise<Message> {
+        if (typeof content == "string") {
+            return this.channel.sendMessage({ content })
+        } else return this.channel.sendMessage({ embed: content })
     }
     /** Deletes message. */
     async delete(): Promise<boolean> {
