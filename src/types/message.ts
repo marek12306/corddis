@@ -30,6 +30,18 @@ export interface MessageType {
   application?: number;
   message_reference?: MessageReferenceType;
   flags?: number;
+  stickers?: StickerType[];
+}
+
+export interface StickerType {
+  id: string;
+  name: string;
+  description: string;
+  pack_id: string;
+  asset: string;
+  preview_asset: string;
+  format_type: number;
+  tags: string;
 }
 
 export interface AttachmentType {
@@ -117,6 +129,7 @@ export interface MessageCreateParamsType {
   paylad_json?: string;
   allowed_mentions?: AllowedMentionsType[];
   file?: FileType;
+  sticker_ids?: Snowflake[];
 }
 
 export interface MessageEditParamsType {
