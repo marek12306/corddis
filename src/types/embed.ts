@@ -29,7 +29,7 @@ export interface EmbedImageType {
 }
 
 export interface EmbedVideoType extends EmbedImageType {
-  proxy_url?: String;
+  proxy_url?: string;
 }
 
 export interface EmbedThumbnailType {

@@ -57,10 +57,8 @@ import { token } from "./token.ts";
                 file_format: "jpg"
             }))
         } else if (message.data.content == "test420") {
-            const webhooks = await message.channel.fetchWebhooks()
-            await webhooks[0].send({
-                content: "testxx"
-            })
+            const user = await client.get(EntityType.USER, message.data.author.id) as User
+            await user.sendMessage({ content: "Huj" })
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
