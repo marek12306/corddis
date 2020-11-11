@@ -9,9 +9,9 @@ import { ChannelTypeData } from "../types/channel.ts"
 export default async (client: Client, data: any): Promise<any> => {
     const { guild_id, channel_id, ids } = data.d
     const messages: Message[] = []
-    for (const k of client.cache.keys) {
-        if (ids.includes(k)) {
-            messages.push(client.cache.get(k) as Message)
+    for (const k of ids) {
+        if (client.cache.messages?.has(k)) {
+            messages.push(client.cache.messages.get(k) as Message)
         } else if (guild_id) {
             const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
             const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as TextChannel;
@@ -23,5 +23,5 @@ export default async (client: Client, data: any): Promise<any> => {
             messages.push(new Message(data.d, client, channel))
         }
     }
-    return messages
+    return [messages]
 }

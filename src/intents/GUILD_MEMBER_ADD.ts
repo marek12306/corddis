@@ -18,6 +18,6 @@ export default async (client: Client, data: any): Promise<any> => {
     }
 
     guildMembers.push(guildMemberObj)
-    client.cache.set(guild_id, guild)
+    client.cache.guilds?.set(guild_id, guild)
     return [guildMemberObj, guild]
 }

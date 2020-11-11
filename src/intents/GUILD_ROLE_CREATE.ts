@@ -8,8 +8,8 @@ import { Role } from "../structures/role.ts"
 export default async (client: Client, data: any): Promise<any> => {
     const { guild_id, role } = data.d
     let guild
-    if (client.cache.has(guild_id)) {
-        guild = client.cache.get(guild_id) as Guild
+    if (client.cache.guilds?.has(guild_id)) {
+        guild = client.cache.guilds?.get(guild_id) as Guild
         if (data.t == "GUILD_ROLE_CREATE") {
             guild.data.roles.push(role)
             guild.roles.push(new Role(role, client, guild))
@@ -21,7 +21,7 @@ export default async (client: Client, data: any): Promise<any> => {
                 return r
             })
         }
-        client.cache.set(guild_id, guild)
+        client.cache.guilds?.set(guild_id, guild)
     } else guild = await client.get(EntityType.GUILD, guild_id) as Guild
     return [guild]
 }

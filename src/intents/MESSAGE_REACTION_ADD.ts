@@ -14,7 +14,7 @@ export default async (client: Client, data: any): Promise<any> => {
         const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
         const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as TextChannel;
         let message = message_id
-        if (client.cache.has(message_id)) message = client.cache.get(message_id)
+        if (client.cache.messages?.has(message_id)) message = client.cache.messages.get(message_id)
         return [new Emoji(emoji, client, guild), new GuildMember(member, guild, client), channel, message]
     } else {
         let channel;
@@ -22,7 +22,7 @@ export default async (client: Client, data: any): Promise<any> => {
         else channel = await (await client.me()).createDM(channel_id) as TextChannel
         const user = await client.get(EntityType.USER, user_id as string) as User
         let message = message_id
-        if (client.cache.has(message_id)) message = client.cache.get(message_id)
+        if (client.cache.messages?.has(message_id)) message = client.cache.messages.get(message_id)
         return [new Emoji(emoji, client), user, channel, message]
     }
 }

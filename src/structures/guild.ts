@@ -171,7 +171,7 @@ export class Guild {
   async fetchInvites(): Promise<Invite[]> {
     const invites = await this.client._fetch<InviteType[]>("GET", `guilds/${this.data.id}/invites`, null, true)
     this.invites = invites.map((x: InviteType) => new Invite(x, this.client, this))
-    this.invites.forEach((x: Invite) => this.client.cache.set(x.data.code, x))
+    if (this.client.cache.invites) this.invites.forEach((x: Invite) => this.client.cache.invites?.set(x.data.code, x))
     return this.invites
   }
   /** Adds a new role to member. */

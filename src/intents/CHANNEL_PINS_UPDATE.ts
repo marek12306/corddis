@@ -13,7 +13,7 @@ export default async (client: Client, data: any): Promise<any> => {
         const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as TextChannel;
         channel.pinsUpdated = new Date()
         guild.channels[guild.channels.indexOf(channel)] = channel
-        client.cache.set(guild_id, guild)
+        client.cache.guilds?.set(guild_id, guild)
         return [channel]
     } else {
         let channel;

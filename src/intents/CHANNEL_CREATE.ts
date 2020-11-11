@@ -13,7 +13,7 @@ export default async (client: Client, data: any): Promise<any> => {
     if (guild.members.length > 0) {
         if (existingChannel < 0) guild.channels.push(channel)
         else guild.channels[existingChannel] = channel
-        client.cache.set(guild_id, guild)
+        client.cache.guilds?.set(guild_id, guild)
         return [channel]
     } else {
         await guild.fetchChannels()

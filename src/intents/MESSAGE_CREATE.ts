@@ -20,6 +20,6 @@ export default async (client: Client, data: any): Promise<any> => {
         else channel = await (await client.me()).createDM(channel_id) as TextChannel
         object = new Message(data.d, client, channel)
     }
-    client.cache.set(id, object)
+    client.cache.messages?.set(id, object)
     return [object]
 }

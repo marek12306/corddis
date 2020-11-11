@@ -1,6 +1,6 @@
 import { User } from "./../structures/user.ts";
 import { Guild } from "./../structures/guild.ts";
-import { EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
+import { CacheType, EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
 import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
 import { EventEmitter, LRU } from "../../deps.ts"
@@ -22,7 +22,13 @@ export class Client extends EventEmitter {
     _heartbeatTime = -1
     ping = -1
     sessionID: string|null = ""
-    cache: LRU = new LRU(1000)
+    cache: CacheType = {
+        guilds: new LRU(500),
+        messages: new LRU(500),
+        users: new LRU(500),
+        other: new LRU(500),
+        invites: new LRU(500)
+    }
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     ready = false
     lastReq = 0
@@ -218,18 +224,21 @@ export class Client extends EventEmitter {
      */
     async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {
         if (!this.user) throw Error("Not logged in");
-        if (this.cache.has(id)) return this.cache.get(id) as User | Guild;
         switch (entity) {
             // deno-lint-ignore no-case-declarations
             case EntityType.GUILD:
+                if (this.cache.guilds?.has(id)) return this.cache.guilds?.get(id) as Guild
                 const guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
-                this.cache.set(id, new Guild(guild, this))
-                return this.cache.get(id) as Guild
+                const guildObj = new Guild(guild, this)
+                this.cache.guilds?.set(id, guildObj)
+                return guildObj
             // deno-lint-ignore no-case-declarations
             case EntityType.USER:
+                if (this.cache.users?.has(id)) return this.cache.users?.get(id) as User
                 const user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
-                this.cache.set(id, new User(user, this))
-                return this.cache.get(id) as User
+                const userObj = new User(user, this)
+                this.cache.users?.set(id, userObj)
+                return userObj
             default:
                 throw Error("Wrong EntityType")
         }
@@ -237,24 +246,26 @@ export class Client extends EventEmitter {
     /** Gets current user as Me class */
     async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
-        if (this.cache.has("me")) return this.cache.get("me") as Me
+        if (this.cache.users?.has("me")) return this.cache.users.get("me") as Me
         const user = await this._fetch<UserType>("GET", `users/@me`, null, true)
-        this.cache.set("me", new Me(user, this))
-        return this.cache.get("me") as Me;
+        const userObj = new Me(user, this)
+        this.cache.users?.set("me", userObj)
+        return userObj;
     }
     /** Fetches invite with a certain id */
     async fetchInvite(id: string): Promise<Invite> {
-        if (this.cache.has(id)) return this.cache.get(id) as Invite
+        if (this.cache.invites?.has(id)) return this.cache.invites.get(id) as Invite
         const invite = await this._fetch<InviteType>("GET", `invites/${id}?with_counts=true`, null, true)
         let guild
         if (invite.guild) guild = await this.get(EntityType.GUILD, invite.guild.id) as Guild
-        this.cache.set(id, new Invite(invite, this, guild))
-        return this.cache.get(id) as Invite
+        const inviteObject = new Invite(invite, this, guild)
+        this.cache.invites?.set(id, inviteObject)
+        return inviteObject
     }
     /** Deletes a invite */
     async deleteInvite(id: string | Invite): Promise<InviteType> {
         if (id instanceof Invite) id = id.data.code
-        if (this.cache.has(id)) this.cache.remove(id)
+        if (this.cache.invites?.has(id)) this.cache.invites.remove(id)
         return this._fetch<InviteType>("DELETE", `invites/${id}`, null, true)
     }
 

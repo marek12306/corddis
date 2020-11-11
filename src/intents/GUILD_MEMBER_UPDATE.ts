@@ -17,7 +17,7 @@ export default async (client: Client, data: any): Promise<any> => {
     else
         guild.members.push(await guild.get(EntityType.GUILD_MEMBER, updatedMember.user.id) as GuildMember)
 
-    client.cache.set(guild_id, guild)
+    client.cache.guilds?.set(guild_id, guild)
 
     return [foundIndex > -1 ? guild.members[foundIndex] : guild.members[guild.members.length - 1]]
 }

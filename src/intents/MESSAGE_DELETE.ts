@@ -8,7 +8,7 @@ import { ChannelTypeData } from "../types/channel.ts"
 // deno-lint-ignore no-explicit-any
 export default async (client: Client, data: any): Promise<any> => {
     const { guild_id, channel_id, id } = data.d
-    if (client.cache.has(id)) return [client.cache.get(id)]
+    if (client.cache.messages?.has(id)) return [client.cache.messages.get(id)]
     if (guild_id) {
         const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
         const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as TextChannel;

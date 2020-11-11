@@ -14,10 +14,11 @@ export class Me extends User {
     }
     /** Gets user guilds */
     async guilds(): Promise<Guild[]> {
-        if (this.client.cache.has("meg")) return this.client.cache.get("meg") as Guild[];
+        if (this.client.cache.other?.has("meg")) return this.client.cache.other.get("meg") as Guild[];
         const guildsJSON = await this.client._fetch<GuildType[]>("GET", `users/@me/guilds`, null, true)
-        this.client.cache.set("meg", guildsJSON.map((elt: GuildType) => new Guild(elt, this.client)))
-        return this.client.cache.get("meg") as Guild[];
+        const guildsArray = guildsJSON.map((elt: GuildType) => new Guild(elt, this.client))
+        this.client.cache.other?.set("meg", guildsArray)
+        return guildsArray;
     }
     /**
      * Gets user DM channels
@@ -25,26 +26,28 @@ export class Me extends User {
      */
     async getDM(): Promise<TextChannel[]> {
         if (this.client.user?.isBot()) return [];
-        if (this.client.cache.has("medm")) return this.client.cache.get("medm") as TextChannel[];
+        if (this.client.cache.other?.has("medm")) return this.client.cache.other.get("medm") as TextChannel[];
         const channelsJSON = await this.client._fetch<ChannelType[]>("get", `users/@me/channels`, null, true)
-        this.client.cache.set("medm", channelsJSON.map((elt: ChannelType) => new TextChannel(elt, this.client)))
-        return this.client.cache.get("medm") as TextChannel[];
+        const channelsArray = channelsJSON.map((elt: ChannelType) => new TextChannel(elt, this.client))
+        this.client.cache.other?.set("medm", channelsArray)
+        return channelsArray;
     }
     /**
      * Creates a DM with a user
      * @return newly created dm channel
      */
     async createDM(recipient_id: Snowflake): Promise<TextChannel> {
-        if (this.client.cache.get(`${recipient_id}dm`)) return this.client.cache.get(`${recipient_id}dm`) as TextChannel
+        if (this.client.cache.other?.get(`${recipient_id}dm`)) return this.client.cache.other.get(`${recipient_id}dm`) as TextChannel
         const channel = await this.client._fetch<ChannelType>("POST", `users/@me/channels`, JSON.stringify({ recipient_id }), true)
-        this.client.cache.set(`${recipient_id}dm`, new TextChannel(channel, this.client))
-        return this.client.cache.get(`${recipient_id}dm`) as TextChannel
+        const channelObj = new TextChannel(channel, this.client)
+        this.client.cache.other?.set(`${recipient_id}dm`, channelObj)
+        return channelObj
     }
     /** Gets user connections */
     async getConnections(): Promise<ConnectionType[]> {
-        if (this.client.cache.has("conn")) return this.client.cache.get("conn") as ConnectionType[]
+        if (this.client.cache.other?.has("conn")) return this.client.cache.other.get("conn") as ConnectionType[]
         const connections = await this.client._fetch<ConnectionType[]>("GET", `users/@me/connections`, null, true)
-        this.client.cache.set("conn", connections)
+        this.client.cache.other?.set("conn", connections)
         return connections
     }
 }

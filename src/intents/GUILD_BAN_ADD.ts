@@ -13,7 +13,7 @@ export default async (client: Client, data: any): Promise<any> => {
         const foundIndex = guild.members.findIndex((x: GuildMember) => x.data.user?.id == userObj.data.id)
         if (foundIndex < 0) return [userObj, guild]
         guild.members.splice(foundIndex, 1)
-        client.cache.set(guild_id, guild)
+        client.cache.guilds?.set(guild_id, guild)
     }
     return [userObj, guild]
 }

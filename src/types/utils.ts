@@ -1,3 +1,4 @@
+import { LRU } from "../../deps.ts";
 import { User } from "../../mod.ts";
 
 export type Snowflake = string;
@@ -71,4 +72,12 @@ export interface ConnectionType {
 export interface ErrorType {
     message: string;
     code: number;
+}
+
+export interface CacheType {
+    guilds?: LRU;
+    messages?: LRU;
+    users?: LRU;
+    invites?: LRU;
+    other?: LRU;
 }

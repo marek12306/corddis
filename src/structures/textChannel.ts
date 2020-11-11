@@ -36,10 +36,10 @@ export class TextChannel extends Channel {
     }
     /** Fetches a message from channel. */
     async fetchMessage(id: string): Promise<Message> {
-        if (this.client.cache.has(id)) return this.client.cache.get(id) as Message
+        if (this.client.cache.messages?.has(id)) return this.client.cache.messages.get(id) as Message
         const json = await this.client._fetch<MessageType>("GET", `channels/${this.data.id}/messages/${id}`, null, true)
         const message = new Message(json, this.client, this, this.guild)
-        this.client.cache.set(id, message)
+        if (this.client.cache.messages) this.client.cache.messages.set(id, message)
         return message
     }
     /** Deletes a message. */
