@@ -1,6 +1,6 @@
 import { User } from "./../structures/user.ts";
 import { Guild } from "./../structures/guild.ts";
-import { CacheType, EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
+import { CacheEnum, CacheType, EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
 import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
 import { EventEmitter, LRU } from "../../deps.ts"
@@ -53,6 +53,20 @@ export class Client extends EventEmitter {
      */
     addIntents(...intent: number[]): Client {
         this.intents.push(...intent);
+        return this
+    }
+    /**
+     * Sets selected cache capacity to specifed value.
+     * 0 is infinity, -1 and less disables cache entirely.
+     */
+    setCache(key: CacheEnum, value: number) {
+        switch (key) {
+            case CacheEnum.GUILDS: this.cache.guilds = value > -1 ? new LRU(value) : undefined; break
+            case CacheEnum.INVITES: this.cache.invites = value > -1 ? new LRU(value) : undefined; break
+            case CacheEnum.MESSAGES: this.cache.messages = value > -1 ? new LRU(value) : undefined; break
+            case CacheEnum.OTHER: this.cache.other = value > -1 ? new LRU(value) : undefined; break
+            case CacheEnum.USERS: this.cache.users = value > -1 ? new LRU(value) : undefined; break
+        }
         return this
     }
 

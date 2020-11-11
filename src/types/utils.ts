@@ -81,3 +81,7 @@ export interface CacheType {
     invites?: LRU;
     other?: LRU;
 }
+
+export enum CacheEnum {
+    GUILDS, MESSAGES, USERS, INVITES, OTHER
+}
