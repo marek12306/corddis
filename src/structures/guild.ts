@@ -16,15 +16,15 @@ import { ChannelStructures, Constants } from "../constants.ts";
 export class Guild {
   data: GuildType;
   client: Client;
-  invites: Invite[] = [];
-  members: GuildMember[] = [];
-  channels: Channel[] = [];
-  roles: Role[] = [];
+  invites: Map<Snowflake, Invite> = new Map();
+  members: Map<Snowflake, GuildMember> = new Map();
+  channels: Map<Snowflake, Channel> = new Map();
+  roles: Map<Snowflake, Role> = new Map();
 
   constructor(data: GuildType, client: Client) {
     this.data = data;
     this.client = client;
-    this.roles = data.roles.map((r: RoleType) => new Role(r, client, this))
+    data.roles.forEach((r: RoleType) => this.roles.set(r.id, new Role(r, client, this)))
   }
   /**
    * Updates a guild.
@@ -42,10 +42,10 @@ export class Guild {
   }
   /** Fetches all channels in guild (or gets them from cache). */
   async fetchChannels(): Promise<Channel[]> {
-    if (this.channels.length > 0) return this.channels
+    if (this.channels.size > 0) return Array.from(this.channels.values())
     const json = await this.client._fetch<ChannelType[]>("GET", `guilds/${this.data.id}/channels`, null, true)
-    this.channels = json.map((data: ChannelType) => new ChannelStructures[data.type](data, this.client, this))
-    return this.channels
+    json.forEach((data: ChannelType) => this.channels.set(data.id, new ChannelStructures[data.type](data, this.client, this)))
+    return Array.from(this.channels.values())
   }
   /**
    * Fetches all members from guild.
@@ -55,7 +55,8 @@ export class Guild {
    */
   async fetchMembers(limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
-    return this.members = json.map((data: GuildMemberType) => new GuildMember(data, this, this.client))
+    json.forEach((data: GuildMemberType) => {if (data.user) this.members.set(data.user.id, new GuildMember(data, this, this.client))})
+    return Array.from(this.members.values())
   }
   /**
    * Fetches guild entites from Discord API
@@ -65,23 +66,16 @@ export class Guild {
     switch (type) {
       // deno-lint-ignore no-case-declarations
       case EntityType.GUILD_MEMBER:
-        let found
-        if (this.members.length > 0) {
-          found = this.members.find((x: GuildMember) => x.data.user?.id == id)
-          if (found && !refresh) return found
-        }
+        if (this.members.has(id) && !refresh) return this.members.get(id) as GuildMember
         const json = await this.client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
         const member = new GuildMember(json, this, this.client)
-        if (found) {
-          this.members = this.members.map((x: GuildMember) => x.data.user?.id == id ? member : x)
-        } else {
-          this.members.push(member)
-        }
+        this.members.set(id, member)
         return member
       case EntityType.CHANNEL:
-        return (await this.fetchChannels()).find(ch => ch.data.id == id);
+        await this.fetchChannels()
+        return this.channels.get(id) as Channel;
       case EntityType.ROLE:
-        return this.roles.find(r => r.data.id == id)
+        return this.roles.get(id) as Role
       default:
         throw Error("Wrong EntityType")
     }
@@ -148,13 +142,14 @@ export class Guild {
     const edited = await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
     const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
     if (foundRaw >= 0) this.data.roles[foundRaw] = edited 
-    const foundRole = this.roles.findIndex((x: Role) => x.data.id == id)
-    if (foundRole >= 0) {
-      this.roles[foundRole].data = edited
-      return this.roles[foundRole]
+    const foundRole = this.roles.get(id) as Role
+    if (foundRole) {
+      foundRole.data = edited
+      this.roles.set(id, foundRole)
+      return foundRole
     }
     const editedRole = new Role(edited, this.client, this)
-    this.roles.push(editedRole)
+    this.roles.set(editedRole.data.id, editedRole)
     return editedRole
   }
   /** Edits a role. */
@@ -163,16 +158,15 @@ export class Guild {
     if (response.status != 204) return false
     const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
     if (foundRaw >= 0) this.data.roles.splice(foundRaw, 1)
-    const foundRole = this.roles.findIndex((x: Role) => x.data.id == id)
-    if (foundRole >= 0) this.roles.splice(foundRole, 1)
+    this.roles.delete(id)
     return response.status == 204
   }
   /** Fetches all guild invites. */
   async fetchInvites(): Promise<Invite[]> {
     const invites = await this.client._fetch<InviteType[]>("GET", `guilds/${this.data.id}/invites`, null, true)
-    this.invites = invites.map((x: InviteType) => new Invite(x, this.client, this))
-    if (this.client.cache.invites) this.invites.forEach((x: Invite) => this.client.cache.invites?.set(x.data.code, x))
-    return this.invites
+    invites.forEach((x: InviteType) => this.invites.set(x.code, new Invite(x, this.client, this)))
+    if (this.client.cache.invites) this.invites.forEach(x => this.client.cache.invites?.set((x as Invite).data.code, x))
+    return Array.from(this.invites.values())
   }
   /** Adds a new role to member. */
   async addRole(member_id: Snowflake, role_id: Snowflake): Promise<boolean> {

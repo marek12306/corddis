@@ -11,13 +11,13 @@ export default async (client: Client, data: any): Promise<any> => {
     delete updatedMember.guild_id
     const guild = await client.get(EntityType.GUILD, guild_id) as Guild
 
-    const foundIndex = guild.members.findIndex((x: GuildMember) => x.data.user?.id == updatedMember.user.id)
-    if (foundIndex > -1)
-        guild.members[foundIndex].data = { ...guild.members[foundIndex].data, ...updatedMember }
-    else
-        guild.members.push(await guild.get(EntityType.GUILD_MEMBER, updatedMember.user.id) as GuildMember)
+    if (guild.members.has(updatedMember.user.id)) {
+        const member = guild.members.get(updatedMember.user.id) as GuildMember
+        member.data = { ...member.data, ...updatedMember }
+        guild.members.set(updatedMember.user.id, member)
+    } else guild.members.set(updatedMember.user.id, await guild.get(EntityType.GUILD_MEMBER, updatedMember.user.id) as GuildMember)
 
     client.cache.guilds?.set(guild_id, guild)
 
-    return [foundIndex > -1 ? guild.members[foundIndex] : guild.members[guild.members.length - 1]]
+    return [guild.members.get(updatedMember.user.id) as GuildMember]
 }
