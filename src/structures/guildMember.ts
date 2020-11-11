@@ -2,12 +2,14 @@ import { Client } from "../client/client.ts";
 import { PermissionEnum, Permissions } from "../constants.ts";
 import { GuildMemberType } from "../types/guild.ts";
 import { RoleType } from "../types/role.ts";
+import { PresenceType } from "../types/user.ts";
 import { Guild } from "./guild.ts";
 
 export class GuildMember {
     data: GuildMemberType;
     guild: Guild;
     client: Client;
+    presence: PresenceType = {};
 
     constructor(data: GuildMemberType, guild: Guild, client: Client) {
         this.data = data;

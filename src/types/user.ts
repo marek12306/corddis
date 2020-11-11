@@ -1,4 +1,3 @@
-import { EmojiType } from "./emoji.ts";
 import { GuildMemberType } from "./guild.ts";
 import { Snowflake } from "./utils.ts";
 
@@ -73,4 +72,17 @@ export interface StatusType {
   activities: ActivityType[]|null;
   status: string;
   afk: boolean;
+}
+
+export interface ClientStatusType {
+  desktop?: string;
+  mobile?: string;
+  web?: string;
+}
+
+export interface PresenceType {
+  user?: UserType;
+  status?: string;
+  activities?: ActivityType[];
+  client_status?: ClientStatusType;
 }
