@@ -115,3 +115,27 @@ export interface InviteType {
   approximate_presence_count?: number;
   approximate_member_count?: number;
 }
+
+export interface TemplateType {
+  code: string;
+  name: string;
+  description: string;
+  usage_count: number;
+  creator_id: Snowflake;
+  creator: UserType;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+  source_guild_id: Snowflake;
+  serialized_source_guild: GuildType;
+  is_dirty: boolean;
+}
+
+export interface TemplateEditType {
+  name?: string;
+  description?: string;
+}
+
+export interface TemplateCreateType {
+  name: string;
+  description: string;
+}

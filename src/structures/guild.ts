@@ -1,4 +1,4 @@
-import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType, InviteType } from "../types/guild.ts";
+import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType, InviteType, TemplateCreateType, TemplateType } from "../types/guild.ts";
 import { ChannelCreateType, ChannelType } from "../types/channel.ts";
 import { Client } from "./../client/client.ts";
 import { Channel } from "./channel.ts";
@@ -12,6 +12,7 @@ import { NewEmojiType } from "../types/emoji.ts";
 import { Invite } from "./invite.ts";
 import { Role } from "./role.ts";
 import { ChannelStructures, Constants, Intents } from "../constants.ts";
+import { Template } from "./template.ts";
 
 export class Guild {
   data: GuildType;
@@ -20,6 +21,7 @@ export class Guild {
   members: Map<Snowflake, GuildMember> = new Map();
   channels: Map<Snowflake, Channel> = new Map();
   roles: Map<Snowflake, Role> = new Map();
+  template?: Template;
 
   constructor(data: GuildType, client: Client) {
     this.data = data;
@@ -94,6 +96,27 @@ export class Guild {
   async createChannel(data: ChannelCreateType): Promise<Channel> {
     const json = await this.client._fetch<ChannelType>("POST", `guilds/${this.data.id}/channels`, JSON.stringify(data), true)
     return new ChannelStructures[json.type](json, this.client, this);
+  }
+  /** Fetches guild template. */
+  async fetchTemplate(refresh = false): Promise<Template> {
+    if (!refresh && this.template) return this.template
+    const json = await this.client._fetch<TemplateType[]>("GET", `guilds/${this.data.id}/templates`, null, true)
+    this.template = new Template(json[0], this.client, this)
+    return this.template
+  }
+  /** Creates a template. */
+  async createTemplate(data: TemplateCreateType): Promise<Template> {
+    const json = await this.client._fetch<TemplateType>("POST", `guilds/${this.data.id}/templates`, JSON.stringify(data), true)
+    this.template = new Template(json, this.client, this)
+    return this.template
+  }
+  /** Deletes template */
+  async deleteTemplate(): Promise<boolean> {
+    await this.fetchTemplate()
+    if (!this.template) return false
+    const response = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}/templates/${this.template.data.code}`, null, false)
+    if (response.status == 204) this.template = undefined
+    return response.status == 204
   }
   /** Generates a guild icon URL. */
   async icon(attr: IconAttributesType = {}): Promise<string> {
