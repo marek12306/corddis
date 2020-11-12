@@ -11,7 +11,7 @@ import { Emoji } from "./emoji.ts";
 import { NewEmojiType } from "../types/emoji.ts";
 import { Invite } from "./invite.ts";
 import { Role } from "./role.ts";
-import { ChannelStructures, Constants } from "../constants.ts";
+import { ChannelStructures, Constants, Intents } from "../constants.ts";
 
 export class Guild {
   data: GuildType;
@@ -25,6 +25,8 @@ export class Guild {
     this.data = data;
     this.client = client;
     data.roles.forEach((r: RoleType) => this.roles.set(r.id, new Role(r, client, this)))
+
+    if (client.intents.includes(Intents.GUILD_MEMBERS)) client.requestGuildMembers(data.id)
   }
   /**
    * Updates a guild.
@@ -53,7 +55,8 @@ export class Guild {
    * @param limit limit of members to fetch
    * @param after after which member to fetch
    */
-  async fetchMembers(limit = 1, after: Snowflake = "0"): Promise<GuildMember[]> {
+  async fetchMembers(limit = 1, after: Snowflake = "0", refresh = false): Promise<GuildMember[]> {
+    if (!refresh && this.members.size > 0) return Array.from(this.members.values())
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
     json.forEach((data: GuildMemberType) => {if (data.user) this.members.set(data.user.id, new GuildMember(data, this, this.client))})
     return Array.from(this.members.values())
