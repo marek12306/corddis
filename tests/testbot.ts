@@ -2,7 +2,7 @@ import { Client, Intents, Message, User, EmbedBuilder, EntityType, PermissionEnu
 import { token } from "./token.ts";
 
 (async () => {
-    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS, Intents.GUILDS)
+    const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS, Intents.GUILDS, Intents.GUILD_MEMBERS, Intents.GUILD_PRESENCES)
 
     // to samo co:
     // let client = await new Client(token).addIntents(Intents.GUILD_MESSAGES)
@@ -57,8 +57,10 @@ import { token } from "./token.ts";
                 file_format: "jpg"
             }))
         } else if (message.data.content == "test420") {
-            const user = await client.get(EntityType.USER, message.data.author.id) as User
-            await user.sendMessage({ content: "Huj" })
+            if (!message.guild) return
+            client.requestGuildMembers(message.guild.data.id)
+            // const member = await message.guild.get(EntityType.GUILD_MEMBER, message.data.author.id) as GuildMember
+            // console.log(member.data)
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))

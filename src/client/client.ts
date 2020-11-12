@@ -214,6 +214,14 @@ export class Client extends EventEmitter {
         this.status = d
         return d
     }
+    /** Request members of a guild by gateway. */
+    async requestGuildMembers(guild_id: Snowflake, limit = 0, query = "") {
+        this.socket.send(JSON.stringify({
+            op: 8, d: {
+                guild_id, query, limit, presences: true
+            }
+        }))
+    }
     /** Logins with a certain token */
     async login(token: string = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
