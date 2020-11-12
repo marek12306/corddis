@@ -12,7 +12,7 @@ Deno Discord API wrapper made mainly for learning. Still in early stage of devel
 - High priority
   - [x] Support for other types of text channels (categories, news)
   - [x] Documentation
-  - [ ] User presence
+  - [x] User presence
   - [x] Webhooks
   - [ ] Standalone webhook client
   - [x] Pinned messages
