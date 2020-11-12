@@ -139,25 +139,34 @@ export class Client extends EventEmitter {
         if (s) this.sequenceNumber = s
         if (op == 9) {
             this.emit("debug", "Invalid session, trying to reconnect after 5 seconds...")
-            return setTimeout(() => this.reconnect(), 5000)
+            return setTimeout(() => this.reconnect(true), 5000)
         }
-
         if (op == 10) {
             this.gatewayInterval = setInterval(() => this._heartbeat.call(this), d.heartbeat_interval)
 
             const intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
 
-            this.socket.send(JSON.stringify({
-                op: 2, d: {
-                    token: "Bot " + this.token,
-                    properties: {
-                        $os: Deno.build.os, $browser: this.mobile ? "Discord iOS" : "corddis", $device: "corddis"
-                    },
-                    presence: {
-                        status: "online", afk: false
-                    }, intents
-                }
-            }))
+            if (this.sessionID) {
+                this.socket.send(JSON.stringify({
+                    op: 6, d: {
+                        token: "Bot " + this.token,
+                        session_id: this.sessionID,
+                        seq: this.sequenceNumber
+                    }
+                }))
+            } else {
+                this.socket.send(JSON.stringify({
+                    op: 2, d: {
+                        token: "Bot " + this.token,
+                        properties: {
+                            $os: Deno.build.os, $browser: this.mobile ? "Discord iOS" : "corddis", $device: "corddis"
+                        },
+                        presence: {
+                            status: "online", afk: false
+                        }, intents
+                    }
+                }))
+            }
 
             return
         }
@@ -174,6 +183,8 @@ export class Client extends EventEmitter {
             this.ready = true
             return
         }
+
+        if (t == "RESUMED") return this.emit("debug", "Connection resumed successfuly")
 
         if (t) {
             const intentObject = await IntentHandler(this, response)
