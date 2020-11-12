@@ -17,7 +17,7 @@ Deno Discord API wrapper made mainly for learning. Still in early stage of devel
   - [ ] Standalone webhook client
   - [x] Pinned messages
   - [x] More structures
-  - [ ] Gateway resuming
+  - [x] Gateway resuming
 - Low priority
   - [x] More control over the cache
   - [ ] Compression
