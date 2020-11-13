@@ -22,7 +22,7 @@ Deno Discord API wrapper made mainly for learning. Still in early stage of devel
   - [x] More control over the cache
   - [ ] Compression
   - [x] Templates
-  - [ ] Sharding
+  - [x] Sharding (internal for now)
   - [ ] Voice support
 
 ## Example
