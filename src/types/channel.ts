@@ -53,21 +53,3 @@ export enum ChannelTypeData {
   GUILD_NEWS,
   GUILD_STORE,
 }
-
-export interface WebhookType {
-  id: Snowflake;
-  type: number;
-  guild_id?: Snowflake;
-  channel_id: Snowflake;
-  user?: User;
-  name?: string;
-  avatar?: string;
-  token?: string;
-  application_id: Snowflake;
-}
-
-export interface WebhookEditType {
-  name?: string;
-  avatar?: Uint8Array;
-  channel_id?: Snowflake;
-}

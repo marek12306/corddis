@@ -137,13 +137,3 @@ export interface MessageEditParamsType {
   embed?: EmbedType;
   flags?: number;
 }
-
-export interface WebhookMessageCreateType {
-  content?: string;
-  username?: string;
-  avatar_url?: string;
-  tts?: boolean;
-  file?: FileType;
-  embeds?: EmbedType[];
-  allowed_mentions?: AllowedMentionsType;
-}

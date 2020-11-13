@@ -1,6 +1,7 @@
 import { Client } from "./../client/client.ts";
-import { ChannelType, WebhookType } from "../types/channel.ts";
+import { ChannelType } from "../types/channel.ts";
 import { MessageType } from "../types/message.ts"
+import { WebhookType } from "../types/webhook.ts"
 import { Message } from "./message.ts";
 import { MessageCreateParamsType, MessageEditParamsType } from "../types/message.ts";
 import { Guild } from "./guild.ts";
@@ -10,8 +11,8 @@ import { Webhook } from "./webhook.ts";
 
 export class TextChannel extends Channel {
     pins: Message[] = [];
-    pinsUpdated: Date|null = null
-    pinsViewed: Date|null = null
+    pinsUpdated: Date | null = null
+    pinsViewed: Date | null = null
     webhooks: Webhook[] = []
 
     constructor(data: ChannelType, client: Client, guild?: Guild) {
@@ -25,7 +26,7 @@ export class TextChannel extends Channel {
      */
     async sendMessage(data: MessageCreateParamsType): Promise<Message> {
         if (!data) throw Error("Content for message is not provided");
-        let body: FormData|string = JSON.stringify(data)
+        let body: FormData | string = JSON.stringify(data)
         if (data?.file) {
             body = new FormData();
             body.append("file", data.file.content, data.file.name)
@@ -78,7 +79,7 @@ export class TextChannel extends Channel {
     /** Fetches channel webhooks. */
     async fetchWebhooks(): Promise<Webhook[]> {
         const webhooks = await this.client._fetch<WebhookType[]>("GET", `channels/${this.data.id}/webhooks`)
-        this.webhooks = webhooks.map((x: WebhookType) => new Webhook(x, this.client))
+        this.webhooks = webhooks.map((x: WebhookType) => new Webhook(x))
         return this.webhooks
     }
     /** Pins a message. */
