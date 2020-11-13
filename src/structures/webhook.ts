@@ -8,7 +8,7 @@ export class Webhook {
     data: WebhookType = {} as WebhookType
     lastReq = 0
     origin: string
-    inited: boolean = false
+    inited = false
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
@@ -16,7 +16,6 @@ export class Webhook {
         return `${this.data.token}`
     }
 
-    // deno-lint-ignore no-explicit-any
     constructor(initData: URLWebhook | IDWebhook | WebhookType) {
         if ((initData as WebhookType).channel_id != undefined) {
             this.data = initData as WebhookType;
@@ -28,8 +27,7 @@ export class Webhook {
         else this.origin = (initData as URLWebhook).url;
     }
 
-    /** Init a webhook */
-    async init() {
+    async _init() {
         var temp = (await (await fetch(this.origin)).json()) as WebhookType
         this.data = temp as WebhookType
         this.inited = true
@@ -84,20 +82,20 @@ export class Webhook {
 
     /** Deletes a webhook. */
     async delete(): Promise<boolean> {
-        if (!this.inited) throw "Webhook was't initialised"
+        if (!this.inited) await this._init()
         const response = await this._fetch<Response>("DELETE", `webhooks/${this.data.id}/${this.token}`, null, false)
         return response.status == 204
     }
     /** Modifies a webhook */
     async edit(data: WebhookEditType): Promise<Webhook> {
-        if (!this.inited) throw "Webhook was't initialised"
+        if (!this.inited) await this._init()
         const webhook = await this._fetch<WebhookType>("PATCH", `webhooks/${this.data.id}/${this.token}`, JSON.stringify(data), true)
         this.data = webhook
         return this
     }
     /** Executes a webhook */
     async send(data: WebhookMessageCreateType): Promise<boolean> {
-        if (!this.inited) throw "Webhook was't initialised"
+        if (!this.inited) await this._init()
         if (!data) throw Error("Content for message is not provided")
         let body: FormData | string = JSON.stringify(data)
         if (data?.file) {
