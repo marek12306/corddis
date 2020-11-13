@@ -2,9 +2,10 @@ import { EntityType } from "../types/utils.ts"
 import { Client } from "../client/client.ts"
 import { Guild } from "../structures/guild.ts"
 import { GuildMember } from "../structures/guildMember.ts"
+import { Gateway } from "../client/gateway.ts"
 
 // deno-lint-ignore no-explicit-any
-export default async (client: Client, data: any): Promise<any> => {
+export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { guild_id } = data.d
     const guildMember = { ...data.d }
     delete guildMember.guild_id

@@ -13,6 +13,7 @@ import { Invite } from "./invite.ts";
 import { Role } from "./role.ts";
 import { ChannelStructures, Constants, Intents } from "../constants.ts";
 import { Template } from "./template.ts";
+import { Gateway } from "../client/gateway.ts";
 
 export class Guild {
   data: GuildType;
@@ -22,13 +23,15 @@ export class Guild {
   channels: Map<Snowflake, Channel> = new Map();
   roles: Map<Snowflake, Role> = new Map();
   template?: Template;
+  gateway: Gateway | undefined;
 
-  constructor(data: GuildType, client: Client) {
+  constructor(data: GuildType, client: Client, gateway?: Gateway) {
     this.data = data;
     this.client = client;
+    this.gateway = gateway
     data.roles.forEach((r: RoleType) => this.roles.set(r.id, new Role(r, client, this)))
-
-    if (client.intents.includes(Intents.GUILD_MEMBERS)) client.requestGuildMembers(data.id)
+    console.log(!!gateway)
+    if (client.intents.includes(Intents.GUILD_MEMBERS)) gateway?.requestGuildMembers(data.id)
   }
   /**
    * Updates a guild.
@@ -36,7 +39,7 @@ export class Guild {
    */
   async update(data: GuildUpdateType): Promise<Guild> {
     const guild = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
-    return new Guild(guild, this.client);
+    return new Guild(guild, this.client, this.gateway);
   }
   /** Deletes a guild. */
   async delete(): Promise<boolean> {

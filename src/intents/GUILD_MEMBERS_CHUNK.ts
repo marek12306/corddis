@@ -3,9 +3,10 @@ import { EntityType } from "../types/utils.ts"
 import { Guild } from "../structures/guild.ts"
 import { GuildMember } from "../structures/guildMember.ts"
 import { PresenceType } from "../types/user.ts"
+import { Gateway } from "../client/gateway.ts"
 
 // deno-lint-ignore no-explicit-any
-export default async (client: Client, data: any): Promise<any> => {
+export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { members, guild_id, presences } = data.d
 
     const guild = await client.get(EntityType.GUILD, guild_id) as Guild

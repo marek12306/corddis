@@ -5,23 +5,20 @@ import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
 import { EventEmitter, LRU } from "../../deps.ts"
 import { UserType, StatusType } from "./../types/user.ts"
-import { GuildType, InviteType } from "./../types/guild.ts"
+import { GuildType, InviteType, UnavailableGuildType } from "./../types/guild.ts"
 import { IntentHandler } from "./intentHandler.ts";
 import IntentHandlers from "../intents/mod.ts"
 import { Invite } from "../structures/invite.ts";
+import { Gateway } from "./gateway.ts";
 
 /** Client which communicates with gateway and manages REST API communication. */
 export class Client extends EventEmitter {
     token: string;
     user: User | null = null;
     gatewayData: GetGatewayType | undefined;
-    socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
-    gatewayInterval = -1
     intents: number[] = []
     sequenceNumber: number|null = null
     _heartbeatTime = -1
-    ping = -1
-    sessionID: string|null = ""
     cache: CacheType = {
         guilds: new LRU(500),
         messages: new LRU(500),
@@ -33,8 +30,10 @@ export class Client extends EventEmitter {
     ready = false
     lastReq = 0
     // deno-lint-ignore no-explicit-any
-    intentHandlers: Map<string, (client: Client, data: any) => Promise<any>> = new Map()
+    intentHandlers: Map<string, (gateway: Gateway, client: Client, data: any) => Promise<any>> = new Map()
     mobile = false
+    shardsCount = 1
+    shards: Gateway[] = []
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
@@ -68,6 +67,11 @@ export class Client extends EventEmitter {
             case CacheEnum.USERS: this.cache.users = value > -1 ? new LRU(value) : undefined; break
         }
         return this
+    }
+    /** Sets number of shards to spawn. */
+    setShards(shards: number) {
+        if (shards < 1) throw Error("Must be 1 shard or more")
+        this.shardsCount = shards
     }
 
     // deno-lint-ignore no-explicit-any
@@ -117,139 +121,34 @@ export class Client extends EventEmitter {
 
         return resp
     }
-
-    _heartbeat() {
-        if (this.socket.readyState != 1) return;
-        this._heartbeatTime = Date.now()
-        this.socket.send(JSON.stringify({ op: 1, d: this.sequenceNumber }))
-        this.emit("debug", "Sending heartbeat")
-    }
-
-    async _close() {
-        if (this.socket.readyState == 1) return;
-        clearInterval(this.gatewayInterval)
-        this.emit("debug", "Connection closed trying to reconnect")
-        this.login()
-    }
-
-    async _message(event: MessageEvent) {
-        const response = JSON.parse(event.data)
-        const { op, t, s, d } = response
-        this.emit('raw', event.data)
-        if (s) this.sequenceNumber = s
-        if (op == 9) {
-            this.emit("debug", "Invalid session, trying to reconnect after 5 seconds...")
-            return setTimeout(() => this.reconnect(true), 5000)
-        }
-        if (op == 10) {
-            this.gatewayInterval = setInterval(() => this._heartbeat.call(this), d.heartbeat_interval)
-
-            const intents = this.intents.reduce((acc, cur) => acc |= cur, 0)
-
-            if (this.sessionID) {
-                this.socket.send(JSON.stringify({
-                    op: 6, d: {
-                        token: "Bot " + this.token,
-                        session_id: this.sessionID,
-                        seq: this.sequenceNumber
-                    }
-                }))
-            } else {
-                this.socket.send(JSON.stringify({
-                    op: 2, d: {
-                        token: "Bot " + this.token,
-                        properties: {
-                            $os: Deno.build.os, $browser: this.mobile ? "Discord iOS" : "corddis", $device: "corddis"
-                        },
-                        presence: {
-                            status: "online", afk: false
-                        }, intents
-                    }
-                }))
-            }
-
-            return
-        }
-        if (op == 11) {
-            const calculated = Date.now() - this._heartbeatTime
-            this.ping = calculated > 1 ? calculated : this.ping
-            return;
-        }
-
-        if (t == "READY") {
-            this.sessionID = d.session_id
-            this.user = new User(d.user, this)
-            this.emit("READY", this.user, this.ready)
-            this.ready = true
-            return
-        }
-
-        if (t == "RESUMED") return this.emit("debug", "Connection resumed successfuly")
-
-        if (t) {
-            const intentObject = await IntentHandler(this, response)
-            if (intentObject) this.emit(t, ...intentObject);
-        }
-    }
-    /**
-     * Shortcut just to set client game
-     * @return new presence
-     */
-    async game(name: string): Promise<StatusType> {
-        return this.setStatus({
-            since: null,
-            status: this.status.status,
-            activities: [{
-                name, type: 0
-            }],
-            afk: false
-        })
-    }
-    /**
-     * Sets custom presence. Sends raw data to gateway.
-     *      client.setStatus({
-     *          since: null,
-     *          status: "dnd",
-     *          activities: [{
-     *              name: "a game",
-     *              type: 0
-     *          }],
-     *          afk: false
-     *      })
-     * @return new presence
-     */
-    async setStatus(d: StatusType): Promise<StatusType> {
-        this.socket.send(JSON.stringify({
-            op: 3, d
-        }))
-        this.status = d
-        return d
-    }
-    /** Request members of a guild by gateway. */
-    async requestGuildMembers(guild_id: Snowflake, limit = 0, query = "") {
-        this.socket.send(JSON.stringify({
-            op: 8, d: {
-                guild_id, query, limit, presences: true
-            }
-        }))
-    }
     /** Logins with a certain token */
     async login(token: string = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
         this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
         this.gatewayData = await this._fetch<GetGatewayType>("GET", "gateway/bot", null, true)
-
-        this.socket = new WebSocket(`${this.gatewayData.url}?v=${Constants.VERSION}&encoding=json`)
-        this.socket.addEventListener('open', (ev: Event) => (() => { this.emit("debug", "Connected to WebSocket") }).call(this))
-        this.socket.addEventListener('message', (ev: MessageEvent) => this._message.call(this, ev))
-        this.socket.addEventListener('close', (ev: CloseEvent) => this._close.call(this))
-
-        return true;
+        for (let i = 0; i < this.shardsCount; i++) {
+            const gateway = new Gateway(this, [i, this.shardsCount])
+            gateway.on("debug", (ev: string) => this.emit("debug", ev))
+            // deno-lint-ignore no-explicit-any
+            gateway.on("INTENT", (intent: { t: string | symbol; intentObject: any; }) => this.emit(intent.t, ...intent.intentObject))
+            // deno-lint-ignore no-explicit-any
+            gateway.on("raw", (raw: any) => this.emit("raw", raw, gateway))
+            gateway.on("READY", (user: User) => this.emit("READY", user, gateway.ready, gateway))
+            if (i == this.shardsCount - 1) gateway.once("READY", (user: User) => this.user = user)
+            await gateway.login()
+            this.shards.push(gateway)
+        }
+        return true
     }
-    /** Reconnects client to the gateway. */
-    reconnect(hard = false) {
-        if (hard) this.sessionID = this.sequenceNumber = null
-        this.socket.close()
+    /** Sets game status to all shards. */
+    async game(name: string): Promise<StatusType> {
+        for (const shard of this.shards) await shard.game(name)
+        return this.shards[0].status
+    }
+
+    async setStatus(status: StatusType): Promise<StatusType> {
+        for (const shard of this.shards) await shard.setStatus(status)
+        return this.shards[0].status
     }
     /**
      * Fetches entities from Discord API
@@ -262,7 +161,10 @@ export class Client extends EventEmitter {
             case EntityType.GUILD:
                 if (this.cache.guilds?.has(id)) return this.cache.guilds?.get(id) as Guild
                 const guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
-                const guildObj = new Guild(guild, this)
+                const gateway = this.shards.find((x: Gateway) => 
+                    x.guilds.some((y: UnavailableGuildType) => y.id == id)
+                )
+                const guildObj = new Guild(guild, this, gateway)
                 this.cache.guilds?.set(id, guildObj)
                 return guildObj
             // deno-lint-ignore no-case-declarations
@@ -303,6 +205,6 @@ export class Client extends EventEmitter {
     }
 
     toString() {
-        return `Client {"ping":${this.ping},"sessionID":"${this.sessionID}","token":"${this.token}","user":{"data":${JSON.stringify(this.user?.data)}}}`
+        return `Client {"token":"${this.token}","user":{"data":${JSON.stringify(this.user?.data)}}}`
     }
 }

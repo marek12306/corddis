@@ -3,9 +3,10 @@ import { EntityType } from "../types/utils.ts"
 import { Guild } from "../structures/guild.ts"
 import { PresenceType } from "../types/user.ts"
 import { GuildMember } from "../structures/guildMember.ts"
+import { Gateway } from "../client/gateway.ts"
 
 // deno-lint-ignore no-explicit-any
-export default async (client: Client, data: any): Promise<any> => {
+export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { guild_id } = data.d
     delete data.d.guild_id
     const presence = data.d as PresenceType

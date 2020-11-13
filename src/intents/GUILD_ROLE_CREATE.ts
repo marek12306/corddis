@@ -3,9 +3,10 @@ import { EntityType } from "./../types/utils.ts"
 import { Guild } from "../structures/guild.ts"
 import { RoleType } from "../types/role.ts"
 import { Role } from "../structures/role.ts"
+import { Gateway } from "../client/gateway.ts"
 
 // deno-lint-ignore no-explicit-any
-export default async (client: Client, data: any): Promise<any> => {
+export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { guild_id, role } = data.d
     let guild
     if (client.cache.guilds?.has(guild_id)) {

@@ -5,9 +5,10 @@ import { TextChannel } from "../structures/textChannel.ts"
 import { Guild } from "../structures/guild.ts"
 import { ChannelTypeData } from "../types/channel.ts"
 import { ChannelStructures } from "../constants.ts"
+import { Gateway } from "../client/gateway.ts"
 
 // deno-lint-ignore no-explicit-any
-export default async (client: Client, data: any): Promise<any> => {
+export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { guild_id, channel_id, id } = data.d
     let object;
     if (guild_id) {

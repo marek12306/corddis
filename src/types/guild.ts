@@ -139,3 +139,8 @@ export interface TemplateCreateType {
   name: string;
   description: string;
 }
+
+export interface UnavailableGuildType {
+  id: string;
+  unavailable: boolean;
+}

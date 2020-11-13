@@ -57,8 +57,6 @@ import { token } from "./token.ts";
                 file_format: "jpg"
             }))
         } else if (message.data.content == "test420") {
-            if (!message.guild) return
-            client.requestGuildMembers(message.guild.data.id)
             // const member = await message.guild.get(EntityType.GUILD_MEMBER, message.data.author.id) as GuildMember
             // console.log(member.data)
         }
