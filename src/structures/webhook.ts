@@ -28,7 +28,8 @@ export class Webhook {
     }
 
     async _init() {
-        var temp = (await (await fetch(this.origin)).json()) as WebhookType
+        var temp = (await (await fetch(this.origin)).json())
+        if (temp.message) throw Error(temp.message)
         this.data = temp as WebhookType
         this.inited = true
     }
