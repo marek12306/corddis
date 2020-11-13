@@ -30,7 +30,6 @@ export class Guild {
     this.client = client;
     this.gateway = gateway
     data.roles.forEach((r: RoleType) => this.roles.set(r.id, new Role(r, client, this)))
-    console.log(!!gateway)
     if (client.intents.includes(Intents.GUILD_MEMBERS)) gateway?.requestGuildMembers(data.id)
   }
   /**
