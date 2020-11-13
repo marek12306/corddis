@@ -145,7 +145,7 @@ export class Client extends EventEmitter {
         for (const shard of this.shards) await shard.game(name)
         return this.shards[0].status
     }
-
+    /** Sets custom presence to all shards. */
     async setStatus(status: StatusType): Promise<StatusType> {
         for (const shard of this.shards) await shard.setStatus(status)
         return this.shards[0].status
