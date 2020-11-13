@@ -72,6 +72,7 @@ export class Client extends EventEmitter {
     setShards(shards: number) {
         if (shards < 1) throw Error("Must be 1 shard or more")
         this.shardsCount = shards
+        return this
     }
 
     // deno-lint-ignore no-explicit-any
