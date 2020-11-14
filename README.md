@@ -23,7 +23,7 @@ Deno Discord API wrapper made mainly for learning. Still in development, expect 
   - [ ] Compression
   - [x] Templates
   - [x] Sharding (internal for now)
-  - [ ] Voice support
+  - [ ] Voice support (halted till UDP support will be stable in Deno)
 
 ## Example
 ```ts
