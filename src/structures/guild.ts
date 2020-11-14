@@ -43,7 +43,8 @@ export class Guild {
    */
   async update(data: GuildUpdateType): Promise<Guild> {
     const guild = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
-    return new Guild(guild, this.client);
+    this.data = guild
+    return this;
   }
   /** Deletes a guild. */
   async delete(): Promise<boolean> {

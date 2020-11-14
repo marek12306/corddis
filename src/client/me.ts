@@ -4,7 +4,7 @@ import { User } from "../structures/user.ts";
 import { ChannelType } from "../types/channel.ts";
 import { GuildType } from "../types/guild.ts";
 import { UserType } from "../types/user.ts";
-import { ConnectionType, Snowflake } from "../types/utils.ts";
+import { ConnectionType, EntityType, Snowflake } from "../types/utils.ts";
 import { Client } from "./client.ts";
 
 export class Me extends User {
@@ -16,7 +16,7 @@ export class Me extends User {
     async guilds(): Promise<Guild[]> {
         if (this.client.cache.other?.has("meg")) return this.client.cache.other.get("meg") as Guild[];
         const guildsJSON = await this.client._fetch<GuildType[]>("GET", `users/@me/guilds`, null, true)
-        const guildsArray = guildsJSON.map((elt: GuildType) => new Guild(elt, this.client))
+        const guildsArray = Promise.all(guildsJSON.map(async (elt: GuildType) => await this.client.get(EntityType.GUILD, elt.id) as Guild))
         this.client.cache.other?.set("meg", guildsArray)
         return guildsArray;
     }
