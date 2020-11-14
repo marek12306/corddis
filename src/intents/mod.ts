@@ -25,6 +25,8 @@ import GUILD_MEMBER_UPDATE from "./GUILD_MEMBER_UPDATE.ts"
 import CHANNEL_PINS_UPDATE from "./CHANNEL_PINS_UPDATE.ts"
 import PRESENCE_UPDATE from "./PRESENCE_UPDATE.ts"
 import GUILD_MEMBERS_CHUNK from "./GUILD_MEMBERS_CHUNK.ts"
+import VOICE_SERVER_UPDATE from "./VOICE_SERVER_UPDATE.ts"
+import VOICE_STATE_UPDATE from "./VOICE_STATE_UPDATE.ts"
 import { DictionaryType } from "../../mod.ts"
 
 const intents: DictionaryType = {
@@ -54,6 +56,8 @@ const intents: DictionaryType = {
     CHANNEL_PINS_UPDATE,
     PRESENCE_UPDATE,
     GUILD_MEMBERS_CHUNK,
+    VOICE_SERVER_UPDATE,
+    VOICE_STATE_UPDATE,
 }
 
 export default intents

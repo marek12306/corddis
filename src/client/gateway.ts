@@ -3,7 +3,8 @@ import { Client, User } from "../../mod.ts";
 import { Constants } from "../constants.ts";
 import { UnavailableGuildType } from "../types/guild.ts";
 import { StatusType } from "../types/user.ts";
-import { GetGatewayType, Snowflake } from "../types/utils.ts";
+import { Snowflake } from "../types/utils.ts";
+import { VoiceStateUpdateType } from "../types/voice.ts";
 import { IntentHandler } from "./intentHandler.ts";
 
 export class Gateway extends EventEmitter {
@@ -142,6 +143,12 @@ export class Gateway extends EventEmitter {
             op: 8, d: {
                 guild_id, query, limit, presences: true
             }
+        }))
+    }
+    /** Sends voice state update request. */
+    async voiceStateUpdate(d: VoiceStateUpdateType) {
+        this.socket.send(JSON.stringify({
+            op: 4, d
         }))
     }
     /** Reconnects client to the gateway. */

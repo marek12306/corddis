@@ -14,6 +14,7 @@ import { Role } from "./role.ts";
 import { ChannelStructures, Constants, Intents } from "../constants.ts";
 import { Template } from "./template.ts";
 import { Gateway } from "../client/gateway.ts";
+import { Voice } from "./voice.ts";
 
 export class Guild {
   data: GuildType;
@@ -24,11 +25,13 @@ export class Guild {
   roles: Map<Snowflake, Role> = new Map();
   template?: Template;
   gateway: Gateway | undefined;
+  voice: Voice;
 
   constructor(data: GuildType, client: Client, gateway?: Gateway) {
     this.data = data;
     this.client = client;
     this.gateway = gateway
+    this.voice = new Voice(this.client, this)
     data.roles.forEach((r: RoleType) => this.roles.set(r.id, new Role(r, client, this)))
     if (client.intents.includes(Intents.GUILD_MEMBERS)) gateway?.requestGuildMembers(data.id)
   }
@@ -207,6 +210,18 @@ export class Guild {
       name: data.name, roles: data.roles, image: `data:${lookup(data.file_format)};base64,${fromUint8Array(data.image)}`
     }), false)
     return new Emoji(await response.json(), this.client, this)
+  }
+  /** Connects bot to selected guild voice channel. */
+  connectVoice(channel_id: Snowflake, self_mute: boolean, self_deaf: boolean): Promise<boolean> {
+    return new Promise((reso, rej) => {
+      if (!this.client.intents.includes(Intents.GUILD_VOICE_STATES)) return rej("GUILD_VOICE_STATE intent is missing")
+      if (this.channels.get(channel_id)?.data.type != 2) return rej("Invalid channel")
+      this.voice.data = {}
+      this.gateway?.voiceStateUpdate({
+        channel_id, guild_id: this.data.id, self_mute, self_deaf
+      })
+      this.client.once(`voice${this.data.id}`, reso)
+    })
   }
 
   toString() {
