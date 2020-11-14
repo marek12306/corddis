@@ -35,7 +35,7 @@ export class Voice extends EventEmitter {
         this._heartbeatTime = Date.now()
         clearInterval(this.interval)
         if (!this.connected) {
-            this.udp.connection?.close()
+            // this.udp.connection?.close()
             return this.client.emit("debug", "Voice gateway connection ended")
         }
         this.client.emit("debug", `Voice gateway connection closed, trying to reconnect`)
@@ -91,19 +91,21 @@ export class Voice extends EventEmitter {
     }
     /** Logins with a certain token */
     async connect(): Promise<boolean> {
-        if (!this.data.endpoint || !this.data.session_id) throw Error("Required data to connect are incomplete.")
+        this.client.emit(`${this.guild.data.id}voice`, false)
+        throw Error("Voice is not supported for now")
+        // if (!this.data.endpoint || !this.data.session_id) throw Error("Required data to connect are incomplete.")
 
-        clearInterval(this.interval)
+        // clearInterval(this.interval)
 
-        this.socket = new WebSocket(`wss://${this.data.endpoint}/?v=4`)
-        this.socket.addEventListener('open', (ev: Event) => (() => { 
-            this.client.emit("debug", `Connected to Voice WebSocket`) 
-            this.connected = true
-        }).call(this))
-        this.socket.addEventListener('message', (ev: MessageEvent) => this._message.call(this, ev))
-        this.socket.addEventListener('close', (ev: CloseEvent) => this._close.call(this))
+        // this.socket = new WebSocket(`wss://${this.data.endpoint}/?v=4`)
+        // this.socket.addEventListener('open', (ev: Event) => (() => { 
+        //     this.client.emit("debug", `Connected to Voice WebSocket`) 
+        //     this.connected = true
+        // }).call(this))
+        // this.socket.addEventListener('message', (ev: MessageEvent) => this._message.call(this, ev))
+        // this.socket.addEventListener('close', (ev: CloseEvent) => this._close.call(this))
 
-        return true;
+        // return true;
     }
 
     async disconnect(): Promise<boolean> {
