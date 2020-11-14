@@ -161,10 +161,7 @@ export class Client extends EventEmitter {
             case EntityType.GUILD:
                 if (this.cache.guilds?.has(id)) return this.cache.guilds?.get(id) as Guild
                 const guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
-                const gateway = this.shards.find((x: Gateway) => 
-                    x.guilds.some((y: UnavailableGuildType) => y.id == id)
-                )
-                const guildObj = new Guild(guild, this, gateway)
+                const guildObj = new Guild(guild, this)
                 this.cache.guilds?.set(id, guildObj)
                 return guildObj
             // deno-lint-ignore no-case-declarations

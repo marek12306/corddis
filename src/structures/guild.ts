@@ -1,4 +1,4 @@
-import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType, InviteType, TemplateCreateType, TemplateType } from "../types/guild.ts";
+import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType, InviteType, TemplateCreateType, TemplateType, UnavailableGuildType } from "../types/guild.ts";
 import { ChannelCreateType, ChannelType } from "../types/channel.ts";
 import { Client } from "./../client/client.ts";
 import { Channel } from "./channel.ts";
@@ -27,13 +27,15 @@ export class Guild {
   gateway: Gateway | undefined;
   voice: Voice;
 
-  constructor(data: GuildType, client: Client, gateway?: Gateway) {
+  constructor(data: GuildType, client: Client) {
     this.data = data;
     this.client = client;
-    this.gateway = gateway
     this.voice = new Voice(this.client, this)
     data.roles.forEach((r: RoleType) => this.roles.set(r.id, new Role(r, client, this)))
-    if (client.intents.includes(Intents.GUILD_MEMBERS)) gateway?.requestGuildMembers(data.id)
+    this.gateway = this.client.shards.find((x: Gateway) => 
+      x.guilds.some((y: UnavailableGuildType) => y.id == data.id)
+    )
+    if (client.intents.includes(Intents.GUILD_MEMBERS)) this.gateway?.requestGuildMembers(data.id)
   }
   /**
    * Updates a guild.
@@ -41,7 +43,7 @@ export class Guild {
    */
   async update(data: GuildUpdateType): Promise<Guild> {
     const guild = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
-    return new Guild(guild, this.client, this.gateway);
+    return new Guild(guild, this.client);
   }
   /** Deletes a guild. */
   async delete(): Promise<boolean> {
