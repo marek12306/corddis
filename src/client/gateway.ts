@@ -93,6 +93,7 @@ export class Gateway extends EventEmitter {
             this.guilds = d.guilds
             this.emit("READY", this.user)
             this.ready = true
+            this._heartbeat()
             return
         }
 
