@@ -24,13 +24,7 @@ import { token } from "./token.ts";
                 embed: new EmbedBuilder().title("c").end()
             })
         } else if (message.data.content == "test5") {
-            console.log(await message.channel.sendMessage({
-                content: "h",
-                file: {
-                    name: "h.jpg",
-                    content: new Blob([await Deno.readFile("h.jpg")])
-                }
-            }))
+            console.log(await message.channel.sendFile('./h.jpg'))
         } else if (message.data.content == "status") {
             client.setStatus({
                 since: null,

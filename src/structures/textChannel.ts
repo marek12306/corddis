@@ -35,6 +35,17 @@ export class TextChannel extends Channel {
         const json = await this.client._fetch<MessageType>("POST", `channels/${this.data.id}/messages`, body, true, data?.file ? false : "application/json")
         return new Message(json, this.client, this, this.guild);
     }
+    /** Sends a file to text channel. */
+    async sendFile(path: string): Promise<Message> {
+        const name = path.split('/')[path.split('/').length-1]
+        return this.sendMessage({
+            content: "chuj",
+            file: {
+                name, content: new Blob([await Deno.readFile(path)])
+            },
+            tts: false
+        })
+    }
     /** Fetches a message from channel. */
     async fetchMessage(id: string): Promise<Message> {
         if (this.client.cache.messages?.has(id)) return this.client.cache.messages.get(id) as Message

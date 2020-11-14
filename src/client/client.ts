@@ -78,15 +78,14 @@ export class Client extends EventEmitter {
     // deno-lint-ignore no-explicit-any
     async _fetch<T>(method: string, path: string, body: string|FormData|null = "", json = true, contentType: string|boolean = "application/json", headers: any = {}): Promise<T> {
         if (contentType) headers["Content-Type"] = contentType
-        var req = new Request(`${Constants.BASE_URL}/v${Constants.VERSION}/${path}`, {
+
+        var response = await this._performReq(`${Constants.BASE_URL}/v${Constants.VERSION}/${path}`, {
             method, body, headers: {
                 "Authorization": `Bot ${this.token}`,
                 "User-Agent": Constants.USER_AGENT,
                 ...headers,
             },
         })
-
-        var response = await this._performReq(req)
         if (response.status == 400) throw Error((await response.json()).message)
         
         // deno-lint-ignore no-explicit-any
@@ -101,15 +100,15 @@ export class Client extends EventEmitter {
         return json ? respJson : response;
     }
 
-    async _performReq(req: Request): Promise<Response> {
+    async _performReq(path: string, req: RequestInit): Promise<Response> {
         var resp: Response;
         if (this.lastReq == 0 || (Date.now() - this.lastReq > 250)) {
             this.lastReq = Date.now();
-            resp = await fetch(req)
+            resp = await fetch(path, req)
         } else {
             await this.sleep(Date.now() - (this.lastReq + 250))
             this.lastReq = Date.now();
-            resp = await fetch(req);
+            resp = await fetch(path, req);
         }
 
         if (resp.status == 429) {
@@ -117,7 +116,7 @@ export class Client extends EventEmitter {
             this.emit("debug", `Ratelimit, waiting ${retry_after}`);
             await this.sleep(retry_after);
             this.lastReq = Date.now();
-            resp = await this._performReq(req)
+            resp = await this._performReq(path, req)
         }
 
         return resp
