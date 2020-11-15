@@ -39,11 +39,9 @@ export class TextChannel extends Channel {
     async sendFile(path: string): Promise<Message> {
         const name = path.split('/')[path.split('/').length-1]
         return this.sendMessage({
-            content: "chuj",
             file: {
                 name, content: new Blob([await Deno.readFile(path)])
-            },
-            tts: false
+            }
         })
     }
     /** Fetches a message from channel. */
