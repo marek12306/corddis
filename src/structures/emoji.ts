@@ -7,7 +7,7 @@ export class Emoji {
     guild: Guild | undefined;
     client: Client;
 
-    constructor(data: EmojiType, client: Client, guild?: Guild, ) {
+    constructor(data: EmojiType, client: Client, guild?: Guild) {
         this.data = data;
         this.guild = guild;
         this.client = client;
@@ -15,8 +15,7 @@ export class Emoji {
     /** Deletes a emoji. */
     async delete(): Promise<boolean> {
         if (!this.guild) throw "Guild not found in emoji"
-        const response = await this.client._fetch<Response>("DELETE", `guilds/${this.guild.data.id}/emojis/${this.data.id}`, null, false)
-        return response.status == 204
+        return (await this.client._fetch<Response>("DELETE", `guilds/${this.guild.data.id}/emojis/${this.data.id}`, null, false)).status == 204
     }
     /**
      * Modifies an emoji.

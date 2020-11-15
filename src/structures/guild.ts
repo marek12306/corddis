@@ -32,7 +32,7 @@ export class Guild {
     this.client = client;
     this.voice = new Voice(this.client, this)
     data.roles.forEach((r: RoleType) => this.roles.set(r.id, new Role(r, client, this)))
-    this.gateway = this.client.shards.find((x: Gateway) => 
+    this.gateway = this.client.shards.find((x: Gateway) =>
       x.guilds.some((y: UnavailableGuildType) => y.id == data.id)
     )
     if (client.intents.includes(Intents.GUILD_MEMBERS)) this.gateway?.requestGuildMembers(data.id)
@@ -42,14 +42,13 @@ export class Guild {
    * @return updated guild
    */
   async update(data: GuildUpdateType): Promise<Guild> {
-    const guild = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
-    this.data = guild
+    this.data = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
     return this;
   }
   /** Deletes a guild. */
   async delete(): Promise<boolean> {
-    const resp = await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}`, null, false)
-    if (resp.status != 204) throw new Error(`Error ${resp.status}`);
+    const status = (await this.client._fetch<Response>("DELETE", `guilds/${this.data.id}`, null, false)).status
+    if (status != 204) throw new Error(`Error ${status}`);
     return true;
   }
   /** Fetches all channels in guild (or gets them from cache). */
@@ -68,7 +67,7 @@ export class Guild {
   async fetchMembers(limit = 1, after: Snowflake = "0", refresh = false): Promise<GuildMember[]> {
     if (!refresh && this.members.size > 0) return Array.from(this.members.values())
     const json = await this.client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
-    json.forEach((data: GuildMemberType) => {if (data.user) this.members.set(data.user.id, new GuildMember(data, this, this.client))})
+    json.forEach((data: GuildMemberType) => { if (data.user) this.members.set(data.user.id, new GuildMember(data, this, this.client)) })
     return Array.from(this.members.values())
   }
   /**
@@ -175,7 +174,7 @@ export class Guild {
   async editRole(id: Snowflake, role: RoleEditType): Promise<Role> {
     const edited = await this.client._fetch<RoleType>("PATCH", `guilds/${this.data.id}/roles/${id}`, JSON.stringify(role), true)
     const foundRaw = this.data.roles.findIndex((x: RoleType) => x.id == id)
-    if (foundRaw >= 0) this.data.roles[foundRaw] = edited 
+    if (foundRaw >= 0) this.data.roles[foundRaw] = edited
     const foundRole = this.roles.get(id) as Role
     if (foundRole) {
       foundRole.data = edited

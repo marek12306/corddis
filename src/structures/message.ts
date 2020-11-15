@@ -5,21 +5,22 @@ import { TextChannel } from "./textChannel.ts";
 import { NewsChannel } from "./newsChannel.ts"
 import { ChannelTypeData } from "../types/channel.ts";
 import { EmbedType } from "../types/embed.ts";
+import EmbedBuilder from "../embed.ts";
 
 export class Message {
     data: MessageType;
     client: Client;
-    channel: NewsChannel|TextChannel;
+    channel: NewsChannel | TextChannel;
     guild?: Guild;
 
-    constructor(data: MessageType, client: Client, channel: NewsChannel|TextChannel, guild?: Guild) {
+    constructor(data: MessageType, client: Client, channel: NewsChannel | TextChannel, guild?: Guild) {
         this.data = data;
         this.client = client;
         this.channel = channel;
         this.guild = guild;
     }
     /** Replies to a message with some text content or an embed. */
-    async reply(content: string|EmbedType): Promise<Message> {
+    async reply(content: string | EmbedType | EmbedBuilder): Promise<Message> {
         if (typeof content == "string") {
             return this.channel.sendMessage({ content })
         } else return this.channel.sendMessage({ embed: content })
@@ -53,7 +54,7 @@ export class Message {
     }
     /** Pins a message. */
     async pin(): Promise<boolean> {
-       return this.channel.pin(this.data.id) 
+        return this.channel.pin(this.data.id)
     }
 
     toString() {

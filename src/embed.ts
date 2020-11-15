@@ -2,9 +2,9 @@ import { EmbedType } from "./types/embed.ts"
 
 /** Builder for message embeds. */
 export default class {
-    embed: EmbedType = {}
+    private embed: EmbedType = {}
 
-    constructor() {}
+    constructor() { }
     /** Sets title to an embed. */
     title(value: string) {
         this.embed.title = value
@@ -26,7 +26,7 @@ export default class {
         return this
     }
     /** Sets color to an embed. Can be in decimal or string hex format */
-    color(value: (number|string)) {
+    color(value: (number | string)) {
         if (typeof value == "string" && /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(value)) value = parseInt(value.slice(1), 16)
         this.embed.color = value as number
         return this

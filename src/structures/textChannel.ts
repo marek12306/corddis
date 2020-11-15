@@ -6,7 +6,7 @@ import { Message } from "./message.ts";
 import { MessageCreateParamsType, MessageEditParamsType } from "../types/message.ts";
 import { Guild } from "./guild.ts";
 import { Channel } from "./channel.ts"
-import { Snowflake } from "../../mod.ts";
+import { EmbedBuilder, Snowflake } from "../../mod.ts";
 import { Webhook } from "./webhook.ts";
 
 export class TextChannel extends Channel {
@@ -26,6 +26,7 @@ export class TextChannel extends Channel {
      */
     async sendMessage(data: MessageCreateParamsType): Promise<Message> {
         if (!data) throw Error("Content for message is not provided");
+        if (data.embed && data.embed instanceof EmbedBuilder) data.embed = (data.embed as EmbedBuilder).end()
         let body: FormData | string = JSON.stringify(data)
         if (data?.file) {
             body = new FormData();
@@ -37,7 +38,7 @@ export class TextChannel extends Channel {
     }
     /** Sends a file to text channel. */
     async sendFile(path: string): Promise<Message> {
-        const name = path.split('/')[path.split('/').length-1]
+        const name = path.split('/').pop() ?? ""
         return this.sendMessage({
             file: {
                 name, content: new Blob([await Deno.readFile(path)])

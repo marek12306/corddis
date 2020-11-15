@@ -14,8 +14,7 @@ export class Template {
     }
     /** Updates template with new data. */
     async update(data: TemplateType): Promise<Template> {
-        const json = await this.client._fetch<TemplateType>("PUT", `guilds/${this.guild.data.id}/templates/${this.data.code}`, JSON.stringify(data), true)
-        this.data = json
+        this.data = await this.client._fetch<TemplateType>("PUT", `guilds/${this.guild.data.id}/templates/${this.data.code}`, JSON.stringify(data), true)
         return this
     }
     /** Deletes a template. */

@@ -4,6 +4,7 @@ import { GuildMemberType } from "./guild.ts";
 import { ChannelMentionType } from "./channel.ts";
 import { EmbedType } from "./embed.ts";
 import { EmojiType } from "./emoji.ts";
+import EmbedBuilder from "../embed.ts";
 
 export interface MessageType {
   id: Snowflake;
@@ -125,7 +126,7 @@ export interface MessageCreateParamsType {
   content?: string;
   nonce?: (string | number);
   tts?: boolean;
-  embed?: EmbedType;
+  embed?: EmbedType | EmbedBuilder;
   paylad_json?: string;
   allowed_mentions?: AllowedMentionsType[];
   file?: FileType;
@@ -134,6 +135,6 @@ export interface MessageCreateParamsType {
 
 export interface MessageEditParamsType {
   content?: string;
-  embed?: EmbedType;
+  embed?: EmbedType | EmbedBuilder;
   flags?: number;
 }

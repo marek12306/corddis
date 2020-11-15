@@ -17,11 +17,11 @@ import { token } from "./token.ts";
         } else if (message.data.content == "test4") {
             let msg = await message.channel.sendMessage({
                 content: "a",
-                embed: new EmbedBuilder().title("h").end()
+                embed: new EmbedBuilder().title("h")
             });
             await msg.edit({
                 content: "b",
-                embed: new EmbedBuilder().title("c").end()
+                embed: new EmbedBuilder().title("c")
             })
         } else if (message.data.content == "test5") {
             console.log(await message.channel.sendFile('./h.jpg'))
