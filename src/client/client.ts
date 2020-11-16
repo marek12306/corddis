@@ -17,7 +17,7 @@ export class Client extends EventEmitter {
     user: User | null = null;
     gatewayData: GetGatewayType | undefined;
     intents: number[] = []
-    sequenceNumber: number|null = null
+    sequenceNumber: number | null = null
     _heartbeatTime = -1
     cache: CacheType = {
         guilds: new LRU(500),
@@ -76,7 +76,7 @@ export class Client extends EventEmitter {
     }
 
     // deno-lint-ignore no-explicit-any
-    async _fetch<T>(method: string, path: string, body: string|FormData|null = "", json = true, contentType: string|boolean = "application/json", headers: any = {}): Promise<T> {
+    async _fetch<T>(method: string, path: string, body: string | FormData | null = "", json = true, contentType: string | boolean = "application/json", headers: any = {}): Promise<T> {
         if (contentType) headers["Content-Type"] = contentType
 
         var response = await this._performReq(`${Constants.BASE_URL}/v${Constants.VERSION}/${path}`, {
@@ -87,7 +87,7 @@ export class Client extends EventEmitter {
             },
         })
         if (response.status == 400) throw Error((await response.json()).message)
-        
+
         // deno-lint-ignore no-explicit-any
         let respJson: any
         if (json) {
@@ -114,7 +114,7 @@ export class Client extends EventEmitter {
         if (resp.status == 429) {
             const { retry_after } = await resp.json();
             this.emit("debug", `Ratelimit, waiting ${retry_after}`);
-            await this.sleep(retry_after);
+            await this.sleep(retry_after ?? 0);
             this.lastReq = Date.now();
             resp = await this._performReq(path, req)
         }
