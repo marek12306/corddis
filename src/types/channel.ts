@@ -62,3 +62,16 @@ export interface NewsFollowedChannelType {
   channel_id: Snowflake;
   webhook_id: Snowflake;
 }
+
+export interface ChannelModifyType {
+  name?: string;
+  type?: ChannelTypeData;
+  position?: number;
+  topic?: string;
+  nsfw?: boolean;
+  rate_limit_per_user?: number;
+  bitrate?: number;
+  user_limit?: number;
+  permission_overwrites?: OverwriteType[];
+  parent_id?: Snowflake;
+}
