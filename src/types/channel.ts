@@ -53,3 +53,12 @@ export enum ChannelTypeData {
   GUILD_NEWS,
   GUILD_STORE,
 }
+
+export interface NewsFollowType {
+  webhook_channel_id: Snowflake;
+}
+
+export interface NewsFollowedChannelType {
+  channel_id: Snowflake;
+  webhook_id: Snowflake;
+}

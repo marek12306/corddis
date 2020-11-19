@@ -1,4 +1,5 @@
-import { Client, Intents, Message, User, EmbedBuilder, EntityType, PermissionEnum, GuildMember } from "../mod.ts";
+import { Client, Intents, Message, User, EmbedBuilder, EntityType, PermissionEnum, GuildMember, Guild } from "../mod.ts";
+import { NewsChannel } from "../src/structures/newsChannel.ts";
 import { token } from "./token.ts";
 
 (async () => {
@@ -53,6 +54,10 @@ import { token } from "./token.ts";
         } else if (message.data.content == "test420") {
             // const member = await message.guild.get(EntityType.GUILD_MEMBER, message.data.author.id) as GuildMember
             // console.log(member.data)
+            const guild = await client.get(EntityType.GUILD, "638408587357585417") as Guild
+            console.log(guild.data)
+            const channel = await guild?.get(EntityType.CHANNEL, "738845663533596852") as NewsChannel
+            console.log(await channel.follow("676033234106318859"))
         }
     })
 //    client.on("MESSAGE_DELETE", (message: Message) => console.log("Deleted", message))
