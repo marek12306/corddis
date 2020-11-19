@@ -1,5 +1,5 @@
 import { Client } from "./../client/client.ts";
-import { ChannelType } from "../types/channel.ts";
+import { ChannelType, NewsFollowedChannelType } from "../types/channel.ts";
 import { MessageType } from "../types/message.ts"
 import { WebhookType } from "../types/webhook.ts"
 import { Message } from "./message.ts";
@@ -100,6 +100,8 @@ export class TextChannel extends Channel {
     }
     /** Crossposts a message */
     async crosspost(id: Snowflake): Promise<Message> { throw Error("Message channel is not a news channel") }
+    /** Follows a news channel to another text channel. */
+    async follow(webhook_channel_id: string): Promise<NewsFollowedChannelType> { throw Error("Message channel is not a news channel") }
 
     toString() {
         return `TextChannel {"data":${JSON.stringify(this.data)}}`
