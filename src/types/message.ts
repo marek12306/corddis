@@ -132,6 +132,7 @@ export interface MessageCreateParamsType {
   allowed_mentions?: AllowedMentionsType;
   file?: FileType;
   sticker_ids?: Snowflake[];
+  message_reference?: MessageReferenceType;
 }
 
 export interface MessageEditParamsType {
