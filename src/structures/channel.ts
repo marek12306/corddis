@@ -15,6 +15,7 @@ export class Channel {
   /** Deletes a channel. */
   async delete(): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}`, null, false);
+    this.guild?.channels.delete(this.data.id)
     return response.status == 204;
   }
   /** Modifies (edits) a channel. */
