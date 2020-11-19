@@ -13,6 +13,11 @@ export class Channel {
     this.guild = guild
   }
 
+  async delete(): Promise<boolean> {
+    const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}`, null, false);
+    return response.status == 204;
+  }
+
   toString() {
     return `Channel {"data":${JSON.stringify(this.data)},"guild":{"data":${JSON.stringify(this.guild?.data)}}}`
   }
