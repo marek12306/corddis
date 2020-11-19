@@ -1,5 +1,5 @@
 import { Client } from "./../client/client.ts";
-import { ChannelType } from "../types/channel.ts";
+import { ChannelModifyType, ChannelType } from "../types/channel.ts";
 import { Guild } from "./guild.ts";
 
 export class Channel {
@@ -16,6 +16,11 @@ export class Channel {
   async delete(): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}`, null, false);
     return response.status == 204;
+  }
+
+  async edit(data: ChannelModifyType): Promise<Channel> {
+    this.data = await this.client._fetch<ChannelType>("PATCH", `channels/${this.data.id}`, JSON.stringify(data), true)
+    return this
   }
 
   toString() {
