@@ -12,12 +12,12 @@ export class Channel {
     this.client = client;
     this.guild = guild
   }
-
+  /** Deletes a channel. */
   async delete(): Promise<boolean> {
     const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}`, null, false);
     return response.status == 204;
   }
-
+  /** Modifies (edits) a channel. */
   async edit(data: ChannelModifyType): Promise<Channel> {
     this.data = await this.client._fetch<ChannelType>("PATCH", `channels/${this.data.id}`, JSON.stringify(data), true)
     return this
