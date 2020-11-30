@@ -78,6 +78,7 @@ export interface MessageReferenceType {
   message_id?: Snowflake;
   channel_id?: Snowflake;
   guild_id?: Snowflake;
+  replied_user: boolean;
 }
 
 export enum MessageTypeData {
@@ -128,7 +129,7 @@ export interface MessageCreateParamsType {
   tts?: boolean;
   embed?: EmbedType | EmbedBuilder;
   paylad_json?: string;
-  allowed_mentions?: AllowedMentionsType[];
+  allowed_mentions?: AllowedMentionsType;
   file?: FileType;
   sticker_ids?: Snowflake[];
   message_reference?: MessageReferenceType;
