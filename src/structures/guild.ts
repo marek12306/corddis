@@ -102,7 +102,14 @@ export class Guild {
    */
   async createChannel(data: ChannelCreateType): Promise<Channel> {
     const json = await this.client._fetch<ChannelType>("POST", `guilds/${this.data.id}/channels`, JSON.stringify(data), true)
-    return new ChannelStructures[json.type](json, this.client, this);
+    const channel = new ChannelStructures[json.type](json, this.client, this);
+    this.channels.set(json.id, channel)
+    return channel
+  }
+  /** Deletes a channel. */
+  async deleteChannel(id: Snowflake): Promise<boolean> {
+    if (!this.channels.has(id)) throw Error("Channel is not found")
+    return (await this.channels.get(id)?.delete()) ?? false
   }
   /** Fetches guild template. */
   async fetchTemplate(refresh = false): Promise<Template> {
