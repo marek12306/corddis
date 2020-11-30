@@ -115,7 +115,6 @@ export interface AllowedMentionsType {
   parse: AllowedMentionTypes[];
   roles: Snowflake[];
   users: Snowflake[];
-  replied_user: boolean;
 }
 
 export interface FileType {
@@ -129,7 +128,7 @@ export interface MessageCreateParamsType {
   tts?: boolean;
   embed?: EmbedType | EmbedBuilder;
   paylad_json?: string;
-  allowed_mentions?: AllowedMentionsType;
+  allowed_mentions?: AllowedMentionsType[];
   file?: FileType;
   sticker_ids?: Snowflake[];
 }
