@@ -99,6 +99,8 @@ export class Gateway extends EventEmitter {
 
         if (t == "RESUMED") return this.emit("debug", `Connection on shard ${this.shard[0]} resumed successfuly`)
 
+        if (t == "RECONNECT") return this.reconnect()
+
         if (t) {
             const intentObject = await IntentHandler(this, this.client, response)
             if (intentObject) this.emit("INTENT", {t, intentObject});
