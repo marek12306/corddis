@@ -1,20 +1,6 @@
-import {
-	Client,
-	Intents,
-	Message,
-	User,
-	EmbedBuilder,
-	EntityType,
-	PermissionEnum,
-	GuildMember,
-	Guild
-} from "../mod.ts";
-import {
-	NewsChannel
-} from "../src/structures/newsChannel.ts";
-import {
-	token
-} from "./token.ts";
+import { Client, Intents, Message, User, EmbedBuilder, EntityType, PermissionEnum, GuildMember, Guild } from "../mod.ts";
+import { NewsChannel } from "../src/structures/newsChannel.ts";
+import { token } from "./token.ts";
 
 (async () => {
 	const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS, Intents.GUILDS, Intents.GUILD_MEMBERS, Intents.GUILD_PRESENCES)
