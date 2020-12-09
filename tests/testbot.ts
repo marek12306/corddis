@@ -25,8 +25,8 @@ import { token } from "./token.ts";
                 case "test6":
                     return console.log(await (await message.guild?.get(EntityType.GUILD_MEMBER, client.user?.data.id ?? "") as GuildMember)
                         .hasPermission(PermissionEnum.MANAGE_WEBHOOKS))
-                // case "test7":
-                //     return message.guild?.fetchInvites().then(invites => console.log(invites.length))
+                case "test7":
+                    return console.log((await message.guild?.fetchInvites() ?? []).length)
                 case "test8":
                     return console.log(await message.guild?.createEmoji({
                         name: "test420", roles: [],
@@ -40,7 +40,7 @@ import { token } from "./token.ts";
                 case "testAll":
                     for (let i = 0; i <= 9; i++) {
                         await message.reply(`test${i > 0 ? i : ''}`)
-                        client.sleep(250)
+                        client.sleep(500)
                     }
             }
         } catch (err: any) {

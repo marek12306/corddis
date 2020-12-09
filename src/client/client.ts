@@ -86,7 +86,7 @@ export class Client extends EventEmitter {
                 ...headers,
             },
         })
-        if (response.status == 400) throw Error((await response.json()).message)
+        if (response.status >= 400) throw Error((await response.json()).message)
 
         // deno-lint-ignore no-explicit-any
         let respJson: any
