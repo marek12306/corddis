@@ -210,6 +210,10 @@ export class Client extends EventEmitter {
         const response = await this._fetch<Response>("DELETE", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}` : ""}/commands/${id}`, null, false)
         return response.status == 204
     }
+    /** Fetches slash commands. */
+    async fetchSlashCommands(guildID?: Snowflake) {
+        return this._fetch<ApplicationCommandRootType[]>("GET", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}` : ""}/commands`, null, true)
+    }
 
     toString() {
         return `Client {"token":"${this.token}","user":{"data":${JSON.stringify(this.user?.data)}}}`
