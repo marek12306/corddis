@@ -10,6 +10,7 @@ import { IntentHandler } from "./intentHandler.ts";
 import IntentHandlers from "../intents/mod.ts"
 import { Invite } from "../structures/invite.ts";
 import { Gateway } from "./gateway.ts";
+import { ApplicationCommandRootType } from "../types/commands.ts"
 
 /** Client which communicates with gateway and manages REST API communication. */
 export class Client extends EventEmitter {
@@ -133,8 +134,8 @@ export class Client extends EventEmitter {
             gateway.on("INTENT", (intent: { t: string | symbol; intentObject: any; }) => this.emit(intent.t, ...intent.intentObject))
             // deno-lint-ignore no-explicit-any
             gateway.on("raw", (raw: any) => this.emit("raw", raw, gateway))
-            gateway.on("READY", (user: User) => this.emit("READY", user, gateway.ready, gateway))
             if (i == this.shardsCount - 1) gateway.once("READY", (user: User) => this.user = user)
+            gateway.on("READY", (user: User) => this.emit("READY", user, gateway.ready, gateway))
             await gateway.login()
             this.shards.push(gateway)
         }
@@ -199,6 +200,15 @@ export class Client extends EventEmitter {
         if (id instanceof Invite) id = id.data.code
         if (this.cache.invites?.has(id)) this.cache.invites.remove(id)
         return this._fetch<InviteType>("DELETE", `invites/${id}`, null, true)
+    }
+    /** Registers a slash command. */
+    async registerSlashCommand(command: ApplicationCommandRootType, guildID?: Snowflake) {
+        return this._fetch<ApplicationCommandRootType>("POST", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}` : ""}/commands`, JSON.stringify(command), true)
+    }
+    /** Unregisters a slash command. */
+    async unregisterSlashCommand(id: Snowflake, guildID?: Snowflake) {
+        const response = await this._fetch<Response>("DELETE", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}` : ""}/commands/${id}`, null, false)
+        return response.status == 204
     }
 
     toString() {

@@ -15,6 +15,7 @@ import { ChannelStructures, Constants, Intents } from "../constants.ts";
 import { Template } from "./template.ts";
 import { Gateway } from "../client/gateway.ts";
 import { Voice } from "./voice.ts";
+import { ApplicationCommandRootType } from "../types/commands.ts";
 
 export class Guild {
   data: GuildType;
@@ -231,6 +232,14 @@ export class Guild {
       })
       this.client.once(`voice${this.data.id}`, reso)
     })
+  }
+  /** Registers a slash command. */
+  async registerSlashCommand(command: ApplicationCommandRootType) {
+    return this.client.registerSlashCommand(command, this.data.id)
+  }
+  /** Unregisters a slash command. */
+  async unregisterSlashCommand(id: Snowflake) {
+    return this.client.unregisterSlashCommand(id, this.data.id)
   }
 
   toString() {
