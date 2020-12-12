@@ -3,7 +3,7 @@ import { GuildMemberType } from "./guild.ts";
 import { AllowedMentionsType } from "./message.ts";
 import { Snowflake } from "./utils.ts";
 
-export interface ApplicationCommandsRootType {
+export interface ApplicationCommandRootType {
     id?: Snowflake;
     application_id?: Snowflake;
     name: string;
