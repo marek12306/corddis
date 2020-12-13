@@ -203,16 +203,16 @@ export class Client extends EventEmitter {
     }
     /** Registers a slash command. */
     async registerSlashCommand(command: ApplicationCommandRootType, guildID?: Snowflake) {
-        return this._fetch<ApplicationCommandRootType>("POST", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}` : ""}/commands`, JSON.stringify(command), true)
+        return this._fetch<ApplicationCommandRootType>("POST", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands`, JSON.stringify(command), true)
     }
     /** Unregisters a slash command. */
     async unregisterSlashCommand(id: Snowflake, guildID?: Snowflake) {
-        const response = await this._fetch<Response>("DELETE", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}` : ""}/commands/${id}`, null, false)
+        const response = await this._fetch<Response>("DELETE", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands/${id}`, null, false)
         return response.status == 204
     }
     /** Fetches slash commands. */
     async fetchSlashCommands(guildID?: Snowflake) {
-        return this._fetch<ApplicationCommandRootType[]>("GET", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}` : ""}/commands`, null, true)
+        return this._fetch<ApplicationCommandRootType[]>("GET", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands`, null, true)
     }
 
     toString() {
