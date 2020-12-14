@@ -18,7 +18,7 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
         guild.members.set(updatedMember.user.id, member)
     } else guild.members.set(updatedMember.user.id, await guild.get(EntityType.GUILD_MEMBER, updatedMember.user.id) as GuildMember)
 
-    client.cache.guilds?.set(guild_id, guild)
+    client.cache.users?.set(updatedMember.user.id, await client.get(EntityType.USER, updatedMember.user.id))
 
     return [guild.members.get(updatedMember.user.id) as GuildMember]
 }
