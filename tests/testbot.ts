@@ -47,10 +47,10 @@ import { token } from "./token.ts";
             console.log((err as Error).message)
         }
     })
-    // client.on("debug", console.log)
+    client.on("debug", console.log)
     client.on("READY", (user: User) => {
         console.log("Logged as " + user.data.username)
         //console.log(client.toString())
     })
-    client.login()
+    await client.login()
 })()

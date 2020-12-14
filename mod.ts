@@ -6,6 +6,7 @@ export * from "./src/structures/user.ts";
 export * from "./src/structures/channel.ts"
 export * from "./src/structures/textChannel.ts"
 export * from "./src/structures/webhook.ts"
+export * from "./src/structures/newsChannel.ts"
 export * from "./src/structures/emoji.ts"
 export * from "./src/structures/guild.ts"
 export * from "./src/structures/guildMember.ts"
