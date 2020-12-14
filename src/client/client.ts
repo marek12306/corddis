@@ -125,7 +125,6 @@ export class Client extends EventEmitter {
     /** Logins with a certain token */
     async login(token: string = this.token): Promise<boolean> {
         if (token.length == 0) throw Error("Invalid token");
-        this.token = token.replace(/^(Bot|Bearer)\\s*/, "");
         this.gatewayData = await this._fetch<GetGatewayType>("GET", "gateway/bot", null, true)
         for (let i = 0; i < this.shardsCount; i++) {
             const gateway = new Gateway(this, [i, this.shardsCount])
