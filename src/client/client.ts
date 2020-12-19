@@ -35,6 +35,7 @@ export class Client extends EventEmitter {
     mobile = false
     shardsCount = 1
     shards: Gateway[] = []
+    slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map()
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
@@ -210,8 +211,13 @@ export class Client extends EventEmitter {
         return response.status == 204
     }
     /** Fetches slash commands. */
-    async fetchSlashCommands(guildID?: Snowflake) {
-        return this._fetch<ApplicationCommandRootType[]>("GET", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands`, null, true)
+    async fetchSlashCommands(guildID?: Snowflake): Promise<ApplicationCommandRootType[]> {
+        if (!guildID && this.slashCommands.size > 0) return Array.from(this.slashCommands.values())
+        const commands = await this._fetch<ApplicationCommandRootType[]>("GET", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands`, null, true)
+        if (!guildID) commands.forEach((data: ApplicationCommandRootType) => {
+            if (data.id) this.slashCommands.set(data.id, data)
+        })
+        return commands
     }
 
     toString() {

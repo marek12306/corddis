@@ -27,6 +27,7 @@ export class Guild {
   template?: Template;
   gateway: Gateway | undefined;
   voice: Voice;
+  slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map();
 
   constructor(data: GuildType, client: Client) {
     this.data = data;
@@ -240,6 +241,15 @@ export class Guild {
   /** Unregisters a slash command. */
   async unregisterSlashCommand(id: Snowflake) {
     return this.client.unregisterSlashCommand(id, this.data.id)
+  }
+  /** Fetches slash commands. */
+  async fetchSlashCommands() {
+    if (this.slashCommands.size > 0) return Array.from(this.slashCommands.values())
+    const commands = await this.client.fetchSlashCommands(this.data.id)
+    commands.forEach((data: ApplicationCommandRootType) => {
+      if (data.id) this.slashCommands.set(data.id, data)
+    })
+    return Array.from(this.slashCommands.values())
   }
 
   toString() {
