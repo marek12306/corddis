@@ -15,12 +15,16 @@ export class Interaction {
         this.client = client;
         this.guild = guild;
     }
+    /** Replies to a slash command interaction with message. */
+    async reply(data: InteractionApplicationCommandCallbackDataType) {
+        return this.sendResponse({
+            type: InteractionResponseEnum.ChannelMessageWithSource,
+            data
+        })
+    }
     /** Sends initial response to a slash command interaction. */
-    async sendResponse(data: InteractionApplicationCommandCallbackDataType) {
-        const resp = await this.client._fetch<Response>("POST", `interactions/${this.data.id}/${this.data.token}/callback`, JSON.stringify({
-            type: InteractionResponseEnum.Acknowledge,
-            data,
-        }), false)
+    async sendResponse(data: InteractionResponseType) {
+        const resp = await this.client._fetch<Response>("POST", `interactions/${this.data.id}/${this.data.token}/callback`, JSON.stringify(data), false)
         return resp.status == 204
     }
     /** Edits initial response to a slash command interaction. */

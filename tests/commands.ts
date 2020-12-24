@@ -21,7 +21,7 @@ import { token } from "./token.ts"
 
     client.on("INTERACTION_CREATE", async (interaction: Interaction) => {
         if (interaction.data.data?.name == "chuj") {
-            await interaction.sendResponse({
+            await interaction.reply({
                 content: "test",
                 flags: 0,
             })
@@ -42,7 +42,7 @@ import { token } from "./token.ts"
         }
         
         if (interaction.data.data?.name == "time") {
-            interaction.sendResponse({
+            interaction.reply({
                 content: Date.now().toString(),
                 flags: 0,
             })
