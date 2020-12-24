@@ -37,13 +37,17 @@ export enum ApplicationCommandOptionEnum {
     ROLE,
 }
 
+export interface InteractionGuildMemberType extends GuildMemberType {
+    permissions: string;
+}
+
 export interface InteractionType {
     id: Snowflake;
     type: InteractionEnum;
     data?: ApplicationCommandInteractionDataType;
     guild_id: Snowflake;
     channel_id: Snowflake;
-    member: GuildMemberType;
+    member: InteractionGuildMemberType;
     token: string;
     version: number;
 }
