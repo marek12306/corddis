@@ -13,7 +13,7 @@ export class Channel extends Base {
     super(client)
     this.data = data;
     this.guild = guild;
-    setBase()
+    this.setBase()
   }
 
   protected setBase(data: ChannelType = this.data): void {
@@ -37,7 +37,7 @@ export class Channel extends Base {
   /** Modifies (edits) a channel. */
   async edit(data: ChannelModifyType): Promise<Channel> {
     this.data = await this.client._fetch<ChannelType>("PATCH", `channels/${this.data.id}`, JSON.stringify(data), true)
-    updateBase()
+    this.updateBase()
     return this
   }
 
