@@ -39,7 +39,7 @@ export class Guild extends Base {
       x.guilds.some((y: UnavailableGuildType) => y.id == data.id)
     )
     if (client.intents.includes(Intents.GUILD_MEMBERS)) this.gateway?.requestGuildMembers(data.id)
-    setBase()
+    this.setBase()
   }
 
   protected setBase(data: GuildType = this.data): void {
@@ -60,7 +60,7 @@ export class Guild extends Base {
    */
   async update(data: GuildUpdateType): Promise<Guild> {
     this.data = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
-    updateBase()
+    this.updateBase()
     return this;
   }
   /** Deletes a guild. */
