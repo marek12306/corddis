@@ -42,6 +42,11 @@ import { token } from "./token.ts";
                         await message.reply(`test${i > 0 ? i : ''}`)
                         client.sleep(500)
                     }
+                    return
+                case "test10":
+                    const msg = await message.reply("x")
+                    setTimeout(() => msg.unreactAll(), 5000)
+                    return
             }
         } catch (err: any) {
             console.log((err as Error).message)

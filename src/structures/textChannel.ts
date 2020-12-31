@@ -78,6 +78,12 @@ export class TextChannel extends Channel {
         const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`, null, false)
         return response.status == 204;
     }
+    /** Deletes all previous added reaction from a message. */
+    async unreactAll(id: string, emoji?: string): Promise<boolean> {
+        if (!id) throw Error("Message ID is not provided");
+        const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}/reactions${emoji ? '/' + encodeURIComponent(emoji) : ''}`, null, false)
+        return response.status == 204;
+    }
     /** Fetch channel pins. */
     async fetchPins(): Promise<Message[]> {
         if (this.pinsUpdated && this.pinsViewed && this.pinsUpdated.getTime() < this.pinsViewed.getTime()) return this.pins

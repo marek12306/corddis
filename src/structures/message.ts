@@ -59,6 +59,10 @@ export class Message extends Base {
     async unreact(emoji: string): Promise<boolean> {
         return this.channel.unreact(this.data.id, emoji)
     }
+    /** Deletes all previously added reaction from a message. */
+    async unreactAll(emoji?: string): Promise<boolean> {
+        return this.channel.unreactAll(this.data.id, emoji)
+    }
     /**
      * Crossposts a message.
      * @return this message
