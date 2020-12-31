@@ -123,6 +123,11 @@ export class TextChannel extends Channel {
         const response = await this.client._fetch<Response>("PUT", `channels/${this.data.id}/pins/${id}`, null, false)
         return response.status == 204
     }
+    /** Triggers typing indicator. */
+    async typing(): Promise<boolean> {
+        const response = await this.client._fetch<Response>("POST", `channels/${this.data.id}/typing`, null, false)
+        return response.status == 204
+    }
     /** Crossposts a message */
     async crosspost(id: Snowflake): Promise<Message> { throw Error("Message channel is not a news channel") }
     /** Follows a news channel to another text channel. */
