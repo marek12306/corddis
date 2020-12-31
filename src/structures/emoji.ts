@@ -13,7 +13,7 @@ export class Emoji extends Base {
         super(client)
         this.data = data;
         this.guild = guild;
-        setBase()
+        this.setBase()
     }
 
     protected setBase(data: EmojiType = this.data): void {
@@ -40,7 +40,7 @@ export class Emoji extends Base {
     async modify(data: EmojiEditType): Promise<Emoji> {
         if (!this.guild) throw "Guild not found in emoji"
         this.data = await this.client._fetch<EmojiType>("PATCH", `guilds/${this.guild.data.id}/emojis/${this.data.id}`, JSON.stringify(data), true)
-        updateBase()
+        this.updateBase()
         return this
     }
 
