@@ -18,7 +18,7 @@ export class Interaction extends Base {
         this.setBase()
     }
 
-    protected setBase(data: GuildType = this.data): void {
+    protected setBase(data: InteractionType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
         if(this[key] === undefined) {this[key] = value; propNames.push(key)}
       }
