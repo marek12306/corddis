@@ -1,22 +1,33 @@
 import { Client } from "../client/client.ts";
 import { EmojiEditType, EmojiType } from "../types/emoji.ts";
 import { Guild } from "./guild.ts";
+import { Base } from "./base.ts"
 
-export class Emoji {
+export class Emoji extends Base {
     data: EmojiType;
     guild: Guild | undefined;
-    client: Client;
+    private propNames: string[] = [];
     [propName: string]: any;
 
     constructor(data: EmojiType, client: Client, guild?: Guild) {
+        super(client)
         this.data = data;
         this.guild = guild;
-        this.client = client;
-        for (const [key, value] of Object.entries(data)) {
-          if(this[key] === undefined) this[key] = value
-          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
-        }
+        setBase()
     }
+
+    protected setBase(data: EmojiType = this.data): void {
+      for (const [key, value] of Object.entries(data)) {
+        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+      }
+    }
+
+    protected updateBase(data: EmojiType = this.data): void {
+      for(const entry of this.propNames) {
+        this[entry] = data[entry]
+      }
+    }
+
     /** Deletes a emoji. */
     async delete(): Promise<boolean> {
         if (!this.guild) throw "Guild not found in emoji"
@@ -29,6 +40,7 @@ export class Emoji {
     async modify(data: EmojiEditType): Promise<Emoji> {
         if (!this.guild) throw "Guild not found in emoji"
         this.data = await this.client._fetch<EmojiType>("PATCH", `guilds/${this.guild.data.id}/emojis/${this.data.id}`, JSON.stringify(data), true)
+        updateBase()
         return this
     }
 

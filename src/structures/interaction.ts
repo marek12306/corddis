@@ -4,22 +4,26 @@ import { InteractionApplicationCommandCallbackDataType, InteractionResponseEnum,
 import { InviteType } from "../types/guild.ts";
 import { MessageType } from "../types/message.ts";
 import { Guild } from "./guild.ts";
+import { Base } from "./base.ts"
 
-export class Interaction {
+export class Interaction extends Base {
     data: InteractionType;
     guild: Guild;
-    client: Client;
     [propName: string]: any;
 
     constructor(data: InteractionType, client: Client, guild: Guild) {
+      super(client)
         this.data = data;
-        this.client = client;
         this.guild = guild;
-        for (const [key, value] of Object.entries(data)) {
-          if(this[key] === undefined) this[key] = value
-          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
-        }
+        setBase()
     }
+
+    protected setBase(data: GuildType = this.data): void {
+      for (const [key, value] of Object.entries(data)) {
+        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+      }
+    }
+
     /** Replies to a slash command interaction with message. */
     async reply(data: InteractionApplicationCommandCallbackDataType) {
         return this.sendResponse({

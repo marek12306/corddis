@@ -1,20 +1,30 @@
 import { Client } from "./../client/client.ts";
 import { ChannelModifyType, ChannelType } from "../types/channel.ts";
 import { Guild } from "./guild.ts";
+import { Base } from "./base.ts"
 
-export class Channel {
+export class Channel extends Base {
   data: ChannelType;
-  client: Client;
   guild?: Guild;
+  private propNames: string[] = [];
   [propName: string]: any;
 
   constructor(data: ChannelType, client: Client, guild?: Guild) {
+    super(client)
     this.data = data;
-    this.client = client;
     this.guild = guild;
+    setBase()
+  }
+
+  protected setBase(data: ChannelType = this.data): void {
     for (const [key, value] of Object.entries(data)) {
-      if(this[key] === undefined) this[key] = value
-      else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+      if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+    }
+  }
+
+  protected updateBase(data: ChannelType = this.data): void {
+    for(const entry of this.propNames) {
+      this[entry] = data[entry]
     }
   }
 
@@ -27,6 +37,7 @@ export class Channel {
   /** Modifies (edits) a channel. */
   async edit(data: ChannelModifyType): Promise<Channel> {
     this.data = await this.client._fetch<ChannelType>("PATCH", `channels/${this.data.id}`, JSON.stringify(data), true)
+    updateBase()
     return this
   }
 

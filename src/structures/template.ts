@@ -1,25 +1,37 @@
 import { Client } from "../../mod.ts";
 import { TemplateEditType, TemplateType } from "../types/guild.ts";
 import { Guild } from "./guild.ts";
+import { Base } from "./base.ts";
 
-export class Template {
+export class Template extends Base {
     data: TemplateType;
-    client: Client;
     guild: Guild;
+    private propNames: string[] = [];
     [propName: string]: any;
 
     constructor(data: TemplateType, client: Client, guild: Guild) {
+        super(client);
         this.data = data;
-        this.client = client;
         this.guild = guild;
-        for (const [key, value] of Object.entries(data)) {
-          if(this[key] === undefined) this[key] = value
-          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
-        }
+        setBase()
     }
+
+    protected setBase(data: GuildType = this.data): void {
+      for (const [key, value] of Object.entries(data)) {
+        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+      }
+    }
+
+    protected updateBase(data: GuildType = this.data): void {
+      for(const entry of this.propNames) {
+        this[entry] = data[entry]
+      }
+    }
+    
     /** Updates template with new data. */
     async update(data: TemplateType): Promise<Template> {
         this.data = await this.client._fetch<TemplateType>("PUT", `guilds/${this.guild.data.id}/templates/${this.data.code}`, JSON.stringify(data), true)
+        updateBase()
         return this
     }
     /** Deletes a template. */
@@ -33,6 +45,7 @@ export class Template {
             description: data.description ?? this.data.description
         }), true)
         this.data = edited
+        updateBase()
         return this
     }
     /** Generates template URL. */

@@ -1,22 +1,33 @@
 import { Guild } from "./guild.ts";
 import { RoleEditType, RoleType } from "../types/role.ts";
 import { Client } from "../client/client.ts";
+import { Base } from "./base.ts";
 
-export class Role {
+export class Role extends Base {
     data: RoleType
     guild: Guild
-    client: Client
+    private propNames: string[] = [];
     [propName: string]: any;
 
     constructor(data: RoleType, client: Client, guild: Guild) {
+        super(client)
         this.data = data
         this.guild = guild
-        this.client = client
-        for (const [key, value] of Object.entries(data)) {
-          if(this[key] === undefined) this[key] = value
-          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
-        }
+        setBase()
     }
+
+    protected setBase(data: GuildType = this.data): void {
+      for (const [key, value] of Object.entries(data)) {
+        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+      }
+    }
+
+    protected updateBase(data: GuildType = this.data): void {
+      for(const entry of this.propNames) {
+        this[entry] = data[entry]
+      }
+    }
+
     /** Deletes a role. */
     async delete(): Promise<boolean> {
         return this.guild.deleteRole(this.data.id)
@@ -24,6 +35,7 @@ export class Role {
     /** Edits a role. */
     async edit(data: RoleEditType): Promise<Role> {
         this.data = (await this.guild.editRole(this.data.id, data)).data
+        updateBase()
         return this
     }
 

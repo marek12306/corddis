@@ -2,20 +2,24 @@ import { Client } from "./../client/client.ts";
 import { UserType } from "../types/user.ts";
 import { MessageCreateParamsType } from "../types/message.ts";
 import { Message } from "./message.ts";
+import { Base } from "./base.ts";
 
-export class User {
+export class User extends Base {
     data: UserType;
-    client: Client;
     [propName: string]: any;
 
     constructor(data: UserType, client: Client) {
+        super(client)
         this.data = data;
-        this.client = client;
-        for (const [key, value] of Object.entries(data)) {
-          if(this[key] === undefined) this[key] = value
-          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
-        }
+        setBase()
     }
+
+    protected setBase(data: GuildType = this.data): void {
+      for (const [key, value] of Object.entries(data)) {
+        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+      }
+    }
+
     /** Sends message to DM channel. */
     async sendMessage(data: MessageCreateParamsType): Promise<Message> {
         if (this.data.id == this.client.user?.data.id) throw Error("Cannot send message to itself.")

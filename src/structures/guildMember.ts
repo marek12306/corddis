@@ -4,22 +4,19 @@ import { GuildMemberType } from "../types/guild.ts";
 import { RoleType } from "../types/role.ts";
 import { PresenceType } from "../types/user.ts";
 import { Guild } from "./guild.ts";
+import { Base } from "./base.ts"
 
-export class GuildMember {
+export class GuildMember extends Base {
     data: GuildMemberType;
     guild: Guild;
-    client: Client;
     presence: PresenceType = {};
     [propName: string]: any;
 
     constructor(data: GuildMemberType, guild: Guild, client: Client) {
+        super(client)
         this.data = data;
         this.guild = guild;
-        this.client = client;
-        for (const [key, value] of Object.entries(data)) {
-          if(this[key] === undefined) this[key] = value
-          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
-        }
+        setBase()
     }
     /** Checks if member has permission to do something. */
     async hasPermission(permission: PermissionEnum): Promise<boolean> {

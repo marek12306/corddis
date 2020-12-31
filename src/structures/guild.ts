@@ -1,6 +1,5 @@
 import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType, InviteType, TemplateCreateType, TemplateType, UnavailableGuildType } from "../types/guild.ts";
 import { ChannelCreateType, ChannelType } from "../types/channel.ts";
-import { Client } from "./../client/client.ts";
 import { Channel } from "./channel.ts";
 import { GuildMember } from "./guildMember.ts";
 import { EntityType, ErrorType, Snowflake } from "../types/utils.ts";
@@ -16,10 +15,10 @@ import { Template } from "./template.ts";
 import { Gateway } from "../client/gateway.ts";
 import { Voice } from "./voice.ts";
 import { ApplicationCommandRootType } from "../types/commands.ts";
+import { Base } from "./base.ts"
 
-export class Guild {
+export class Guild extends Base {
   data: GuildType;
-  client: Client;
   invites: Map<Snowflake, Invite> = new Map();
   members: Map<Snowflake, GuildMember> = new Map();
   channels: Map<Snowflake, Channel> = new Map();
@@ -28,28 +27,40 @@ export class Guild {
   gateway: Gateway | undefined;
   voice: Voice;
   slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map();
+  private propNames: string[] = [];
   [propName: string]: any;
 
   constructor(data: GuildType, client: Client) {
+    super(client)
     this.data = data;
-    this.client = client;
     this.voice = new Voice(this.client, this)
     data.roles.forEach((r: RoleType) => this.roles.set(r.id, new Role(r, client, this)))
     this.gateway = this.client.shards.find((x: Gateway) =>
       x.guilds.some((y: UnavailableGuildType) => y.id == data.id)
     )
     if (client.intents.includes(Intents.GUILD_MEMBERS)) this.gateway?.requestGuildMembers(data.id)
+    setBase()
+  }
+
+  protected setBase(data: GuildType = this.data): void {
     for (const [key, value] of Object.entries(data)) {
-      if(this[key] === undefined) this[key] = value
-      else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+      if(this[key] === undefined) {this[key] = value; propNames.push(key)}
     }
   }
+
+  protected updateBase(data: GuildType = this.data): void {
+    for(const entry of this.propNames) {
+      this[entry] = data[entry]
+    }
+  }
+
   /**
    * Updates a guild.
    * @return updated guild
    */
   async update(data: GuildUpdateType): Promise<Guild> {
     this.data = await this.client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
+    updateBase()
     return this;
   }
   /** Deletes a guild. */
