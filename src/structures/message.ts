@@ -20,7 +20,7 @@ export class Message extends Base {
         this.data = data;
         this.channel = channel;
         this.guild = guild;
-        setBase()
+        this.setBase()
     }
 
     protected setBase(data: GuildType = this.data): void {
@@ -66,7 +66,7 @@ export class Message extends Base {
         const message = await this.channel.crosspost(this.data.id)
         if (!message) return this
         this.data = message.data
-        updateBase()
+        this.updateBase()
         return this
     }
     /** Pins a message. */
