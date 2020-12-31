@@ -24,10 +24,10 @@ export class Webhook extends Base {
             this.data = initData as WebhookType;
             this.origin = `${Constants.BASE_URL}/webhooks/${(initData as WebhookType).id}/${(initData as WebhookType).token}`;
             this.inited = true;
-            setBase()
+            this.setBase()
             return;
         }
-        setBase()
+        this.setBase()
         if ((initData as IDWebhook).token != undefined) this.origin = `${Constants.BASE_URL}/webhooks/${(initData as IDWebhook).id}/${(initData as IDWebhook).token}`;
         else this.origin = (initData as URLWebhook).url;
     }
@@ -36,8 +36,20 @@ export class Webhook extends Base {
         var temp = (await (await fetch(this.origin)).json())
         if (temp.message) throw Error(temp.message)
         this.data = temp as WebhookType
-        updateBase()
+        this.updateBase()
         this.inited = true
+    }
+
+    protected setBase(data: WebhookType = this.data): void {
+      for (const [key, value] of Object.entries(data)) {
+        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+      }
+    }
+
+    protected updateBase(data: WebhookType = this.data): void {
+      for(const entry of this.propNames) {
+        this[entry] = data[entry]
+      }
     }
 
     // deno-lint-ignore no-explicit-any
@@ -98,7 +110,7 @@ export class Webhook extends Base {
         if (!this.inited) await this._init()
         const webhook = await this._fetch<WebhookType>("PATCH", `webhooks/${this.data.id}/${this.token}`, JSON.stringify(data), true)
         this.data = webhook
-        updateBase()
+        this.updateBase()
         return this
     }
     /** Executes a webhook */
