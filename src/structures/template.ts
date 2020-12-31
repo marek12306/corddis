@@ -13,25 +13,25 @@ export class Template extends Base {
         super(client);
         this.data = data;
         this.guild = guild;
-        setBase()
+        this.setBase()
     }
 
-    protected setBase(data: GuildType = this.data): void {
+    protected setBase(data: TemplateType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
         if(this[key] === undefined) {this[key] = value; propNames.push(key)}
       }
     }
 
-    protected updateBase(data: GuildType = this.data): void {
+    protected updateBase(data: TemplateType = this.data): void {
       for(const entry of this.propNames) {
         this[entry] = data[entry]
       }
     }
-    
+
     /** Updates template with new data. */
     async update(data: TemplateType): Promise<Template> {
         this.data = await this.client._fetch<TemplateType>("PUT", `guilds/${this.guild.data.id}/templates/${this.data.code}`, JSON.stringify(data), true)
-        updateBase()
+        this.updateBase()
         return this
     }
     /** Deletes a template. */
