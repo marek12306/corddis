@@ -23,13 +23,13 @@ export class Message extends Base {
         this.setBase()
     }
 
-    protected setBase(data: GuildType = this.data): void {
+    protected setBase(data: MessageType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
         if(this[key] === undefined) {this[key] = value; propNames.push(key)}
       }
     }
 
-    protected updateBase(data: GuildType = this.data): void {
+    protected updateBase(data: MessageType = this.data): void {
       for(const entry of this.propNames) {
         this[entry] = data[entry]
       }
