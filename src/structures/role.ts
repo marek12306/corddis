@@ -6,11 +6,16 @@ export class Role {
     data: RoleType
     guild: Guild
     client: Client
+    [propName: string]: any;
 
     constructor(data: RoleType, client: Client, guild: Guild) {
         this.data = data
         this.guild = guild
         this.client = client
+        for (const [key, value] of Object.entries(data)) {
+          if(this[key] === undefined) this[key] = value
+          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+        }
     }
     /** Deletes a role. */
     async delete(): Promise<boolean> {

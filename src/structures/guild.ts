@@ -28,6 +28,7 @@ export class Guild {
   gateway: Gateway | undefined;
   voice: Voice;
   slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map();
+  [propName: string]: any;
 
   constructor(data: GuildType, client: Client) {
     this.data = data;
@@ -38,6 +39,10 @@ export class Guild {
       x.guilds.some((y: UnavailableGuildType) => y.id == data.id)
     )
     if (client.intents.includes(Intents.GUILD_MEMBERS)) this.gateway?.requestGuildMembers(data.id)
+    for (const [key, value] of Object.entries(data)) {
+      if(this[key] === undefined) this[key] = value
+      else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+    }
   }
   /**
    * Updates a guild.
@@ -169,7 +174,7 @@ export class Guild {
   /**
    * Changes a bot or other member nickname.
    * @param nick nickname
-   * @param id member (user) ID to change, defaults to bot 
+   * @param id member (user) ID to change, defaults to bot
    */
   async nickname(nick: string, id?: Snowflake): Promise<boolean> {
     const response = await this.client._fetch<Response>("PATCH", `guilds/${this.data.id}/members/${id ?? "@me"}${id ? "" : "/nick"}`, JSON.stringify({ nick }), false)

@@ -9,11 +9,16 @@ export class Interaction {
     data: InteractionType;
     guild: Guild;
     client: Client;
+    [propName: string]: any;
 
     constructor(data: InteractionType, client: Client, guild: Guild) {
         this.data = data;
         this.client = client;
         this.guild = guild;
+        for (const [key, value] of Object.entries(data)) {
+          if(this[key] === undefined) this[key] = value
+          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+        }
     }
     /** Replies to a slash command interaction with message. */
     async reply(data: InteractionApplicationCommandCallbackDataType) {

@@ -6,10 +6,15 @@ import { Message } from "./message.ts";
 export class User {
     data: UserType;
     client: Client;
+    [propName: string]: any;
 
     constructor(data: UserType, client: Client) {
         this.data = data;
         this.client = client;
+        for (const [key, value] of Object.entries(data)) {
+          if(this[key] === undefined) this[key] = value
+          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+        }
     }
     /** Sends message to DM channel. */
     async sendMessage(data: MessageCreateParamsType): Promise<Message> {

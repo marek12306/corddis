@@ -5,10 +5,11 @@ import { Channel } from "./channel.ts";
 
 /** Webhook Client with REST API communication. */
 export class Webhook {
-    data: WebhookType = {} as WebhookType
-    lastReq = 0
-    origin: string
-    inited = false
+    data: WebhookType = {} as WebhookType;
+    lastReq = 0;
+    origin: string;
+    inited = false;
+    [propName: string]: any;
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
@@ -21,6 +22,10 @@ export class Webhook {
             this.data = initData as WebhookType;
             this.origin = `${Constants.BASE_URL}/webhooks/${(initData as WebhookType).id}/${(initData as WebhookType).token}`;
             this.inited = true;
+            for (const [key, value] of Object.entries(this.data)) {
+              if(this[key] === undefined) this[key] = value
+              else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+            }
             return;
         }
         if ((initData as IDWebhook).token != undefined) this.origin = `${Constants.BASE_URL}/webhooks/${(initData as IDWebhook).id}/${(initData as IDWebhook).token}`;

@@ -12,12 +12,17 @@ export class Message {
     client: Client;
     channel: NewsChannel | TextChannel;
     guild?: Guild;
+    [propName: string]: any;
 
     constructor(data: MessageType, client: Client, channel: NewsChannel | TextChannel, guild?: Guild) {
         this.data = data;
         this.client = client;
         this.channel = channel;
         this.guild = guild;
+        for (const [key, value] of Object.entries(data)) {
+          if(this[key] === undefined) this[key] = value
+          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+        }
     }
     /** Replies to a message with some text content or an embed. */
     async reply(content: string | EmbedType | EmbedBuilder): Promise<Message> {

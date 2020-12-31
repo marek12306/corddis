@@ -6,11 +6,16 @@ export class Channel {
   data: ChannelType;
   client: Client;
   guild?: Guild;
+  [propName: string]: any;
 
   constructor(data: ChannelType, client: Client, guild?: Guild) {
     this.data = data;
     this.client = client;
-    this.guild = guild
+    this.guild = guild;
+    for (const [key, value] of Object.entries(data)) {
+      if(this[key] === undefined) this[key] = value
+      else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+    }
   }
 
    /** Deletes a channel. */

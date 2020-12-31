@@ -6,11 +6,16 @@ export class Emoji {
     data: EmojiType;
     guild: Guild | undefined;
     client: Client;
+    [propName: string]: any;
 
     constructor(data: EmojiType, client: Client, guild?: Guild) {
         this.data = data;
         this.guild = guild;
         this.client = client;
+        for (const [key, value] of Object.entries(data)) {
+          if(this[key] === undefined) this[key] = value
+          else this.client.emit("debug", `Can't override '${key}', key arleady exists, leaving previous value`)
+        }
     }
     /** Deletes a emoji. */
     async delete(): Promise<boolean> {
