@@ -92,9 +92,9 @@ export class TextChannel extends Channel {
         return response.status == 204;
     }
     /** Deletes previous added reaction from a message. */
-    async unreact(id: string, emoji: string): Promise<boolean> {
+    async unreact(id: string, emoji: string, user?: Snowflake): Promise<boolean> {
         if (!id) throw Error("Message ID is not provided");
-        const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/@me`, null, false)
+        const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}/reactions/${encodeURIComponent(emoji)}/${user ?? '@me'}`, null, false)
         return response.status == 204;
     }
     /** Deletes all previous added reaction from a message. */

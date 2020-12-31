@@ -7,6 +7,7 @@ import { ChannelTypeData } from "../types/channel.ts";
 import { EmbedType } from "../types/embed.ts";
 import EmbedBuilder from "../embed.ts";
 import { Base } from "./base.ts";
+import { Snowflake } from "../types/utils.ts";
 
 export class Message extends Base {
     data: MessageType;
@@ -56,8 +57,8 @@ export class Message extends Base {
         return this.channel.react(this.data.id, emoji)
     }
     /** Deletes previously added reaction from a message. */
-    async unreact(emoji: string): Promise<boolean> {
-        return this.channel.unreact(this.data.id, emoji)
+    async unreact(emoji: string, user?: Snowflake): Promise<boolean> {
+        return this.channel.unreact(this.data.id, emoji, user)
     }
     /** Deletes all previously added reaction from a message. */
     async unreactAll(emoji?: string): Promise<boolean> {
