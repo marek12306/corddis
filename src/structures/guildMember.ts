@@ -16,8 +16,15 @@ export class GuildMember extends Base {
         super(client)
         this.data = data;
         this.guild = guild;
-        setBase()
+        this.setBase()
     }
+
+    protected setBase(data: GuildType = this.data): void {
+      for (const [key, value] of Object.entries(data)) {
+        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+      }
+    }
+
     /** Checks if member has permission to do something. */
     async hasPermission(permission: PermissionEnum): Promise<boolean> {
         if (this.data.user?.id == this.guild.data.owner_id) return true;
