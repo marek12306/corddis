@@ -9,7 +9,7 @@ export class Webhook {
     lastReq = 0;
     origin: string;
     inited = false;
-    private propNames: string[] = [];
+    propNames: string[] = [];
     [propName: string]: any;
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))

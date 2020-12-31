@@ -15,6 +15,10 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     if (guild.members.has(updatedMember.user.id)) {
         const member = guild.members.get(updatedMember.user.id) as GuildMember
         member.data = { ...member.data, ...updatedMember }
+        for(const entry of member.propNames) {
+            // deno-lint-ignore no-explicit-any
+            member[entry] = (Object.entries(member.data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
+        }
         guild.members.set(updatedMember.user.id, member)
     } else guild.members.set(updatedMember.user.id, await guild.get(EntityType.GUILD_MEMBER, updatedMember.user.id) as GuildMember)
 

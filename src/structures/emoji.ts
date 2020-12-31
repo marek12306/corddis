@@ -6,7 +6,7 @@ import { Base } from "./base.ts"
 export class Emoji extends Base {
     data: EmojiType;
     guild: Guild | undefined;
-    private propNames: string[] = [];
+    propNames: string[] = [];
     [propName: string]: any;
 
     constructor(data: EmojiType, client: Client, guild?: Guild) {

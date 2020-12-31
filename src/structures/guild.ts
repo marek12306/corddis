@@ -28,7 +28,7 @@ export class Guild extends Base {
   gateway: Gateway | undefined;
   voice: Voice;
   slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map();
-  private propNames: string[] = [];
+  propNames: string[] = [];
   [propName: string]: any;
 
   constructor(data: GuildType, client: Client) {

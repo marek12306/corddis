@@ -6,7 +6,7 @@ import { Base } from "./base.ts";
 export class Template extends Base {
     data: TemplateType;
     guild: Guild;
-    private propNames: string[] = [];
+    propNames: string[] = [];
     [propName: string]: any;
 
     constructor(data: TemplateType, client: Client, guild: Guild) {

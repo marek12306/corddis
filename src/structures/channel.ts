@@ -6,7 +6,7 @@ import { Base } from "./base.ts"
 export class Channel extends Base {
   data: ChannelType;
   guild?: Guild;
-  private propNames: string[] = [];
+  propNames: string[] = [];
   [propName: string]: any;
 
   constructor(data: ChannelType, client: Client, guild?: Guild) {

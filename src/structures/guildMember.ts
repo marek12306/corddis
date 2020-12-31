@@ -10,6 +10,7 @@ export class GuildMember extends Base {
     data: GuildMemberType;
     guild: Guild;
     presence: PresenceType = {};
+    propNames: string[] = [];
     [propName: string]: any;
 
     constructor(data: GuildMemberType, guild: Guild, client: Client) {
@@ -21,7 +22,7 @@ export class GuildMember extends Base {
 
     protected setBase(data: GuildMemberType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) this[key] = value
+        if(this[key] === undefined) {this[key] = value; this.propNames.push(key)}
       }
     }
 

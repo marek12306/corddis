@@ -6,7 +6,7 @@ import { Base } from "./base.ts";
 export class Role extends Base {
     data: RoleType
     guild: Guild
-    private propNames: string[] = [];
+    propNames: string[] = [];
     [propName: string]: any;
 
     constructor(data: RoleType, client: Client, guild: Guild) {

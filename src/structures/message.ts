@@ -12,7 +12,7 @@ export class Message extends Base {
     data: MessageType;
     channel: NewsChannel | TextChannel;
     guild?: Guild;
-    private propNames: string[] = [];
+    propNames: string[] = [];
     [propName: string]: any;
 
     constructor(data: MessageType, client: Client, channel: NewsChannel | TextChannel, guild?: Guild) {
