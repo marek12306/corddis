@@ -2,10 +2,9 @@ import { Constants } from "../constants.ts";
 import { ErrorType, Snowflake } from "../types/utils.ts";
 import { WebhookType, WebhookEditType, WebhookMessageCreateType, URLWebhook, IDWebhook } from "../types/webhook.ts";
 import { Channel } from "./channel.ts";
-import { Base } from "./base.ts"
 
 /** Webhook Client with REST API communication. */
-export class Webhook extends Base {
+export class Webhook {
     data: WebhookType = {} as WebhookType;
     lastReq = 0;
     origin: string;
@@ -42,13 +41,13 @@ export class Webhook extends Base {
 
     protected setBase(data: WebhookType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+        if(this[key] === undefined) {this[key] = value; this.propNames.push(key)}
       }
     }
 
     protected updateBase(data: WebhookType = this.data): void {
       for(const entry of this.propNames) {
-        this[entry] = data[entry]
+        this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
       }
     }
 

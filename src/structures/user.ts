@@ -16,7 +16,7 @@ export class User extends Base {
 
     protected setBase(data: UserType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+        if(this[key] === undefined) this[key] = value;
       }
     }
 

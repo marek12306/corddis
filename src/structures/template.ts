@@ -18,13 +18,13 @@ export class Template extends Base {
 
     protected setBase(data: TemplateType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+        if(this[key] === undefined) {this[key] = value; this.propNames.push(key)}
       }
     }
 
     protected updateBase(data: TemplateType = this.data): void {
       for(const entry of this.propNames) {
-        this[entry] = data[entry]
+        this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
       }
     }
 
@@ -45,7 +45,7 @@ export class Template extends Base {
             description: data.description ?? this.data.description
         }), true)
         this.data = edited
-        updateBase()
+        this.updateBase()
         return this
     }
     /** Generates template URL. */

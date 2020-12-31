@@ -16,6 +16,7 @@ import { Gateway } from "../client/gateway.ts";
 import { Voice } from "./voice.ts";
 import { ApplicationCommandRootType } from "../types/commands.ts";
 import { Base } from "./base.ts"
+import { Client } from "../client/client.ts";
 
 export class Guild extends Base {
   data: GuildType;
@@ -44,13 +45,13 @@ export class Guild extends Base {
 
   protected setBase(data: GuildType = this.data): void {
     for (const [key, value] of Object.entries(data)) {
-      if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+      if(this[key] === undefined) {this[key] = value; this.propNames.push(key)}
     }
   }
 
   protected updateBase(data: GuildType = this.data): void {
     for(const entry of this.propNames) {
-      this[entry] = data[entry]
+      this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
     }
   }
 

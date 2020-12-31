@@ -17,7 +17,7 @@ export class Invite extends Base {
 
     protected setBase(data: InviteType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) {this[key] = value; propNames.push(key)}
+        if(this[key] === undefined) this[key] = value;
       }
     }
 
