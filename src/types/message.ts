@@ -140,3 +140,10 @@ export interface MessageEditParamsType {
   embed?: EmbedType | EmbedBuilder;
   flags?: number;
 }
+
+export interface MessageFetchParamsType {
+  around?: Snowflake;
+  before?: Snowflake;
+  after?: Snowflake;
+  limit?: number;
+}

@@ -1,6 +1,6 @@
 import { Client } from "./../client/client.ts";
 import { ChannelType, NewsFollowedChannelType } from "../types/channel.ts";
-import { MessageType } from "../types/message.ts"
+import { MessageFetchParamsType, MessageType } from "../types/message.ts"
 import { WebhookType } from "../types/webhook.ts"
 import { Message } from "./message.ts";
 import { MessageCreateParamsType, MessageEditParamsType } from "../types/message.ts";
@@ -53,10 +53,29 @@ export class TextChannel extends Channel {
         if (this.client.cache.messages) this.client.cache.messages.set(id, message)
         return message
     }
+    /** Fetches messages from channel. */
+    async fetchMessages(params: MessageFetchParamsType): Promise<Message[]> {
+        const json = await this.client._fetch<MessageType[]>("GET", `channels/${this.data.id}/messages`, JSON.stringify(params), true)
+        const messages: Message[] = []
+        for (const message of json) {
+            const messageObj = new Message(message, this.client, this, this.guild)
+            if (this.client.cache.messages) this.client.cache.messages.set(message.id, messageObj)
+            messages.push(messageObj)
+        }
+        return messages
+    }
     /** Deletes a message. */
     async deleteMessage(id: string): Promise<boolean> {
         if (!id) throw Error("Message ID is not provided");
         const response = await this.client._fetch<Response>("DELETE", `channels/${this.data.id}/messages/${id}`, null, false)
+        return response.status == 204;
+    }
+    /** Deletes a message. */
+    async deleteMessagesBulk(messages: Snowflake[]): Promise<boolean> {
+        if (!messages) throw Error("Message IDs are not provided");
+        const response = await this.client._fetch<Response>("POST", `channels/${this.data.id}/messages/bulk-delete`, JSON.stringify({
+            messages
+        }), false)
         return response.status == 204;
     }
     /** Edits a previously sent message. */
