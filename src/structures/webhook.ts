@@ -10,6 +10,7 @@ export class Webhook {
     origin: string;
     inited = false;
     propNames: string[] = [];
+    // deno-lint-ignore no-explicit-any
     [propName: string]: any;
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
@@ -47,6 +48,7 @@ export class Webhook {
 
     protected updateBase(data: WebhookType = this.data): void {
       for(const entry of this.propNames) {
+        // deno-lint-ignore no-explicit-any
         this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
       }
     }

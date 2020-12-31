@@ -13,6 +13,7 @@ export class Message extends Base {
     channel: NewsChannel | TextChannel;
     guild?: Guild;
     propNames: string[] = [];
+    // deno-lint-ignore no-explicit-any
     [propName: string]: any;
 
     constructor(data: MessageType, client: Client, channel: NewsChannel | TextChannel, guild?: Guild) {
@@ -31,6 +32,7 @@ export class Message extends Base {
 
     protected updateBase(data: MessageType = this.data): void {
       for(const entry of this.propNames) {
+        // deno-lint-ignore no-explicit-any
         this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
       }
     }

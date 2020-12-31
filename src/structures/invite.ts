@@ -6,6 +6,7 @@ import { Base } from "./base.ts";
 export class Invite extends Base {
     data: InviteType;
     guild: Guild | undefined;
+    // deno-lint-ignore no-explicit-any
     [propName: string]: any;
 
     constructor(data: InviteType, client: Client, guild?: Guild) {

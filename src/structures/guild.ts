@@ -29,6 +29,7 @@ export class Guild extends Base {
   voice: Voice;
   slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map();
   propNames: string[] = [];
+  // deno-lint-ignore no-explicit-any
   [propName: string]: any;
 
   constructor(data: GuildType, client: Client) {
@@ -51,6 +52,7 @@ export class Guild extends Base {
 
   protected updateBase(data: GuildType = this.data): void {
     for(const entry of this.propNames) {
+      // deno-lint-ignore no-explicit-any
       this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
     }
   }

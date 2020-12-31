@@ -9,6 +9,7 @@ import { Base } from "./base.ts"
 export class Interaction extends Base {
     data: InteractionType;
     guild: Guild;
+    // deno-lint-ignore no-explicit-any
     [propName: string]: any;
 
     constructor(data: InteractionType, client: Client, guild: Guild) {

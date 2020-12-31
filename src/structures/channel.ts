@@ -7,6 +7,7 @@ export class Channel extends Base {
   data: ChannelType;
   guild?: Guild;
   propNames: string[] = [];
+  // deno-lint-ignore no-explicit-any
   [propName: string]: any;
 
   constructor(data: ChannelType, client: Client, guild?: Guild) {
@@ -24,6 +25,7 @@ export class Channel extends Base {
 
   protected updateBase(data: ChannelType = this.data): void {
     for(const entry of this.propNames) {
+      // deno-lint-ignore no-explicit-any
       this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
     }
   }

@@ -6,6 +6,7 @@ import { Base } from "./base.ts";
 
 export class User extends Base {
     data: UserType;
+    // deno-lint-ignore no-explicit-any
     [propName: string]: any;
 
     constructor(data: UserType, client: Client) {

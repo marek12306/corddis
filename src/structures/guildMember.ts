@@ -11,6 +11,7 @@ export class GuildMember extends Base {
     guild: Guild;
     presence: PresenceType = {};
     propNames: string[] = [];
+    // deno-lint-ignore no-explicit-any
     [propName: string]: any;
 
     constructor(data: GuildMemberType, guild: Guild, client: Client) {

@@ -7,6 +7,7 @@ export class Emoji extends Base {
     data: EmojiType;
     guild: Guild | undefined;
     propNames: string[] = [];
+    // deno-lint-ignore no-explicit-any
     [propName: string]: any;
 
     constructor(data: EmojiType, client: Client, guild?: Guild) {
@@ -24,6 +25,7 @@ export class Emoji extends Base {
 
     protected updateBase(data: EmojiType = this.data): void {
       for(const entry of this.propNames) {
+        // deno-lint-ignore no-explicit-any
         this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
       }
     }
