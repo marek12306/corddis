@@ -15,7 +15,7 @@ export class Interaction extends Base {
       super(client)
         this.data = data;
         this.guild = guild;
-        setBase()
+        this.setBase()
     }
 
     protected setBase(data: GuildType = this.data): void {
