@@ -13,16 +13,16 @@ export class Role extends Base {
         super(client)
         this.data = data
         this.guild = guild
-        setBase()
+        this.setBase()
     }
 
-    protected setBase(data: GuildType = this.data): void {
+    protected setBase(data: RoleType = this.data): void {
       for (const [key, value] of Object.entries(data)) {
         if(this[key] === undefined) {this[key] = value; propNames.push(key)}
       }
     }
 
-    protected updateBase(data: GuildType = this.data): void {
+    protected updateBase(data: RoleType = this.data): void {
       for(const entry of this.propNames) {
         this[entry] = data[entry]
       }
@@ -35,7 +35,7 @@ export class Role extends Base {
     /** Edits a role. */
     async edit(data: RoleEditType): Promise<Role> {
         this.data = (await this.guild.editRole(this.data.id, data)).data
-        updateBase()
+        this.updateBase()
         return this
     }
 
