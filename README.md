@@ -18,7 +18,7 @@ Deno Discord API wrapper made mainly for learning. Still in development, expect 
   - [x] Pinned messages
   - [x] More structures
   - [x] Gateway resuming
-  - [ ] Slash commands
+  - [x] Slash commands
 - Low priority
   - [x] More control over the cache
   - [ ] Compression
