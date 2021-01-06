@@ -8,6 +8,7 @@ import { Guild } from "./guild.ts";
 import { Channel } from "./channel.ts"
 import { EmbedBuilder, Snowflake } from "../../mod.ts";
 import { Webhook } from "./webhook.ts";
+import { CollectorOptions, MessageCollector } from "../messageCollector.ts";
 
 export class TextChannel extends Channel {
     pins: Message[] = [];
@@ -132,6 +133,12 @@ export class TextChannel extends Channel {
     async crosspost(id: Snowflake): Promise<Message> { throw Error("Message channel is not a news channel") }
     /** Follows a news channel to another text channel. */
     async follow(webhook_channel_id: string): Promise<NewsFollowedChannelType> { throw Error("Message channel is not a news channel") }
+
+    async createCollector(filter: (msg: Message) => boolean, options: CollectorOptions) {
+        if(this.guild === undefined) throw Error("DM channels collectors dont implemented yet.");
+        return new MessageCollector(this.client, this.guild, this.channel, filter, options);
+    }
+
     toString() {
         return `TextChannel {"data":${JSON.stringify(this.data)}}`
     }

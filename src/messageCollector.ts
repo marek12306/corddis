@@ -7,7 +7,7 @@ export interface CollectorOptions {
     max: Number
 }
 
-export default class MessageCollector {
+export class MessageCollector {
     client: Client;
     guild: Guild;
     channel: Channel;
@@ -22,11 +22,13 @@ export default class MessageCollector {
         this.filter = filter;
         this.options = options;
 
+        this.client.setMaxListeners(this.client.getMaxListeners() + 1)
+
         this.client.on("CHANNEL_DELETE", (channel: Channel) => this.handleDelete.call(this, channel))
         this.client.on("GUILD_REMOVE", (guild: Guild) => this.handleDelete.call(this, guild))
         this.client.on("MESSAGE_CREATE", (message: Message) => this.collectMessage.call(this, message))
         this.client.on("MESSAGE_DELETE", (message: Message) => this.deleteMessage.call(this, message))
-        this.client.on("MESSAGE_DELETE_BULK", (messages: Message[]) => this.deleteMessage.call(this, messages))
+        this.client.on("MESSAGE_DELETE_BULK", (messages: Message[]) => this.deleteMessage.call(this, ...messages))
         this.client.emit("debug", `Registering a MessageCollector on ${this.channel.id} channel in guild ${this.guild.id}`)
 
     }
@@ -57,7 +59,10 @@ export default class MessageCollector {
         this.client.removeListener("GUILD_DELETE", (guild: Guild) => this.handleDelete.call(this, guild))
         this.client.removeListener("MESSAGE_CREATE", (message: Message) => this.collectMessage.call(this, message))
         this.client.removeListener("MESSAGE_DELETE", (message: Message) => this.deleteMessage.call(this, message))
-        this.client.removeListener("MESSAGE_DELETE_BULK", (messages: Message[]) => this.deleteMessage.call(this, messages))
+        this.client.removeListener("MESSAGE_DELETE_BULK", (messages: Message[]) => this.deleteMessage.call(this, ...messages))
+
+        this.client.setMaxListeners(this.client.getMaxListeners() - 1)
+
         this.client.emit("debug", `Removing a MessageCollector on ${this.channel.id} channel in guild ${this.guild.id}`)
     }
 }
