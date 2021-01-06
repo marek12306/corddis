@@ -135,7 +135,7 @@ export class TextChannel extends Channel {
     async follow(webhook_channel_id: string): Promise<NewsFollowedChannelType> { throw Error("Message channel is not a news channel") }
 
     /** Creates a message collector for a specified channel. */
-    async createCollector(filter: (msg: Message) => boolean, options: CollectorOptions): MessageCollector {
+    createCollector(filter: (msg: Message) => boolean, options: CollectorOptions): MessageCollector {
         if(this.guild === undefined) throw Error("DM channels collectors dont implemented yet.");
         return new MessageCollector(this.client, this.guild, this.channel, filter, options);
     }
