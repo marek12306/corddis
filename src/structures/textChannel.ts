@@ -136,8 +136,7 @@ export class TextChannel extends Channel {
 
     /** Creates a message collector for a specified channel. */
     createCollector(filter: (msg: Message) => boolean, options: CollectorOptions): MessageCollector {
-        if(this.guild === undefined) throw Error("DM channels collectors dont implemented yet.");
-        return new MessageCollector(this.client, this.guild, this.channel, filter, options);
+        return new MessageCollector(this.client, this.guild, this, filter, options);
     }
 
     toString() {

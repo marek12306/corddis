@@ -36,6 +36,7 @@ export class Client extends EventEmitter {
     shardsCount = 1
     shards: Gateway[] = []
     slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map()
+    collectors = 0
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
