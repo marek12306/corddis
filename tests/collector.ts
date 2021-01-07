@@ -7,10 +7,10 @@ import { token } from "./token.ts";
 
     client.on("MESSAGE_CREATE", (msg: Message) => {
         if (msg.content == "hell yeah") {
-            var collector = msg.channel.createCollector((msg: Message) => msg.author.id == "344048874656366592", {max : 1})
+            var collector = msg.channel.createCollector((msge: Message) => msg.author.id == "344048874656366592", {max : 1})
 
-            collector.once("collect", (msgs: Message[]) => {
-                console.log(`Message collected, content: "${msg.content}"`)
+            collector.on("collect", (msgs: Message) => {
+                console.log(`Message collected, content: "${msgs.content}"`)
             })
 
             collector.once("end", (msgs: Message[]) => {
@@ -21,8 +21,9 @@ import { token } from "./token.ts";
 
     client.once("READY", () => {
         console.log('I"M FRICING READY BOIIIII');
-
     })
+
+    client.on("debug", console.log)
 
     client.login(token)
 })()

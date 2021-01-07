@@ -11,6 +11,7 @@ import IntentHandlers from "../intents/mod.ts"
 import { Invite } from "../structures/invite.ts";
 import { Gateway } from "./gateway.ts";
 import { ApplicationCommandRootType } from "../types/commands.ts"
+import { MessageCollector } from "../messageCollector.ts"
 
 /** Client which communicates with gateway and manages REST API communication. */
 export class Client extends EventEmitter {
@@ -36,7 +37,8 @@ export class Client extends EventEmitter {
     shardsCount = 1
     shards: Gateway[] = []
     slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map()
-    collectors = 0
+    collectors_id = 0
+    collectors: MessageCollector[] = []
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
@@ -219,6 +221,36 @@ export class Client extends EventEmitter {
             if (data.id) this.slashCommands.set(data.id, data)
         })
         return commands
+    }
+
+    emit(name: string | symbol, ...values: any[]): boolean {
+        for (const entry of this.collectors) {
+            if(name == "MESSAGE_CREATE") entry.emit("_collect_", values[0])
+            if(name == "CHANNEL_DELETE" && entry.channel.id == values[0].id) this.removeCollector(entry.id)
+            if(entry.guild !== undefined && name == "GUILD_DELETE" && entry.guild.id == values[0].id) this.removeCollector(entry.id)
+            if(name == "MESSAGE_DELETE") entry.collected.filter(it => it == values[0].id)
+            if(name == "MESSAGE_DELETE_BULK") {
+                let temp = values.map(it => it.id);
+                entry.collected.filter(it => temp.indexOf(it.id) > -1)
+            }
+        }
+        super.emit(name, ...values)
+        return true;
+    }
+
+    registerCollector(collector: MessageCollector): MessageCollector {
+        collector.id = ++this.collectors_id;
+        this.emit("COLLECTOR_REGISTER", collector.id);
+        this.collectors.push(collector);
+        return collector;
+    }
+
+    removeCollector(id: number, done = false) {
+        let temp = this.collectors.findIndex(it => it.id == id);
+        if (temp > -1) {
+            if(!done) this.collectors[temp].end();
+            this.collectors.splice(temp);
+        }
     }
 
     toString() {

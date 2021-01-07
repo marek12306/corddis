@@ -136,7 +136,7 @@ export class TextChannel extends Channel {
 
     /** Creates a message collector for a specified channel. */
     createCollector(filter: (msg: Message) => boolean, options: CollectorOptions): MessageCollector {
-        return new MessageCollector(this.client, this.guild, this, filter, options);
+        return this.client.registerCollector(new MessageCollector(this.client, this.guild, this, filter, options));
     }
 
     toString() {
