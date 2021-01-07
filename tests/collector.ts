@@ -9,6 +9,10 @@ import { token } from "./token.ts";
         if (msg.content == "hell yeah") {
             var collector = msg.channel.createCollector((msg: Message) => msg.author.id == "344048874656366592", {max : 1})
 
+            collector.once("collect", (msgs: Message[]) => {
+                console.log(`Message collected, content: "${msg.content}"`)
+            })
+
             collector.once("end", (msgs: Message[]) => {
                 console.log(`Collected messages: ${msgs.length}, first message content: "${msgs[0].content}"`)
             })

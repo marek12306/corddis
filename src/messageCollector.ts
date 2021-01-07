@@ -51,7 +51,8 @@ export class MessageCollector extends EventEmitter {
 
     private collectMessage(msg: Message) {
         if(msg.channel.id == this.channel.id && msg.guild?.id == this.guild?.id && [msg].filter(this.filter).length) {
-            console.log(`${this.collected.length}, ${this.options.max}`)
+            this.collected.push(msg);
+            this.emit("collect", msg);
             if(this.collected.length >= this.options.max && this.options.max != -1) {
                 this.end();
             }
