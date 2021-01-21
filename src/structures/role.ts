@@ -23,7 +23,7 @@ export class Role extends Base {
       }
     }
 
-    protected updateBase(data: RoleType = this.data): void {
+    updateBase(data: RoleType = this.data): void {
       for(const entry of this.propNames) {
         // deno-lint-ignore no-explicit-any
         this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]

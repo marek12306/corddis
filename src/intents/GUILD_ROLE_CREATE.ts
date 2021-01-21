@@ -22,10 +22,7 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
             guild.data.roles = guild.data.roles.map((r: RoleType) => r.id == role.id ? role : r)
             const roleObj = guild.roles.get(role.id) as Role
             roleObj.data = role.data
-            for(const entry of roleObj.propNames) {
-                // deno-lint-ignore no-explicit-any
-                roleObj[entry] = (Object.entries(roleObj.data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
-            }
+            roleObj.updateBase()
             guild.roles.set(role.id, roleObj)
         }
         client.cache.guilds?.set(guild_id, guild)
