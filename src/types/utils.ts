@@ -1,4 +1,4 @@
-import { LRU } from "../../deps.ts";
+import { Cache } from "../cache.ts";
 import { User } from "../../mod.ts";
 
 export type Snowflake = string;
@@ -75,11 +75,11 @@ export interface ErrorType {
 }
 
 export interface CacheType {
-    guilds?: LRU;
-    messages?: LRU;
-    users?: LRU;
-    invites?: LRU;
-    other?: LRU;
+    guilds?: Cache;
+    messages?: Cache;
+    users?: Cache;
+    invites?: Cache;
+    other?: Cache;
 }
 
 export enum CacheEnum {

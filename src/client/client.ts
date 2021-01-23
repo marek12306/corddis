@@ -3,7 +3,7 @@ import { Guild } from "./../structures/guild.ts";
 import { CacheEnum, CacheType, EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
 import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
-import { EventEmitter, LRU } from "../../deps.ts"
+import { EventEmitter } from "../../deps.ts"
 import { UserType, StatusType } from "./../types/user.ts"
 import { GuildType, InviteType, UnavailableGuildType } from "./../types/guild.ts"
 import { IntentHandler } from "./intentHandler.ts";
@@ -12,6 +12,7 @@ import { Invite } from "../structures/invite.ts";
 import { Gateway } from "./gateway.ts";
 import { ApplicationCommandRootType } from "../types/commands.ts"
 import { MessageCollector } from "../messageCollector.ts"
+import { Cache } from "../cache.ts"
 
 /** Client which communicates with gateway and manages REST API communication. */
 export class Client extends EventEmitter {
@@ -22,11 +23,11 @@ export class Client extends EventEmitter {
     sequenceNumber: number | null = null
     _heartbeatTime = -1
     cache: CacheType = {
-        guilds: new LRU(500),
-        messages: new LRU(500),
-        users: new LRU(500),
-        other: new LRU(500),
-        invites: new LRU(500)
+        guilds: new Cache(500),
+        messages: new Cache(500),
+        users: new Cache(500),
+        other: new Cache(500),
+        invites: new Cache(500)
     }
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     ready = false
@@ -65,11 +66,11 @@ export class Client extends EventEmitter {
      */
     setCache(key: CacheEnum, value: number) {
         switch (key) {
-            case CacheEnum.GUILDS: this.cache.guilds = value > -1 ? new LRU(value) : undefined; break
-            case CacheEnum.INVITES: this.cache.invites = value > -1 ? new LRU(value) : undefined; break
-            case CacheEnum.MESSAGES: this.cache.messages = value > -1 ? new LRU(value) : undefined; break
-            case CacheEnum.OTHER: this.cache.other = value > -1 ? new LRU(value) : undefined; break
-            case CacheEnum.USERS: this.cache.users = value > -1 ? new LRU(value) : undefined; break
+            case CacheEnum.GUILDS: this.cache.guilds = value > -1 ? new Cache(value) : undefined; break
+            case CacheEnum.INVITES: this.cache.invites = value > -1 ? new Cache(value) : undefined; break
+            case CacheEnum.MESSAGES: this.cache.messages = value > -1 ? new Cache(value) : undefined; break
+            case CacheEnum.OTHER: this.cache.other = value > -1 ? new Cache(value) : undefined; break
+            case CacheEnum.USERS: this.cache.users = value > -1 ? new Cache(value) : undefined; break
         }
         return this
     }
