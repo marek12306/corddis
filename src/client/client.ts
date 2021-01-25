@@ -12,7 +12,7 @@ import { Invite } from "../structures/invite.ts";
 import { Gateway } from "./gateway.ts";
 import { ApplicationCommandRootType } from "../types/commands.ts"
 import { MessageCollector } from "../messageCollector.ts"
-import { Cache } from "../cache.ts"
+import Cache from "../cache.ts"
 
 /** Client which communicates with gateway and manages REST API communication. */
 export class Client extends EventEmitter {
@@ -202,7 +202,7 @@ export class Client extends EventEmitter {
     /** Deletes a invite */
     async deleteInvite(id: string | Invite): Promise<InviteType> {
         if (id instanceof Invite) id = id.data.code
-        if (this.cache.invites?.has(id)) this.cache.invites.remove(id)
+        if (this.cache.invites?.has(id)) this.cache.invites.delete(id)
         return this._fetch<InviteType>("DELETE", `invites/${id}`, null, true)
     }
     /** Registers a slash command. */

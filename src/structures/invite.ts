@@ -28,7 +28,7 @@ export class Invite extends Base {
      */
     async delete(): Promise<Invite> {
         const response = await this.client._fetch<Response>("DELETE", `invites/${this.data.code}`, null, false)
-        this.client.cache.invites?.remove(this.data.code)
+        this.client.cache.invites?.delete(this.data.code)
         return this
     }
 

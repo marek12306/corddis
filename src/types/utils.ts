@@ -1,4 +1,4 @@
-import { Cache } from "../cache.ts";
+import Cache from "../cache.ts";
 import { User } from "../../mod.ts";
 
 export type Snowflake = string;

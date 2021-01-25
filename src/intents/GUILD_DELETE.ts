@@ -7,7 +7,7 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     if (!client.cache.guilds?.has(id)) return [id]
     else {
         const guild = client.cache.guilds?.get(id)
-        client.cache.guilds?.remove(id)
+        client.cache.guilds?.delete(id)
         return [guild]
     }
 }
