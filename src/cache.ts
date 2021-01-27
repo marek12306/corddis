@@ -10,7 +10,7 @@ export default class Cache extends Map {
     if(this.max != 0) {
       if(this.size >= this.max && this.size != 0) this.delete([...this.keys()][0])
     }
-    this.set(key, value);
+    super.set(key, value);
     return this;
   }
 }

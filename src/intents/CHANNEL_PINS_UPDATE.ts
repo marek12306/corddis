@@ -8,17 +8,17 @@ import { EntityType } from "../types/utils.ts";
 // deno-lint-ignore no-explicit-any
 export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { guild_id, channel_id } = data.d
+    let channel;
     if (guild_id) {
         const guild = await client.get(EntityType.GUILD, guild_id as string) as Guild;
-        const channel = await guild.get(EntityType.CHANNEL, channel_id as string) as TextChannel;
+        channel = await guild.get(EntityType.CHANNEL, channel_id as string) as TextChannel;
         channel.pinsUpdated = new Date()
         guild.channels.set(channel_id, channel)
         client.cache.guilds?.set(guild_id, guild)
-        return [channel]
     } else {
-        let channel;
         if (client.user?.isBot()) channel = new TextChannel({ id: channel_id, type: ChannelTypeData.DM }, client)
         else channel = await (await client.me()).createDM(channel_id) as TextChannel
-        return [channel]
     }
+
+    return [channel]
 }

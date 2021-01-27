@@ -12,7 +12,7 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
         await guild.fetchChannels()
         client.cache.guilds?.set(guild_id, guild)
         return [new ChannelStructures[data.d.type](data.d, client, guild)]
-    } else {
-        return [new ChannelStructures[data.d.type](data.d, client)]
     }
+
+    return [new ChannelStructures[data.d.type](data.d, client)]
 }

@@ -12,9 +12,7 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     if (guild.channels.size > 0) {
         guild.channels.set(channel.data.id, channel)
         client.cache.guilds?.set(guild_id, guild)
-        return [channel]
-    } else {
-        await guild.fetchChannels()
-        return [channel]
-    }
+    } else await guild.fetchChannels()
+
+    return [channel]
 }
