@@ -1,5 +1,5 @@
 import { Client } from "./../client/client.ts";
-import { MessageType, MessageEditParamsType } from "../types/message.ts";
+import { MessageType, MessageEditParamsType, MessageCreateParamsType } from "../types/message.ts";
 import { Guild } from "./guild.ts";
 import { TextChannel } from "./textChannel.ts";
 import { NewsChannel } from "./newsChannel.ts"
@@ -26,23 +26,29 @@ export class Message extends Base {
     }
 
     protected setBase(data: MessageType = this.data): void {
-      for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) {this[key] = value; this.propNames.push(key)}
-      }
+        for (const [key, value] of Object.entries(data)) {
+            if (this[key] === undefined) { this[key] = value; this.propNames.push(key) }
+        }
     }
 
     protected updateBase(data: MessageType = this.data): void {
-      for(const entry of this.propNames) {
-        // deno-lint-ignore no-explicit-any
-        this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
-      }
+        for (const entry of this.propNames) {
+            // deno-lint-ignore no-explicit-any
+            this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
+        }
     }
 
     /** Replies to a message with some text content or an embed. */
-    async reply(content: string | EmbedType | EmbedBuilder): Promise<Message> {
-        if (typeof content == "string") {
-            return this.channel.sendMessage({ content })
-        } else return this.channel.sendMessage({ embed: content })
+    async reply(content: string | EmbedType | EmbedBuilder, reply = false, mention = false): Promise<Message> {
+        let msg = (typeof content == "string" ? { content } : { embed: content }) as MessageCreateParamsType
+        if (reply) {
+            msg.message_reference = {
+                channel_id: this.channel.id,
+                message_id: this.id,
+                replied_user: mention
+            }
+        }
+        return this.channel.sendMessage(msg)
     }
     /** Deletes message. */
     async delete(): Promise<boolean> {
