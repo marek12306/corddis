@@ -5,8 +5,7 @@ import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
 import { EventEmitter } from "../../deps.ts"
 import { UserType, StatusType } from "./../types/user.ts"
-import { GuildType, InviteType, UnavailableGuildType } from "./../types/guild.ts"
-import { IntentHandler } from "./intentHandler.ts";
+import { GuildType, InviteType } from "./../types/guild.ts"
 import IntentHandlers from "../intents/mod.ts"
 import { Invite } from "../structures/invite.ts";
 import { Gateway } from "./gateway.ts";

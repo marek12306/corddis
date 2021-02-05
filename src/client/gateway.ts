@@ -5,20 +5,19 @@ import { UnavailableGuildType } from "../types/guild.ts";
 import { StatusType } from "../types/user.ts";
 import { Snowflake } from "../types/utils.ts";
 import { VoiceStateUpdateType } from "../types/voice.ts";
-import { IntentHandler } from "./intentHandler.ts";
 
 export class Gateway extends EventEmitter {
     ping = -1;
     interval = -1
     _heartbeatTime = -1
-    sequenceNumber: number|null = null
+    sequenceNumber: number | null = null
     socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
-    sessionID: string|null = ""
+    sessionID: string | null = ""
     ready = false
     client: Client
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     shard: number[]
-    user: User|undefined
+    user: User | undefined
     guilds: UnavailableGuildType[] = []
 
     constructor(client: Client, shard: number[]) {
@@ -72,7 +71,7 @@ export class Gateway extends EventEmitter {
                         },
                         presence: {
                             status: "online", afk: false
-                        }, 
+                        },
                         intents,
                         shard: this.shard
                     }
@@ -102,8 +101,14 @@ export class Gateway extends EventEmitter {
         if (t == "RECONNECT") return this.reconnect()
 
         if (t) {
-            const intentObject = await IntentHandler(this, this.client, response)
-            if (intentObject) this.emit("INTENT", {t, intentObject});
+
+            if (this.client.intentHandlers.has(t)) {
+                const intentObject = await this.client.intentHandlers.get(t)?.(this, this.client, response);
+                if (intentObject) this.emit("INTENT", { t, intentObject });
+            } else {
+                this.client.emit("debug", `${t} not implemented`)
+            }
+
         }
     }
     /**
