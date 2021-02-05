@@ -8,7 +8,7 @@ import { Guild } from "./guild.ts";
 import { Channel } from "./channel.ts"
 import { EmbedBuilder, Snowflake } from "../../mod.ts";
 import { Webhook } from "./webhook.ts";
-import { CollectorOptions, MessageCollector } from "../messageCollector.ts";
+import { CollectorOptions, Collector } from "../collector.ts";
 
 export class TextChannel extends Channel {
     pins: Message[] = [];
@@ -135,8 +135,8 @@ export class TextChannel extends Channel {
     async follow(webhook_channel_id: string): Promise<NewsFollowedChannelType> { throw Error("Message channel is not a news channel") }
 
     /** Creates a message collector for a specified channel. */
-    createCollector(filter: (msg: Message) => boolean, options: CollectorOptions): MessageCollector {
-        return this.client.registerCollector(new MessageCollector(this.client, this.guild, this, filter, options));
+    createCollector(filter: (msg: Message) => boolean, options: CollectorOptions): Collector<Message> {
+        return this.client.registerCollector(new Collector<Message>("MESSAGE_CREATE", this.client, 0, filter, options));
     }
 
     toString() {

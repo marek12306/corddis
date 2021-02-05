@@ -7,14 +7,14 @@ import { token } from "./token.ts";
 
     client.on("MESSAGE_CREATE", (msg: Message) => {
         if (msg.content == "hell yeah") {
-            var collector = msg.channel.createCollector((msge: Message) => msg.author.id == "344048874656366592", {max : 1})
+            var collector = msg.channel.createCollector((msge: Message) => msge.author.id == "344048874656366592", { max: 1 })
 
             collector.on("collect", (msgs: Message) => {
-                console.log(`Message collected, content: "${msgs.content}"`)
+                console.log(`Message collected, id: "${msgs.id}"`)
             })
 
             collector.once("end", (msgs: Message[]) => {
-                console.log(`Collected messages: ${msgs.length}, first message content: "${msgs[0].content}"`)
+                console.log(`Collected messages arr length: ${msgs.length}`)
             })
         }
     })
