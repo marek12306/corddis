@@ -4,7 +4,7 @@ import { GuildMemberType } from "./guild.ts";
 import { ChannelMentionType } from "./channel.ts";
 import { EmbedType } from "./embed.ts";
 import { EmojiType } from "./emoji.ts";
-import EmbedBuilder from "../embed.ts";
+import { EmbedBuilder } from "../embed.ts";
 
 export interface MessageType {
   id: Snowflake;
