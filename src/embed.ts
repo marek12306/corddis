@@ -1,7 +1,7 @@
 import { EmbedType } from "./types/embed.ts"
 
 /** Builder for message embeds. */
-export default class {
+export class EmbedBuilder {
     private embed: EmbedType = {}
 
     constructor() { }
