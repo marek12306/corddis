@@ -5,7 +5,7 @@ import { TextChannel } from "./textChannel.ts";
 import { NewsChannel } from "./newsChannel.ts"
 import { ChannelTypeData } from "../types/channel.ts";
 import { EmbedType } from "../types/embed.ts";
-import EmbedBuilder from "../embed.ts";
+import { EmbedBuilder } from "../embed.ts";
 import { Base } from "./base.ts";
 import { Snowflake } from "../types/utils.ts";
 
