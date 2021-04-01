@@ -208,6 +208,11 @@ export class Client extends EventEmitter {
     async registerSlashCommand(command: ApplicationCommandRootType, guildID?: Snowflake) {
         return this._fetch<ApplicationCommandRootType>("POST", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands`, JSON.stringify(command), true)
     }
+    /** Overwrites a bunch of slash commands. */
+    async registerOverwriteCommandBulk(command: ApplicationCommandRootType[], guildID?: Snowflake) {
+        const response = await this._fetch<Response>("PUT", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands`, JSON.stringify(command), true)
+        return response.status == 204
+    }
     /** Unregisters a slash command. */
     async unregisterSlashCommand(id: Snowflake, guildID?: Snowflake) {
         const response = await this._fetch<Response>("DELETE", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands/${id}`, null, false)
