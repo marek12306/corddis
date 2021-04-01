@@ -1,5 +1,5 @@
 import { GuildMemberType } from "./guild.ts";
-import { Snowflake } from "./utils.ts";
+import { Snowflake, Timestamp } from "./utils.ts";
 
 export interface VoiceStateUpdateType {
     guild_id: Snowflake;
@@ -21,6 +21,7 @@ export interface VoiceStateType {
     self_stream?: boolean;
     self_video: boolean;
     suppress: boolean;
+    request_to_speak_timestamp?: Timestamp;
 }
 
 export interface VoiceServerUpdateType {

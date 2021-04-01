@@ -52,6 +52,7 @@ export enum ChannelTypeData {
   GUILD_CATEGORY,
   GUILD_NEWS,
   GUILD_STORE,
+  GUILD_STAGE_VOICE = 13,
 }
 
 export interface NewsFollowType {
