@@ -1,6 +1,6 @@
 import { Client, Intents } from "../mod.ts";
 import { Interaction } from "../src/structures/interaction.ts";
-import { ApplicationCommandOptionEnum } from "../src/types/commands.ts";
+import { ApplicationCommandOptionEnum, InteractionResponseEnum } from "../src/types/commands.ts";
 import { token } from "./token.ts"
 
 (async () => {
@@ -20,25 +20,14 @@ import { token } from "./token.ts"
     })
 
     client.on("INTERACTION_CREATE", async (interaction: Interaction) => {
-        if (interaction.data.data?.name == "chuj") {
-            await interaction.reply({
-                content: "test",
-                flags: 0,
+        if (interaction.data.data?.name == "chujj") {
+            await interaction.sendResponse({
+                type: InteractionResponseEnum.DeferredChannelMessageWithSource,
             })
-            await interaction.editResponse({
-                content: "test2",
+            setTimeout(() => interaction.sendFollowup({
                 flags: 0,
-            })
-            await interaction.deleteResponse()
-            const msg = await interaction.sendFollowup({
-                content: "test3",
-                flags: 0,
-            })
-            await interaction.editFollowup(msg.id, {
-                content: "test4",
-                flags: 0,
-            })
-            await interaction.deleteFollowup(msg.id)
+                content: "penis",
+            }), 2000)
         }
         
         if (interaction.data.data?.name == "time") {

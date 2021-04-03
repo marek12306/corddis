@@ -63,6 +63,7 @@ export const Permissions: DictionaryType = {
     MANAGE_ROLES: 0x10000000,
     MANAGE_WEBHOOKS: 0x20000000,
     MANAGE_EMOJIS: 0x40000000,
+    REQUEST_TO_SPEAK: 0x100000000,
 }
 
 export enum PermissionEnum {
@@ -106,5 +107,6 @@ export const ChannelStructures: NumberDictionaryType = {
     [ChannelTypeData.GROUP_DM]: TextChannel,
     [ChannelTypeData.GUILD_CATEGORY]: Channel,
     [ChannelTypeData.GUILD_NEWS]: NewsChannel,
-    [ChannelTypeData.GUILD_STORE]: Channel
+    [ChannelTypeData.GUILD_STORE]: Channel,
+    [ChannelTypeData.GUILD_STAGE_VOICE]: Channel,
 }

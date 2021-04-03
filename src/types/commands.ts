@@ -2,6 +2,7 @@ import { EmbedType } from "./embed.ts";
 import { GuildMemberType } from "./guild.ts";
 import { AllowedMentionsType } from "./message.ts";
 import { Snowflake } from "./utils.ts";
+import { UserType } from "./user.ts";
 
 export interface ApplicationCommandRootType {
     id?: Snowflake;
@@ -11,10 +12,16 @@ export interface ApplicationCommandRootType {
     options: ApplicationCommandOptionType[];
 }
 
+export interface ApplicationCommandCreateType {
+    name: string;
+    description: string;
+    options?: ApplicationCommandOptionType[];
+}
+
 export interface ApplicationCommandOptionType {
     name: string;
     description: string;
-    type: number;
+    type: ApplicationCommandOptionEnum;
     default?: boolean;
     required?: boolean;
     options?: ApplicationCommandOptionType[];
@@ -43,11 +50,13 @@ export interface InteractionGuildMemberType extends GuildMemberType {
 
 export interface InteractionType {
     id: Snowflake;
+    application_id: Snowflake;
     type: InteractionEnum;
     data?: ApplicationCommandInteractionDataType;
-    guild_id: Snowflake;
-    channel_id: Snowflake;
-    member: InteractionGuildMemberType;
+    guild_id?: Snowflake;
+    channel_id?: Snowflake;
+    member?: InteractionGuildMemberType;
+    user?: UserType;
     token: string;
     version: number;
 }
@@ -60,7 +69,7 @@ export enum InteractionEnum {
 export interface ApplicationCommandInteractionDataType {
     id: Snowflake;
     name: string;
-    options: ApplicationCommandInteractionDataOptionType[];
+    options?: ApplicationCommandInteractionDataOptionType[];
 }
 
 export interface ApplicationCommandInteractionDataOptionType {
@@ -79,13 +88,20 @@ export enum InteractionResponseEnum {
     Acknowledge,
     ChannelMessage,
     ChannelMessageWithSource,
-    ACKWithSource
+    DeferredChannelMessageWithSource,
 }
 
 export interface InteractionApplicationCommandCallbackDataType {
     tts?: boolean;
-    content: string;
-    embeds?: EmbedType;
+    content?: string;
+    embeds?: EmbedType[];
     allowed_mentions?: AllowedMentionsType;
     flags: number;
+}
+
+export interface MessageInteractionType {
+    id: Snowflake;
+    type: InteractionEnum;
+    name: string;
+    user: UserType;
 }
