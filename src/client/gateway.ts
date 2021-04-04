@@ -1,12 +1,12 @@
-import EventEmitter from "https://deno.land/x/events@v1.0.0/mod.ts";
 import { Client, User } from "../../mod.ts";
 import { Constants } from "../constants.ts";
 import { UnavailableGuildType } from "../types/guild.ts";
 import { StatusType } from "../types/user.ts";
 import { Snowflake } from "../types/utils.ts";
 import { VoiceStateUpdateType } from "../types/voice.ts";
+import intents from '../intents/mod.ts';
 
-export class Gateway extends EventEmitter {
+export class Gateway {
     ping = -1;
     interval = -1
     _heartbeatTime = -1
@@ -21,7 +21,6 @@ export class Gateway extends EventEmitter {
     guilds: UnavailableGuildType[] = []
 
     constructor(client: Client, shard: number[]) {
-        super()
         this.client = client
         this.shard = shard
     }
@@ -30,23 +29,23 @@ export class Gateway extends EventEmitter {
         if (this.socket.readyState != 1) return;
         this._heartbeatTime = Date.now()
         this.socket.send(JSON.stringify({ op: 1, d: this.sequenceNumber }))
-        this.emit("debug", `Sending shard ${this.shard[0]} heartbeat`)
+        this.client.events.post(["DEBUG", `Sending shard ${this.shard[0]} heartbeat`])
     }
 
     async _close() {
         if (this.socket.readyState == 1) return;
         clearInterval(this.interval)
-        this.emit("debug", `Connection closed on shard ${this.shard[0]}, trying to reconnect`)
+        this.client.events.post(["DEBUG", `Connection closed on shard ${this.shard[0]}, trying to reconnect`])
         this.login()
     }
 
     async _message(event: MessageEvent) {
         const response = JSON.parse(event.data)
         const { op, t, s, d } = response
-        this.emit('raw', event.data)
+        this.client.events.post(['RAW', event.data, this])
         if (s) this.sequenceNumber = s
         if (op == 9) {
-            this.emit("debug", `Invalid session on shard ${this.shard[0]}, trying to reconnect after 5 seconds...`)
+            this.client.events.post(["DEBUG", `Invalid session on shard ${this.shard[0]}, trying to reconnect after 5 seconds...`])
             return setTimeout(() => this.reconnect(true), 5000)
         }
         if (op == 10) {
@@ -90,25 +89,19 @@ export class Gateway extends EventEmitter {
             this.sessionID = d.session_id
             this.user = new User(d.user, this.client)
             this.guilds = d.guilds
-            this.emit("READY", this.user)
+            this.client.events.post(["READY", this.user])
             this.ready = true
             this._heartbeat()
             return
         }
 
-        if (t == "RESUMED") return this.emit("debug", `Connection on shard ${this.shard[0]} resumed successfuly`)
+        if (t == "RESUMED") return this.client.events.post(["DEBUG", `Connection on shard ${this.shard[0]} resumed successfuly`])
 
         if (t == "RECONNECT") return this.reconnect()
 
         if (t) {
-
-            if (this.client.intentHandlers.has(t)) {
-                const intentObject = await this.client.intentHandlers.get(t)?.(this, this.client, response);
-                if (intentObject) this.emit("INTENT", { t, intentObject });
-            } else {
-                this.client.emit("debug", `${t} not implemented`)
-            }
-
+            const intentObject = await intents[t]?.(this, this.client, response)
+            if (intentObject) this.client.events.post([t, intentObject])
         }
     }
     /**
@@ -169,7 +162,7 @@ export class Gateway extends EventEmitter {
         if (!this.client.gatewayData) throw Error("Gateway data not found.")
 
         this.socket = new WebSocket(`${this.client.gatewayData.url}?v=${Constants.VERSION}&encoding=json`)
-        this.socket.addEventListener('open', (ev: Event) => (() => { this.emit("debug", `Shard ${this.shard[0]} connected to WebSocket`) }).call(this))
+        this.socket.addEventListener('open', (ev: Event) => (() => { this.client.events.post(["DEBUG", `Shard ${this.shard[0]} connected to WebSocket`]) }).call(this))
         this.socket.addEventListener('message', (ev: MessageEvent) => this._message.call(this, ev))
         this.socket.addEventListener('close', (ev: CloseEvent) => this._close.call(this))
 

@@ -3,18 +3,17 @@ import { Guild } from "./../structures/guild.ts";
 import { CacheEnum, CacheType, EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
 import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
-import { EventEmitter } from "../../deps.ts"
 import { UserType, StatusType } from "./../types/user.ts"
 import { GuildType, InviteType } from "./../types/guild.ts"
-import IntentHandlers from "../intents/mod.ts"
 import { Invite } from "../structures/invite.ts";
 import { Gateway } from "./gateway.ts";
 import { ApplicationCommandRootType } from "../types/commands.ts"
 import { Collector } from "../collector.ts"
 import Cache from "../cache.ts"
+import { Events } from '../evt.ts'
 
 /** Client which communicates with gateway and manages REST API communication. */
-export class Client extends EventEmitter {
+export class Client {
     token: string;
     user: User | null = null;
     gatewayData: GetGatewayType | undefined;
@@ -31,25 +30,19 @@ export class Client extends EventEmitter {
     status: StatusType = { since: null, activities: null, status: "online", afk: false }
     ready = false
     lastReq = 0
-    // deno-lint-ignore no-explicit-any
-    intentHandlers: Map<string, (gateway: Gateway, client: Client, data: any) => Promise<any>> = new Map()
     mobile = false
     shardsCount = 1
     shards: Gateway[] = []
     slashCommands: Map<Snowflake, ApplicationCommandRootType> = new Map()
     collectors_id = 0
     collectors: Collector<any>[] = []
+    events = Events
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
     constructor(token: string = "", ...intents: number[]) {
-        super()
         this.token = token;
         this.intents = intents;
-
-        for (const intent in IntentHandlers) {
-            this.intentHandlers.set(intent, IntentHandlers[intent])
-        }
     }
     /**
      * Adds intents to client
@@ -118,7 +111,7 @@ export class Client extends EventEmitter {
 
         if (resp.status == 429) {
             const { retry_after } = await resp.json();
-            this.emit("debug", `Ratelimit, waiting ${retry_after}`);
+            this.events.post(["DEBUG", `Ratelimit, waiting ${retry_after}`])
             await this.sleep(retry_after ?? 0);
             this.lastReq = Date.now();
             resp = await this._performReq(path, req)
@@ -132,13 +125,6 @@ export class Client extends EventEmitter {
         this.gatewayData = await this._fetch<GetGatewayType>("GET", "gateway/bot", null, true)
         for (let i = 0; i < this.shardsCount; i++) {
             const gateway = new Gateway(this, [i, this.shardsCount])
-            gateway.on("debug", (ev: string) => this.emit("debug", ev))
-            // deno-lint-ignore no-explicit-any
-            gateway.on("INTENT", (intent: { t: string | symbol; intentObject: any; }) => this.emit(intent.t, ...intent.intentObject))
-            // deno-lint-ignore no-explicit-any
-            gateway.on("raw", (raw: any) => this.emit("raw", raw, gateway))
-            if (i == this.shardsCount - 1) gateway.once("READY", (user: User) => this.user = user)
-            gateway.on("READY", (user: User) => this.emit("READY", user, gateway.ready, gateway))
             await gateway.login()
             this.shards.push(gateway)
         }
@@ -226,16 +212,6 @@ export class Client extends EventEmitter {
             if (data.id) this.slashCommands.set(data.id, data)
         })
         return commands
-    }
-
-    emit(name: string | symbol, ...values: any[]): boolean {
-        for (const entry of this.collectors) {
-            if (entry.event == name) {
-                entry.collect(...values)
-            }
-        }
-        super.emit(name, ...values)
-        return true;
     }
 
     registerCollector<T>(collector: Collector<T>): Collector<T> {
