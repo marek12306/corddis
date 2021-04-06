@@ -4,27 +4,17 @@ import { GuildMemberType } from "../types/guild.ts";
 import { RoleType } from "../types/role.ts";
 import { PresenceType } from "../types/user.ts";
 import { Guild } from "./guild.ts";
-import { Base } from "./base.ts"
 
-export class GuildMember extends Base {
+export class GuildMember {
+    #client: Client
     data: GuildMemberType;
     guild: Guild;
     presence: PresenceType = {};
-    propNames: string[] = [];
-    // deno-lint-ignore no-explicit-any
-    [propName: string]: any;
 
     constructor(data: GuildMemberType, guild: Guild, client: Client) {
-        super(client)
+        this.#client = client;
         this.data = data;
         this.guild = guild;
-        this.setBase()
-    }
-
-    protected setBase(data: GuildMemberType = this.data): void {
-      for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) {this[key] = value; this.propNames.push(key)}
-      }
     }
 
     /** Checks if member has permission to do something. */

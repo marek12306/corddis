@@ -9,7 +9,7 @@ export class Voice extends EventEmitter {
     guild: Guild;
     socket: WebSocket = new WebSocket("ws://echo.websocket.org/");
     _heartbeatTime = -1
-    sequenceNumber: number|null = null
+    sequenceNumber: number | null = null
     interval = -1
     data: VoiceIdentifyType = {}
     ping = -1
@@ -27,7 +27,7 @@ export class Voice extends EventEmitter {
         if (this.socket.readyState != 1) return;
         this._heartbeatTime = Date.now()
         this.socket.send(JSON.stringify({ op: 3, d: Date.now() }))
-        this.client.emit("debug", `Sending voice heartbeat`)
+        this.client.events.post(["DEBUG", `Sending voice heartbeat`])
     }
 
     async _close() {
@@ -35,10 +35,9 @@ export class Voice extends EventEmitter {
         this._heartbeatTime = Date.now()
         clearInterval(this.interval)
         if (!this.connected) {
-            // this.udp.connection?.close()
-            return this.client.emit("debug", "Voice gateway connection ended")
+            return this.client.events.post(["DEBUG", "Voice gateway connection ended"])
         }
-        this.client.emit("debug", `Voice gateway connection closed, trying to reconnect`)
+        this.client.events.post(["DEBUG", `Voice gateway connection closed, trying to reconnect`])
         this.connect()
     }
 
@@ -70,8 +69,8 @@ export class Voice extends EventEmitter {
 
         if (op == 4) {
             this.udp.key = Uint32Array.from(d.secret_key)
-            this.client.emit("debug", "Protocol selected successfuly.")
-            this.client.emit(`voice${this.guild.data.id}`, true)
+            this.client.events.post(["DEBUG", "Protocol selected successfuly."])
+            // this.client.events.post([`voice${this.guild.data.id}`, true])
             return
         }
     }
@@ -91,7 +90,7 @@ export class Voice extends EventEmitter {
     }
     /** Logins with a certain token */
     async connect(): Promise<boolean> {
-        this.client.emit(`${this.guild.data.id}voice`, false)
+        // this.client.events.post([`${this.guild.data.id}voice`, false])
         throw Error("Voice is not supported for now")
         // if (!this.data.endpoint || !this.data.session_id) throw Error("Required data to connect are incomplete.")
 

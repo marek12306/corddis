@@ -1,4 +1,3 @@
-import { User } from "../../mod.ts";
 import { OverwriteType } from "./overwrite.ts";
 import { UserType } from "./user.ts";
 import { Snowflake } from "./utils.ts";

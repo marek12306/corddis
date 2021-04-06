@@ -6,36 +6,19 @@ import { NewsChannel } from "./newsChannel.ts"
 import { ChannelTypeData } from "../types/channel.ts";
 import { EmbedType } from "../types/embed.ts";
 import { EmbedBuilder } from "../embed.ts";
-import { Base } from "./base.ts";
 import { Snowflake } from "../types/utils.ts";
 
-export class Message extends Base {
-    data: MessageType;
-    channel: NewsChannel | TextChannel;
-    guild?: Guild;
-    propNames: string[] = [];
-    // deno-lint-ignore no-explicit-any
-    [propName: string]: any;
+export class Message {
+    #client: Client
+    data: MessageType
+    channel: NewsChannel | TextChannel
+    guild?: Guild
 
     constructor(data: MessageType, client: Client, channel: NewsChannel | TextChannel, guild?: Guild) {
-        super(client);
+        this.#client = client
         this.data = data;
         this.channel = channel;
         this.guild = guild;
-        this.setBase()
-    }
-
-    protected setBase(data: MessageType = this.data): void {
-        for (const [key, value] of Object.entries(data)) {
-            if (this[key] === undefined) { this[key] = value; this.propNames.push(key) }
-        }
-    }
-
-    protected updateBase(data: MessageType = this.data): void {
-        for (const entry of this.propNames) {
-            // deno-lint-ignore no-explicit-any
-            this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
-        }
     }
 
     /** Replies to a message with some text content or an embed. */
@@ -43,8 +26,8 @@ export class Message extends Base {
         let msg = (typeof content == "string" ? { content } : { embed: content }) as MessageCreateParamsType
         if (reply) {
             msg.message_reference = {
-                channel_id: this.channel.id,
-                message_id: this.id,
+                channel_id: this.channel.data.id,
+                message_id: this.data.id,
                 replied_user: mention
             }
         }
@@ -79,7 +62,6 @@ export class Message extends Base {
         const message = await this.channel.crosspost(this.data.id)
         if (!message) return this
         this.data = message.data
-        this.updateBase()
         return this
     }
     /** Pins a message. */

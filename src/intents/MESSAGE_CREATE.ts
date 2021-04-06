@@ -4,7 +4,6 @@ import { EntityType } from "../types/utils.ts"
 import { TextChannel } from "../structures/textChannel.ts"
 import { Guild } from "../structures/guild.ts"
 import { ChannelTypeData } from "../types/channel.ts"
-import { ChannelStructures } from "../constants.ts"
 import { Gateway } from "../client/gateway.ts"
 
 // deno-lint-ignore no-explicit-any

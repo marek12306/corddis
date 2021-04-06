@@ -2,29 +2,20 @@ import { Client } from "./../client/client.ts";
 import { UserType } from "../types/user.ts";
 import { MessageCreateParamsType } from "../types/message.ts";
 import { Message } from "./message.ts";
-import { Base } from "./base.ts";
 
-export class User extends Base {
+export class User {
     data: UserType;
-    // deno-lint-ignore no-explicit-any
-    [propName: string]: any;
+    #client: Client;
 
     constructor(data: UserType, client: Client) {
-        super(client)
+        this.#client = client
         this.data = data;
-        this.setBase()
-    }
-
-    protected setBase(data: UserType = this.data): void {
-      for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) this[key] = value;
-      }
     }
 
     /** Sends message to DM channel. */
     async sendMessage(data: MessageCreateParamsType): Promise<Message> {
-        if (this.data.id == this.client.user?.data.id) throw Error("Cannot send message to itself.")
-        const me = await this.client.me()
+        if (this.data.id == this.#client.user?.data.id) throw Error("Cannot send message to itself.")
+        const me = await this.#client.me()
         const channel = await me.createDM(this.data.id)
         return channel.sendMessage(data)
     }
@@ -38,7 +29,7 @@ export class User extends Base {
     }
     /** Checks if user is this bot (me). */
     isMe(): boolean {
-        return this.data.id == this.client.user?.data.id
+        return this.data.id == this.#client.user?.data.id
     }
 
     toString() {

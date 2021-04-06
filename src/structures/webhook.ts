@@ -9,9 +9,6 @@ export class Webhook {
     lastReq = 0;
     origin: string;
     inited = false;
-    propNames: string[] = [];
-    // deno-lint-ignore no-explicit-any
-    [propName: string]: any;
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
@@ -24,10 +21,8 @@ export class Webhook {
             this.data = initData as WebhookType;
             this.origin = `${Constants.BASE_URL}/webhooks/${(initData as WebhookType).id}/${(initData as WebhookType).token}`;
             this.inited = true;
-            this.setBase()
             return;
         }
-        this.setBase()
         if ((initData as IDWebhook).token != undefined) this.origin = `${Constants.BASE_URL}/webhooks/${(initData as IDWebhook).id}/${(initData as IDWebhook).token}`;
         else this.origin = (initData as URLWebhook).url;
     }
@@ -36,21 +31,7 @@ export class Webhook {
         var temp = (await (await fetch(this.origin)).json())
         if (temp.message) throw Error(temp.message)
         this.data = temp as WebhookType
-        this.updateBase()
         this.inited = true
-    }
-
-    protected setBase(data: WebhookType = this.data): void {
-      for (const [key, value] of Object.entries(data)) {
-        if(this[key] === undefined) {this[key] = value; this.propNames.push(key)}
-      }
-    }
-
-    protected updateBase(data: WebhookType = this.data): void {
-      for(const entry of this.propNames) {
-        // deno-lint-ignore no-explicit-any
-        this[entry] = (Object.entries(data).find((elt: any[]) => elt[0] == entry) ?? [])[1]
-      }
     }
 
     // deno-lint-ignore no-explicit-any
@@ -111,7 +92,6 @@ export class Webhook {
         if (!this.inited) await this._init()
         const webhook = await this._fetch<WebhookType>("PATCH", `webhooks/${this.data.id}/${this.token}`, JSON.stringify(data), true)
         this.data = webhook
-        this.updateBase()
         return this
     }
     /** Executes a webhook */

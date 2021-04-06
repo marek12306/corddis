@@ -14,4 +14,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
         token: data.d.token,
     }
     if (guild.voice.data.endpoint && guild.voice.data.session_id) await guild.voice.connect()
+    return guild.voice
 }

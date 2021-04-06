@@ -16,5 +16,6 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
         if (data.d.channel_id == null) {
             await guild.voice.disconnect()
         } else if (guild.voice.data.endpoint && guild.voice.data.session_id) await guild.voice.connect()
+        return guild.voice
     }
 }
