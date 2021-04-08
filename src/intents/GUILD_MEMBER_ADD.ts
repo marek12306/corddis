@@ -1,6 +1,4 @@
-import { EntityType } from "../types/utils.ts"
 import { Client } from "../client/client.ts"
-import { Guild } from "../structures/guild.ts"
 import { GuildMember } from "../structures/guildMember.ts"
 import { Gateway } from "../client/gateway.ts"
 
@@ -9,7 +7,7 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     const { guild_id } = data.d
     const guildMember = { ...data.d }
     delete guildMember.guild_id
-    const guild = await client.get(EntityType.GUILD, guild_id) as Guild
+    const guild = await client.guilds.get(guild_id)
     const guildMemberObj = new GuildMember(guildMember, guild, client)
 
     if (guild.members.has(guildMember.user.id)) {
@@ -17,6 +15,6 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     }
 
     guild.members.set(guildMember.user.id, guildMemberObj)
-    client.cache.guilds?.set(guild_id, guild)
+    client.guilds.set(guild_id, guild)
     return [guildMemberObj, guild]
 }

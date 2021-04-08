@@ -1,14 +1,12 @@
-import { GuildMemberType, GuildType, GuildUpdateType, IconAttributesType, InviteType, TemplateCreateType, TemplateType, UnavailableGuildType } from "../types/guild.ts";
+import { GuildMemberType, GuildType, IconAttributesType, TemplateCreateType, TemplateType, UnavailableGuildType } from "../types/guild.ts";
 import { ChannelCreateType, ChannelType } from "../types/channel.ts";
 import { Channel } from "./channel.ts";
 import { GuildMember } from "./guildMember.ts";
 import { EntityType, Snowflake } from "../types/utils.ts";
-import { User } from "./user.ts";
 import { RoleEditType, RoleType } from "../types/role.ts";
 import { fromUint8Array, lookup } from "../../deps.ts"
 import { Emoji } from "./emoji.ts";
 import { NewEmojiType } from "../types/emoji.ts";
-import { Invite } from "./invite.ts";
 import { Role } from "./role.ts";
 import { ChannelStructures, Constants, Intents } from "../constants.ts";
 import { Template } from "./template.ts";
@@ -16,13 +14,14 @@ import { Gateway } from "../client/gateway.ts";
 import { Voice } from "./voice.ts";
 import { ApplicationCommandRootType } from "../types/commands.ts";
 import { Client } from "../client/client.ts";
+import { InvitesManager, GuildMemberManager, ChannelsManager } from './managers.ts';
 
 export class Guild {
   #client: Client
   data: GuildType;
-  invites: Map<Snowflake, Invite> = new Map();
-  members: Map<Snowflake, GuildMember> = new Map();
-  channels: Map<Snowflake, Channel> = new Map();
+  invites: InvitesManager
+  members: GuildMemberManager
+  channels: ChannelsManager
   roles: Map<Snowflake, Role> = new Map();
   template?: Template;
   gateway?: Gateway;
@@ -38,67 +37,20 @@ export class Guild {
       shard.guilds.some((unavailableGuild: UnavailableGuildType) => unavailableGuild.id == data.id)
     )
     if (client.intents.includes(Intents.GUILD_MEMBERS)) this.gateway?.requestGuildMembers(data.id)
+
+    this.invites = new InvitesManager(this.#client, this)
+    this.members = new GuildMemberManager(this.#client, this)
+    this.channels = new ChannelsManager(this.#client, this)
   }
 
-  /**
-   * Updates a guild.
-   * @return updated guild
-   */
-  async update(data: GuildUpdateType): Promise<Guild> {
-    this.data = await this.#client._fetch<GuildType>("PATCH", `guilds/${this.data.id}`, JSON.stringify(data), true)
-    return this;
-  }
   /** Deletes a guild. */
   async delete(): Promise<boolean> {
     const status = (await this.#client._fetch<Response>("DELETE", `guilds/${this.data.id}`, null, false)).status
     if (status != 204) throw new Error(`Error ${status}`);
+    this.#client.guilds.delete(this.data.id)
     return true;
   }
-  /** Fetches all channels in guild (or gets them from cache).
-   * @param refresh fetch channels from Discord API, ignoring cache data
-   */
-  async fetchChannels(refresh = false): Promise<Channel[]> {
-    //Channels arleady cached
-    if (!refresh && this.channels.size > 0) return Array.from(this.channels.values())
 
-    const channelsJson = await this.#client._fetch<ChannelType[]>("GET", `guilds/${this.data.id}/channels`, null, true)
-    channelsJson.forEach((channel: ChannelType) => this.channels.set(channel.id, new ChannelStructures[channel.type](channel, this.#client, this)))
-    return Array.from(this.channels.values())
-  }
-  /**
-   * Fetches all members from guild.
-   * @param refresh chooses whether to update the cache or not
-   * @param limit limit of members to fetch
-   * @param after after which member to fetch
-   */
-  async fetchMembers(limit = 1, after: Snowflake = "0", refresh = false): Promise<GuildMember[]> {
-    if (!refresh && this.members.size > 0) return Array.from(this.members.values())
-    const json = await this.#client._fetch<GuildMemberType[]>("GET", `guilds/${this.data.id}/members?limit=${limit}&after=${after}`, null, true)
-    json.forEach((data: GuildMemberType) => { if (data.user) this.members.set(data.user.id, new GuildMember(data, this, this.#client)) })
-    return Array.from(this.members.values())
-  }
-  /**
-   * Fetches guild entites from Discord API
-   * @param type type of entity to fetch
-   */
-  async get(type: EntityType, id: Snowflake, refresh = false): Promise<GuildMember | Channel | Role | undefined> {
-    switch (type) {
-      // deno-lint-ignore no-case-declarations
-      case EntityType.GUILD_MEMBER:
-        if (this.members.has(id) && !refresh) return this.members.get(id)
-        const json = await this.#client._fetch<GuildMemberType>("GET", `guilds/${this.data.id}/members/${id}`, null, true)
-        const member = new GuildMember(json, this, this.#client)
-        this.members.set(id, member)
-        return member
-      case EntityType.CHANNEL:
-        await this.fetchChannels()
-        return this.channels.get(id) as Channel
-      case EntityType.ROLE:
-        return this.roles.get(id) as Role
-      default:
-        throw Error("Wrong EntityType")
-    }
-  }
   /**
    * Creates a channel.
    * @return created channel
@@ -112,7 +64,7 @@ export class Guild {
   /** Deletes a channel. */
   async deleteChannel(id: Snowflake): Promise<boolean> {
     if (!this.channels.has(id)) throw Error("Channel is not found")
-    return (await this.channels.get(id)?.delete()) ?? false;
+    return ((await this.channels.get(id)).delete()) ?? false;
   }
   /** Fetches guild template. */
   async fetchTemplate(refresh = false): Promise<Template> {
@@ -207,13 +159,6 @@ export class Guild {
     if (foundRaw >= 0) this.data.roles.splice(foundRaw, 1)
     this.roles.delete(id)
     return response.status == 204
-  }
-  /** Fetches all guild invites. */
-  async fetchInvites(): Promise<Invite[]> {
-    const invites = await this.#client._fetch<InviteType[]>("GET", `guilds/${this.data.id}/invites`, null, true)
-    invites.forEach((x: InviteType) => this.invites.set(x.code, new Invite(x, this.#client, this)))
-    if (this.#client.cache.invites) this.invites.forEach(x => this.#client.cache.invites?.set((x as Invite).data.code, x))
-    return Array.from(this.invites.values())
   }
   /** Adds a new role to member. */
   async addRole(member_id: Snowflake, role_id: Snowflake): Promise<boolean> {

@@ -5,17 +5,17 @@ import { Message } from "./message.ts";
 
 export class User {
     data: UserType;
-    #client: Client;
+    protected client: Client;
 
     constructor(data: UserType, client: Client) {
-        this.#client = client
+        this.client = client
         this.data = data;
     }
 
     /** Sends message to DM channel. */
     async sendMessage(data: MessageCreateParamsType): Promise<Message> {
-        if (this.data.id == this.#client.user?.data.id) throw Error("Cannot send message to itself.")
-        const me = await this.#client.me()
+        if (this.data.id == this.client.user?.data.id) throw Error("Cannot send message to itself.")
+        const me = await this.client.me()
         const channel = await me.createDM(this.data.id)
         return channel.sendMessage(data)
     }
@@ -29,7 +29,7 @@ export class User {
     }
     /** Checks if user is this bot (me). */
     isMe(): boolean {
-        return this.data.id == this.#client.user?.data.id
+        return this.data.id == this.client.user?.data.id
     }
 
     toString() {

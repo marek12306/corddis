@@ -1,7 +1,7 @@
 import { TextChannel } from "../structures/textChannel.ts";
 import { Guild } from "../structures/guild.ts";
 import { User } from "../structures/user.ts";
-import { ChannelType } from "../types/channel.ts";
+import { ChannelType, ChannelTypeData } from "../types/channel.ts";
 import { GuildType } from "../types/guild.ts";
 import { UserType } from "../types/user.ts";
 import { ConnectionType, EntityType, Snowflake } from "../types/utils.ts";
@@ -37,6 +37,7 @@ export class Me extends User {
      * @return newly created dm channel
      */
     async createDM(recipient_id: Snowflake): Promise<TextChannel> {
+        if (this.data.bot) return new TextChannel({ id: recipient_id, type: ChannelTypeData.DM }, this.client)
         if (this.client.cache.other?.get(`${recipient_id}dm`)) return this.client.cache.other.get(`${recipient_id}dm`) as TextChannel
         const channel = await this.client._fetch<ChannelType>("POST", `users/@me/channels`, JSON.stringify({ recipient_id }), true)
         const channelObj = new TextChannel(channel, this.client)

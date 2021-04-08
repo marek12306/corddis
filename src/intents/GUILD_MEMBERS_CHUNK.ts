@@ -1,6 +1,4 @@
 import { Client } from "../client/client.ts"
-import { EntityType } from "../types/utils.ts"
-import { Guild } from "../structures/guild.ts"
 import { GuildMember } from "../structures/guildMember.ts"
 import { PresenceType } from "../types/user.ts"
 import { Gateway } from "../client/gateway.ts"
@@ -9,7 +7,7 @@ import { Gateway } from "../client/gateway.ts"
 export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { members, guild_id, presences } = data.d
 
-    const guild = await client.get(EntityType.GUILD, guild_id) as Guild
+    const guild = await client.guilds.get(guild_id)
     for (const memberRaw of members) {
         const member = new GuildMember(memberRaw, guild, client)
 
@@ -22,6 +20,6 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
         guild.members.set(member.data.user.id, member)
     }
 
-    client.cache.guilds?.set(guild.data.id, guild)
+    client.cache.guilds.set(guild.data.id, guild)
     return [guild]
 }

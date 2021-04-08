@@ -4,13 +4,14 @@ import { CacheEnum, CacheType, EntityType, ErrorType, GetGatewayType, Snowflake 
 import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
 import { UserType, StatusType } from "./../types/user.ts"
-import { GuildType, InviteType } from "./../types/guild.ts"
+import { InviteType } from "./../types/guild.ts"
 import { Invite } from "../structures/invite.ts";
 import { Gateway } from "./gateway.ts";
 import { ApplicationCommandRootType } from "../types/commands.ts"
 import { Collector } from "../collector.ts"
 import Cache from "../cache.ts"
 import { Events } from '../evt.ts'
+import { GuildManager, UserManager } from './managers.ts';
 
 /** Client which communicates with gateway and manages REST API communication. */
 export class Client {
@@ -21,9 +22,9 @@ export class Client {
     sequenceNumber: number | null = null
     _heartbeatTime = -1
     cache: CacheType = {
-        guilds: new Cache(500),
+        guilds: new GuildManager(500, this),
         messages: new Cache(500),
-        users: new Cache(500),
+        users: new UserManager(500, this),
         other: new Cache(500),
         invites: new Cache(500)
     }
@@ -40,6 +41,15 @@ export class Client {
 
     sleep = (t: number) => new Promise(reso => setTimeout(reso, t))
 
+
+    get guilds(): GuildManager {
+        return this.cache.guilds
+    }
+
+    get users(): UserManager {
+        return this.cache.users
+    }
+
     constructor(token: string = "", ...intents: number[]) {
         this.token = token;
         this.intents = intents;
@@ -55,14 +65,16 @@ export class Client {
     /**
      * Sets selected cache capacity to specifed value.
      * 0 is infinity, -1 and less disables cache entirely.
+     * Note: when changing capacity cache is cleared
      */
     setCache(key: CacheEnum, value: number) {
+
         switch (key) {
-            case CacheEnum.GUILDS: this.cache.guilds = value > -1 ? new Cache(value) : undefined; break
-            case CacheEnum.INVITES: this.cache.invites = value > -1 ? new Cache(value) : undefined; break
-            case CacheEnum.MESSAGES: this.cache.messages = value > -1 ? new Cache(value) : undefined; break
-            case CacheEnum.OTHER: this.cache.other = value > -1 ? new Cache(value) : undefined; break
-            case CacheEnum.USERS: this.cache.users = value > -1 ? new Cache(value) : undefined; break
+            case CacheEnum.GUILDS: this.cache.guilds = new GuildManager(value, this); break
+            case CacheEnum.INVITES: this.cache.invites = new Cache(value); break
+            case CacheEnum.MESSAGES: this.cache.messages = new Cache(value); break
+            case CacheEnum.OTHER: this.cache.other = new Cache(value); break
+            case CacheEnum.USERS: this.cache.users = new UserManager(value, this); break
         }
         return this
     }
@@ -140,38 +152,13 @@ export class Client {
         for (const shard of this.shards) await shard.setStatus(status)
         return this.shards[0].status
     }
-    /**
-     * Fetches entities from Discord API
-     *      client.get(EntityType.GUILD, "id") as Guild
-     */
-    async get(entity: EntityType, id: Snowflake): Promise<User | Guild> {
-        if (!this.user) throw Error("Not logged in");
-        switch (entity) {
-            // deno-lint-ignore no-case-declarations
-            case EntityType.GUILD:
-                if (this.cache.guilds?.has(id)) return this.cache.guilds?.get(id) as Guild
-                const guild = await this._fetch<GuildType>("GET", `guilds/${id}`, null, true)
-                const guildObj = new Guild(guild, this)
-                this.cache.guilds?.set(id, guildObj)
-                return guildObj
-            // deno-lint-ignore no-case-declarations
-            case EntityType.USER:
-                if (this.cache.users?.has(id)) return this.cache.users?.get(id) as User
-                const user = await this._fetch<UserType>("GET", `users/${id}`, null, true)
-                const userObj = new User(user, this)
-                this.cache.users?.set(id, userObj)
-                return userObj
-            default:
-                throw Error("Wrong EntityType")
-        }
-    }
     /** Gets current user as Me class */
     async me(): Promise<Me> {
         if (!this.user) throw Error("Not logged in");
-        if (this.cache.users?.has("me")) return this.cache.users.get("me") as Me
+        if (this.cache.other?.has("me")) return this.cache.other.get("me") as Me
         const user = await this._fetch<UserType>("GET", `users/@me`, null, true)
         const userObj = new Me(user, this)
-        this.cache.users?.set("me", userObj)
+        this.cache.other?.set("me", userObj)
         return userObj;
     }
     /** Fetches invite with a certain id */
@@ -179,7 +166,7 @@ export class Client {
         if (this.cache.invites?.has(id)) return this.cache.invites.get(id) as Invite
         const invite = await this._fetch<InviteType>("GET", `invites/${id}?with_counts=true`, null, true)
         let guild
-        if (invite.guild) guild = await this.get(EntityType.GUILD, invite.guild.id) as Guild
+        if (invite.guild) guild = await this.guilds.get(invite.guild.id) as Guild
         const inviteObject = new Invite(invite, this, guild)
         this.cache.invites?.set(id, inviteObject)
         return inviteObject
@@ -225,6 +212,8 @@ export class Client {
         if (temp > -1) {
             if (!done) this.collectors[temp].end();
             this.collectors.splice(temp);
+        } else {
+            this.events.post(["DEBUG", `Colector with ${id} not found`])
         }
     }
 
