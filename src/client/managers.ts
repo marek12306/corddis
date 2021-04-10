@@ -6,7 +6,10 @@ import { User } from "../structures/user.ts";
 import { UserType } from '../types/user.ts';
 
 export class GuildManager extends BaseManager {
-
+    /**
+     * Fetches a guild with a certain ID
+     * @param force If set to true will ignore a cache data and fetch directly from API
+     */
     async get(id: Snowflake, force = false): Promise<Guild> {
         if (!force && this.has(id)) return super.get(id) as Guild
         else {
@@ -16,14 +19,13 @@ export class GuildManager extends BaseManager {
             return guild
         }
     }
-
-    async refresh(id: Snowflake): Promise<Guild> {
-        return this.get(id, true)
-    }
 }
 
 export class UserManager extends BaseManager {
-
+    /**
+     * Fetches a user with a certain ID
+     * @param force If set to true will ignore a cache data and fetch directly from API
+     */
     async get(id: Snowflake, force = false): Promise<User> {
         if (!force && this.has(id)) return super.get(id) as User
         else {
@@ -32,9 +34,5 @@ export class UserManager extends BaseManager {
             this.set(user.data.id, user)
             return user
         }
-    }
-
-    async refresh(id: Snowflake): Promise<User> {
-        return this.get(id, true)
     }
 }
