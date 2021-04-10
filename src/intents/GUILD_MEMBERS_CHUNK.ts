@@ -21,5 +21,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     }
 
     client.cache.guilds.set(guild.data.id, guild)
-    return [guild]
+    return guild
 }

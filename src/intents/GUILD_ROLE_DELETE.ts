@@ -19,5 +19,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
         }
     } else guild = await client.guilds.get(guild_id)
     client.cache.guilds?.set(guild_id, guild)
-    return [role_id, guild]
+    return {role: role_id, guild}
 }

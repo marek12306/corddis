@@ -42,7 +42,7 @@ export class Gateway {
     async _message(event: MessageEvent) {
         const response = JSON.parse(event.data)
         const { op, t, s, d } = response
-        this.client.events.post(['RAW', event.data, this])
+        this.client.events.post(['RAW', { data: event.data, gateway: this }])
         if (s) this.sequenceNumber = s
         if (op == 9) {
             this.client.events.post(["DEBUG", `Invalid session on shard ${this.shard[0]}, trying to reconnect after 5 seconds...`])
@@ -88,10 +88,11 @@ export class Gateway {
         if (t == "READY") {
             this.sessionID = d.session_id
             this.user = new User(d.user, this.client)
+            this.client.user = this.user
             this.guilds = d.guilds
-            this.client.events.post(["READY", this.user])
             this.ready = true
             this._heartbeat()
+            this.client.events.post(["READY", this.user])
             return
         }
 
@@ -105,7 +106,7 @@ export class Gateway {
         }
     }
     /**
-     * Shortcut just to set client game
+     * Shortcut just to set client game 
      * @return new presence
      */
     async game(name: string): Promise<StatusType> {

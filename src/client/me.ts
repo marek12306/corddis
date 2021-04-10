@@ -16,7 +16,7 @@ export class Me extends User {
     async guilds(): Promise<Guild[]> {
         if (this.client.cache.other?.has("meg")) return this.client.cache.other.get("meg") as Guild[];
         const guildsJSON = await this.client._fetch<GuildType[]>("GET", `users/@me/guilds`, null, true)
-        const guildsArray = Promise.all(guildsJSON.map(async (elt: GuildType) => await this.client.get(EntityType.GUILD, elt.id) as Guild))
+        const guildsArray = Promise.all(guildsJSON.map(async (elt: GuildType) => await this.client.guilds.get(elt.id)))
         this.client.cache.other?.set("meg", guildsArray)
         return guildsArray;
     }

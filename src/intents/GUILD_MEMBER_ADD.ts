@@ -11,10 +11,10 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     const guildMemberObj = new GuildMember(guildMember, guild, client)
 
     if (guild.members.has(guildMember.user.id)) {
-        return [guildMemberObj, guild]
+        return { member: guildMemberObj, guild }
     }
 
     guild.members.set(guildMember.user.id, guildMemberObj)
     client.guilds.set(guild_id, guild)
-    return [guildMemberObj, guild]
+    return { member: guildMemberObj, guild }
 }

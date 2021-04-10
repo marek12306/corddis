@@ -15,5 +15,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     const emojiStruct = guild_id ? new Emoji(emoji, client, guild) : new Emoji(emoji, client)
     const message = client.cache.messages?.has(message_id) ? channel.fetchMessage(message_id) : client.cache.messages?.get(message_id)
 
-    return [emojiStruct, user, channel, message]
+    return { emoji: emojiStruct, user, channel, message, guild }
 }

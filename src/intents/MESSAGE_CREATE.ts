@@ -6,15 +6,15 @@ import { Gateway } from "../client/gateway.ts"
 // deno-lint-ignore no-explicit-any
 export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { guild_id, channel_id, id } = data.d
-    let object;
+    let object, channel;
     if (guild_id) {
         const guild = await client.guilds.get(guild_id);
-        const channel = await guild.channels.get(channel_id) as TextChannel;
+        channel = await guild.channels.get<TextChannel>(channel_id)
         object = new Message(data.d, client, channel, guild)
     } else {
-        const channel = await (await client.me()).createDM(channel_id) as TextChannel
+        channel = await (await client.me()).createDM(channel_id)
         object = new Message(data.d, client, channel)
     }
     client.cache.messages?.set(id, object)
-    return [object]
+    return object
 }

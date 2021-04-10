@@ -12,5 +12,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
         guild.members.delete(userObj.data.id)
         client.guilds.set(guild_id, guild)
     }
-    return [userObj, guild]
+    return { user: userObj, guild }
 }

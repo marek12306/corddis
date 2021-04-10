@@ -16,5 +16,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     guild.members.set(data.d.user.id, member)
     client.cache.guilds?.set(guild_id, guild)
 
-    return [guild, presence]
+    return { guild, presence }
 }

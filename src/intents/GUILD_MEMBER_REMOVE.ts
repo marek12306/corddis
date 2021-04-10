@@ -9,10 +9,10 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     const userObj = new User(data.d.user, client)
 
     if (guild.members.size > 0) {
-        if (!guild.members.has(userObj.data.id)) return [userObj, guild]
+        if (!guild.members.has(userObj.data.id)) return {member: userObj, guild}
         guild.members.delete(userObj.data.id)
         client.guilds.set(guild_id, guild)
     }
 
-    return [userObj, guild]
+    return {member: userObj, guild}
 }

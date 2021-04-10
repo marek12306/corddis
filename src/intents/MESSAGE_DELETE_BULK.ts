@@ -19,5 +19,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
             messages.push(new Message(data.d, client, channel))
         }
     }
-    return [messages]
+    return messages
 }

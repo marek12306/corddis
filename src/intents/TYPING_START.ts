@@ -14,5 +14,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
 
     const user = guild_id ? new GuildMember(member, guild as Guild, client) : await client.users.get(user_id)
 
-    return [user, channel]
+    return { user, channel }
 }

@@ -8,5 +8,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     let invite, guild;
     if (client.cache.invites?.has(code)) invite = client.cache.invites.get(code) as Invite
     if (guild_id) guild = await client.guilds.get(guild_id)
-    return [invite, guild]
+    return { invite, guild }
 }

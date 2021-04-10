@@ -6,5 +6,5 @@ import { Guild } from "../structures/guild.ts"
 export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const guild = new Guild(data.d, client)
     client.guilds.set(data.d.id, guild)
-    return [guild]
+    return guild
 }

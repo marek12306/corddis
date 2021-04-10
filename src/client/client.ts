@@ -1,6 +1,6 @@
 import { User } from "./../structures/user.ts";
 import { Guild } from "./../structures/guild.ts";
-import { CacheEnum, CacheType, EntityType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
+import { CacheEnum, CacheType, ErrorType, GetGatewayType, Snowflake } from "./../types/utils.ts";
 import { Constants } from "./../constants.ts"
 import { Me } from "./me.ts";
 import { UserType, StatusType } from "./../types/user.ts"
@@ -12,6 +12,7 @@ import { Collector } from "../collector.ts"
 import Cache from "../cache.ts"
 import { Events } from '../evt.ts'
 import { GuildManager, UserManager } from './managers.ts';
+import { to } from "../../deps.ts"
 
 /** Client which communicates with gateway and manages REST API communication. */
 export class Client {
@@ -53,6 +54,14 @@ export class Client {
     constructor(token: string = "", ...intents: number[]) {
         this.token = token;
         this.intents = intents;
+
+        this.events.$attachPrepend(data => {
+            this.collectors.filter(collector => collector.event == data[0]).forEach(collector => {
+                collector.collect(data[1])
+            })
+            return null
+            //Empty callback since it's handled arleady
+        }, () => { })
     }
     /**
      * Adds intents to client
@@ -204,6 +213,7 @@ export class Client {
     registerCollector<T>(collector: Collector<T>): Collector<T> {
         collector.id = ++this.collectors_id;
         this.collectors.push(collector);
+        this.events.post(["DEBUG", `Collector created ${collector.id} with '${collector.event}' event`])
         return collector;
     }
 
@@ -212,8 +222,9 @@ export class Client {
         if (temp > -1) {
             if (!done) this.collectors[temp].end();
             this.collectors.splice(temp);
+            this.events.post(["DEBUG", `Colector with id ${id} end`])
         } else {
-            this.events.post(["DEBUG", `Colector with ${id} not found`])
+            this.events.post(["DEBUG", `Colector with id ${id} not found`])
         }
     }
 

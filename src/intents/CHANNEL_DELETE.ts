@@ -7,10 +7,10 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
     const { guild_id } = data.d
     if (guild_id) {
         const guild = await client.guilds.get(guild_id)
-        await guild.fetchChannels()
+        await guild.channels.fetchAll()
         client.guilds.set(guild_id, guild)
         return [new ChannelStructures[data.d.type](data.d, client, guild)]
     }
 
-    return [new ChannelStructures[data.d.type](data.d, client)]
+    return new ChannelStructures[data.d.type](data.d, client)
 }

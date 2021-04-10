@@ -10,5 +10,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
         client.guilds.delete(id)
     }
 
-    return !client.guilds.has(id) ? [id] : [guild]
+    return !client.guilds.has(id) ? id : guild
 }

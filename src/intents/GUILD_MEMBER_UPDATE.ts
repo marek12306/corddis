@@ -16,5 +16,5 @@ export default async (gateway: Gateway, client: Client, data: any): Promise<any>
 
     client.cache.users?.set(updatedMember.user.id, await client.users.get(updatedMember.user.id))
 
-    return [await guild.members.get(updatedMember.user.id)]
+    return {member: await guild.members.get(updatedMember.user.id), guild}
 }

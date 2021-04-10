@@ -49,11 +49,14 @@ export class InvitesManager extends SubManager {
 }
 
 export class ChannelsManager extends SubManager {
-    async get(id: Snowflake, force = false): Promise<Channel> {
-        if (!force && this.has(id)) return super.get(id) as Channel
+    async get<T extends Channel>(id: Snowflake, force = false): Promise<T> {
+        if (!force && this.has(id)) {
+            return super.get(id) as T
+
+        }
         else {
-            const channelData = await this.client._fetch<ChannelType>("GET", `guilds/${id}`, null, true)
-            const channel = new Channel(channelData, this.client, this.guild)
+            const channelData = await this.client._fetch<ChannelType>("GET", `channels/${id}`, null, true)
+            const channel = new ChannelStructures[channelData.type](channelData, this.client, this.guild)
             this.set(channel.data.id, channel)
             return channel
         }

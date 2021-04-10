@@ -16,3 +16,4 @@ export * from "./src/collector.ts"
 export * from "./src/structures/interaction.ts"
 export * from "./src/embed.ts"
 export * from "./src/cache.ts"
+export * from "https://deno.land/x/evt/mod.ts";
