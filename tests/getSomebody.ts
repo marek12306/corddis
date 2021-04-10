@@ -1,12 +1,11 @@
-import { Client, EntityType } from "../mod.ts";
-import { User } from "../src/structures/user.ts";
+import { Client, to } from "../mod.ts";
 import { token } from "./token.ts"
 
 (async () => {
     var client = new Client(token)
-    client.once("READY", () => {
-        client.get(EntityType.USER, "344048874656366592").then(async user => {
-            console.log((user as User).avatar()) // Avatar
+    client.events.$attachOnce(to("READY"), () => {
+        client.users.get("344048874656366592").then(async user => {
+            console.log(user.avatar()) // Avatar
         })  // ZiomaleQ
     })
     await client.login()

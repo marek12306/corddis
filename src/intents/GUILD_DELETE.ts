@@ -5,10 +5,10 @@ import { Gateway } from "../client/gateway.ts"
 export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { id } = data.d
     let guild;
-    if (client.cache.guilds?.has(id)) {
-        guild = client.cache.guilds?.get(id)
-        client.cache.guilds?.delete(id)
+    if (client.guilds.has(id)) {
+        guild = client.guilds.get(id)
+        client.guilds.delete(id)
     }
 
-    return !client.cache.guilds?.has(id) ? [id] : [guild]
+    return !client.guilds.has(id) ? id : guild
 }

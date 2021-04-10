@@ -1,5 +1,6 @@
 import Cache from "../cache.ts";
 import { User } from "../../mod.ts";
+import { GuildManager, UserManager } from '../client/managers.ts';
 
 export type Snowflake = string;
 export type Timestamp = string;
@@ -75,11 +76,11 @@ export interface ErrorType {
 }
 
 export interface CacheType {
-    guilds?: Cache;
-    messages?: Cache;
-    users?: Cache;
-    invites?: Cache;
-    other?: Cache;
+    guilds: GuildManager;
+    messages: Cache;
+    users: UserManager;
+    invites: Cache;
+    other: Cache;
 }
 
 export enum CacheEnum {

@@ -1,11 +1,11 @@
-import { Client, Intents, Message, User, EmbedBuilder, EntityType, PermissionEnum, GuildMember, Guild } from "../mod.ts";
+import { Client, Intents, Message, User, EmbedBuilder, EntityType, PermissionEnum, GuildMember, Guild, to } from "../mod.ts";
 import { NewsChannel } from "../src/structures/newsChannel.ts";
 import { token } from "./token.ts";
 
 (async () => {
     const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS, Intents.GUILDS, Intents.GUILD_MEMBERS, Intents.GUILD_PRESENCES)
 
-    client.on('MESSAGE_CREATE', async (message: Message) => {
+    client.events.$attach(to('MESSAGE_CREATE'), async (message: Message) => {
         try {
             switch (message.data.content) {
                 case "test":
@@ -23,19 +23,19 @@ import { token } from "./token.ts";
                 case "test5":
                     return client.game("work!")
                 case "test6":
-                    return console.log(await (await message.guild?.get(EntityType.GUILD_MEMBER, client.user?.data.id ?? "") as GuildMember)
+                    return console.log(await (await message.guild?.members.get(client.user?.data.id ?? "") as GuildMember)
                         .hasPermission(PermissionEnum.MANAGE_WEBHOOKS))
                 case "test7":
-                    return console.log((await message.guild?.fetchInvites() ?? []).length)
+                    return console.log((await message.guild?.invites.fetchAll() ?? []).length)
                 case "test8":
                     return console.log(await message.guild?.createEmoji({
                         name: "test420", roles: [],
                         image: await Deno.readFile("./h.jpg"), file_format: "jpg"
                     }))
                 case "test9":
-                    const guild = await client.get(EntityType.GUILD, "638408587357585417") as Guild
+                    const guild = await client.guilds.get("638408587357585417")
                     console.log(guild.data)
-                    const channel = await guild?.get(EntityType.CHANNEL, "738845663533596852") as NewsChannel
+                    const channel = await guild?.channels.get("738845663533596852") as NewsChannel
                     console.log(await channel.follow("676033234106318859"))
                 case "testAll":
                     for (let i = 0; i <= 9; i++) {
@@ -52,8 +52,8 @@ import { token } from "./token.ts";
             console.log((err as Error).message)
         }
     })
-    client.on("debug", console.log)
-    client.on("READY", (user: User) => {
+    client.events.$attach(to("DEBUG"), console.log)
+    client.events.$attach(to("READY"), (user: User) => {
         console.log("Logged as " + user.data.username)
         //console.log(client.toString())
     })

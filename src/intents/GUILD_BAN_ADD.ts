@@ -1,18 +1,16 @@
-import { EntityType } from "../types/utils.ts"
 import { Client } from "../client/client.ts"
-import { Guild } from "../structures/guild.ts"
 import { User } from "../structures/user.ts"
 import { Gateway } from "../client/gateway.ts"
 
 // deno-lint-ignore no-explicit-any
 export default async (gateway: Gateway, client: Client, data: any): Promise<any> => {
     const { guild_id } = data.d
-    const guild = await client.get(EntityType.GUILD, guild_id) as Guild
+    const guild = await client.guilds.get(guild_id)
     const userObj = new User(data.d, client)
     if (guild.members.size > 0) {
         if (!guild.members.has(userObj.data.id)) return [userObj, guild]
         guild.members.delete(userObj.data.id)
-        client.cache.guilds?.set(guild_id, guild)
+        client.guilds.set(guild_id, guild)
     }
-    return [userObj, guild]
+    return { user: userObj, guild }
 }

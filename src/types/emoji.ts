@@ -1,4 +1,3 @@
-import { RoleType } from "./role.ts";
 import { Snowflake } from "./utils.ts";
 
 export interface EmojiType {

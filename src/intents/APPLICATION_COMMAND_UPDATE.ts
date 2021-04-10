@@ -1,4 +1,3 @@
-import { EntityType, Guild } from "../../mod.ts"
 import { Client } from "../client/client.ts"
 import { Gateway } from "../client/gateway.ts"
 import Intent from "./APPLICATION_COMMAND_CREATE.ts"

@@ -29,17 +29,17 @@ Deno Discord API wrapper made mainly for learning. Still in development, expect 
 
 ## Example
 ```ts
-import { Client, Intents, Message, User } from "https://deno.land/x/corddis/mod.ts"
+import { Client, Intents, Message, User, to } from "https://deno.land/x/corddis/mod.ts"
 
 const client = new Client("token", Intents.GUILD_MESSAGES)
 
-client.on('MESSAGE_CREATE', async (message: Message) => {
+client.events.$attach(to('MESSAGE_CREATE'), async (message: Message) => {
     if (message.data.content == "!ping") {
         await message.reply("Pong!")
     }
 })
 
-client.on("READY", (user: User) => {
+client.events.$attach(to("READY"), (user: User) => {
     console.log("Logged as " + user.data.username)
 })
 
