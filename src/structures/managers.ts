@@ -36,8 +36,9 @@ export class GuildMemberManager extends SubManager {
 }
 
 export class InvitesManager extends SubManager {
-    /** Fetches all invites from guild
-     * @param force If set to true will ignore a cache data and fetch directly from API
+    /**
+    * Fetches all invites from guild
+    * @param force If set to true will ignore a cache data and fetch directly from API
     */
     async fetchAll(force = false): Promise<Invite[]> {
         if (force) return [...this.values()]
@@ -52,8 +53,9 @@ export class InvitesManager extends SubManager {
 }
 
 export class ChannelsManager extends SubManager {
-    /** Fetches channel with a certain ID 
-     * @param force If set to true will ignore a cache data and fetch directly from API
+    /**
+    * Fetches channel with a certain ID 
+    * @param force If set to true will ignore a cache data and fetch directly from API
     */
     async get<T extends Channel>(id: Snowflake, force = false): Promise<T> {
         if (!force && this.has(id)) return super.get(id) as T
@@ -65,8 +67,9 @@ export class ChannelsManager extends SubManager {
         }
     }
 
-    /** Fetches all channels from a guild
-     * @param force If set to true will ignore a cache data and fetch directly from API
+    /**
+    *  Fetches all channels from a guild
+    * @param force If set to true will ignore a cache data and fetch directly from API
     */
     async fetchAll(force = false) {
         if (!force && this.size > 0) return Array.from(this.values())
