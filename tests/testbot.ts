@@ -6,6 +6,10 @@ import { token } from "./token.ts";
     const client = new Client(token, Intents.GUILD_MESSAGES, Intents.DIRECT_MESSAGES, Intents.GUILD_MESSAGE_TYPING, Intents.GUILD_MESSAGE_REACTIONS, Intents.DIRECT_MESSAGE_REACTIONS, Intents.GUILDS, Intents.GUILD_MEMBERS, Intents.GUILD_PRESENCES)
 
     client.events.$attach(to('MESSAGE_CREATE'), async (message: Message) => {
+
+        if (message.data.type == 19) {
+            console.log(message.data)
+        }
         try {
             switch (message.data.content) {
                 case "test":

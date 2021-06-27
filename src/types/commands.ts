@@ -63,7 +63,8 @@ export interface InteractionType {
 
 export enum InteractionEnum {
     Ping = 1,
-    ApplicationCommand
+    ApplicationCommand = 2,
+    MessageComponent = 3
 }
 
 export interface ApplicationCommandInteractionDataType {
@@ -85,10 +86,10 @@ export interface InteractionResponseType {
 
 export enum InteractionResponseEnum {
     Pong = 1,
-    Acknowledge,
-    ChannelMessage,
-    ChannelMessageWithSource,
-    DeferredChannelMessageWithSource,
+    ChannelMessageWithSource = 4,
+    DeferredChannelMessageWithSource = 5,
+    DeferredUpdateMessage = 6,
+    UpdateMessage = 7
 }
 
 export interface InteractionApplicationCommandCallbackDataType {
@@ -96,7 +97,8 @@ export interface InteractionApplicationCommandCallbackDataType {
     content?: string;
     embeds?: EmbedType[];
     allowed_mentions?: AllowedMentionsType;
-    flags: number;
+    flags?: number;
+    components?: any[]
 }
 
 export interface MessageInteractionType {

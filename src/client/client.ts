@@ -12,7 +12,7 @@ import { Collector } from "../collector.ts"
 import Cache from "../cache.ts"
 import { Events } from '../evt.ts'
 import { GuildManager, UserManager } from './managers.ts';
-import { to } from "../../deps.ts"
+import { DictionaryType } from '../types/utils.ts';
 
 /** Client which communicates with gateway and manages REST API communication. */
 export class Client {
@@ -94,8 +94,7 @@ export class Client {
         return this
     }
 
-    // deno-lint-ignore no-explicit-any
-    async _fetch<T>(method: string, path: string, body: string | FormData | null = "", json = true, contentType: string | boolean = "application/json", headers: any = {}): Promise<T> {
+    async _fetch<T>(method: string, path: string, body: string | FormData | null = "", json = true, contentType: string | boolean = "application/json", headers: DictionaryType = {}): Promise<T> {
         if (contentType) headers["Content-Type"] = contentType
 
         var response = await this._performReq(`${Constants.BASE_URL}/v${Constants.VERSION}/${path}`, {
@@ -172,10 +171,10 @@ export class Client {
     }
     /** Fetches invite with a certain id */
     async fetchInvite(id: string): Promise<Invite> {
-        if (this.cache.invites?.has(id)) return this.cache.invites.get(id) as Invite
+        if (this.cache.invites.has(id)) return this.cache.invites.get(id) as Invite
         const invite = await this._fetch<InviteType>("GET", `invites/${id}?with_counts=true`, null, true)
         let guild
-        if (invite.guild) guild = await this.guilds.get(invite.guild.id) as Guild
+        if (invite.guild) guild = await this.guilds.get(invite.guild.id)
         const inviteObject = new Invite(invite, this, guild)
         this.cache.invites?.set(id, inviteObject)
         return inviteObject
@@ -204,7 +203,7 @@ export class Client {
     async fetchSlashCommands(guildID?: Snowflake): Promise<ApplicationCommandRootType[]> {
         if (!guildID && this.slashCommands.size > 0) return Array.from(this.slashCommands.values())
         const commands = await this._fetch<ApplicationCommandRootType[]>("GET", `applications/${this.user?.data.id}/${guildID ? `guilds/${guildID}/` : ""}commands`, null, true)
-        if (!guildID) commands.forEach((data: ApplicationCommandRootType) => {
+        commands.forEach((data: ApplicationCommandRootType) => {
             if (data.id) this.slashCommands.set(data.id, data)
         })
         return commands

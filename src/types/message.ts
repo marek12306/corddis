@@ -5,6 +5,7 @@ import { ChannelMentionType } from "./channel.ts";
 import { EmbedType } from "./embed.ts";
 import { EmojiType } from "./emoji.ts";
 import { EmbedBuilder } from "../embed.ts";
+import { Component } from './components.ts';
 
 export interface MessageType {
   id: Snowflake;
@@ -32,6 +33,7 @@ export interface MessageType {
   message_reference?: MessageReferenceType;
   flags?: number;
   stickers?: StickerType[];
+  components: Component[];
 }
 
 export interface StickerType {
