@@ -9,6 +9,7 @@ import { Channel } from "./channel.ts"
 import { EmbedBuilder, Snowflake } from "../../mod.ts";
 import { Webhook } from "./webhook.ts";
 import { CollectorOptions, Collector } from "../collector.ts";
+import { EmbedType } from '../types/embed.ts';
 
 export class TextChannel extends Channel {
     pins: Message[] = [];
@@ -27,7 +28,7 @@ export class TextChannel extends Channel {
      */
     async sendMessage(data: MessageCreateParamsType): Promise<Message> {
         if (!data) throw Error("Content for message is not provided");
-        if (data.embed && data.embed instanceof EmbedBuilder) data.embed = (data.embed as EmbedBuilder).end()
+        if (data.embeds) data.embeds = data.embeds.map((embed: any) => embed.end ? embed.end() : embed) as EmbedType[]
         let body: FormData | string = JSON.stringify(data)
         if (data?.file) {
             body = new FormData();

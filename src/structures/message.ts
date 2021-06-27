@@ -22,8 +22,11 @@ export class Message {
     }
 
     /** Replies to a message with some text content or an embed. */
-    async reply(content: string | EmbedType | EmbedBuilder, reply = false, mention = true): Promise<Message> {
-        let msg = (typeof content == "string" ? { content } : { embed: content }) as MessageCreateParamsType
+    async reply(content: string, reply?: boolean, mention?: boolean): Promise<Message>
+    async reply(content: EmbedType | EmbedBuilder, reply?: boolean, mention?: boolean): Promise<Message>
+    async reply(content: (EmbedType | EmbedBuilder)[], reply?: boolean, mention?: boolean): Promise<Message>
+    async reply(content: string | EmbedType | EmbedBuilder | (EmbedType | EmbedBuilder)[], reply = false, mention = true): Promise<Message> {
+        let msg = (typeof content == "string" ? { content } : { embeds: [content].flat() }) as MessageCreateParamsType
         if (reply) {
             msg.message_reference = {
                 channel_id: this.channel.data.id,
@@ -39,6 +42,7 @@ export class Message {
     }
     /** Edits a message. */
     async edit(data: (MessageEditParamsType | string)): Promise<Message> {
+        if (typeof data !== "string" && data.embeds) data.embeds.map((embed: any) => embed.end ? embed.end() : embed) as EmbedType[]
         return this.channel.editMessage(this.data.id, data)
     }
     /** Reacts to a message with emoji */

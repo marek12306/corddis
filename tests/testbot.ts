@@ -16,8 +16,8 @@ import { token } from "./token.ts";
                 case "test2":
                     return console.log(await message.react("❤️"))
                 case "test3":
-                    return await message.channel.sendMessage({ content: "a", embed: new EmbedBuilder().title("c") }).then((msg) => {
-                        msg.edit({ content: "b", embed: new EmbedBuilder().title("d") })
+                    return await message.channel.sendMessage({ content: "a", embeds: [new EmbedBuilder().title("c")] }).then((msg) => {
+                        msg.edit({ content: "b", embeds: [new EmbedBuilder().title("d")] })
                     })
                 case "test4":
                     return message.channel.sendFile("./h.jpg")

@@ -129,7 +129,7 @@ export interface MessageCreateParamsType {
   content?: string;
   nonce?: (string | number);
   tts?: boolean;
-  embed?: EmbedType | EmbedBuilder;
+  embeds?: (EmbedType | EmbedBuilder)[];
   paylad_json?: string;
   allowed_mentions?: AllowedMentionsType;
   file?: FileType;
@@ -139,7 +139,7 @@ export interface MessageCreateParamsType {
 
 export interface MessageEditParamsType {
   content?: string;
-  embed?: EmbedType | EmbedBuilder;
+  embeds?: (EmbedType | EmbedBuilder)[];
   flags?: number;
 }
 
