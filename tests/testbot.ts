@@ -7,9 +7,6 @@ import { token } from "./token.ts";
 
     client.events.$attach(to('MESSAGE_CREATE'), async (message: Message) => {
 
-        if (message.data.type == 19) {
-            console.log(message.data)
-        }
         try {
             switch (message.data.content) {
                 case "test":
@@ -48,8 +45,8 @@ import { token } from "./token.ts";
                     }
                     return
                 case "test10":
-                    const msg = await message.reply("x")
-                    setTimeout(() => msg.unreactAll(), 5000)
+                    const msg = await message.reply("x", true)
+                    const msg1 = await message.reply("no mention", true, false)
                     return
             }
         } catch (err: any) {

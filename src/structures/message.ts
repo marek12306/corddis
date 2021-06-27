@@ -22,14 +22,14 @@ export class Message {
     }
 
     /** Replies to a message with some text content or an embed. */
-    async reply(content: string | EmbedType | EmbedBuilder, reply = false, mention = false): Promise<Message> {
+    async reply(content: string | EmbedType | EmbedBuilder, reply = false, mention = true): Promise<Message> {
         let msg = (typeof content == "string" ? { content } : { embed: content }) as MessageCreateParamsType
         if (reply) {
             msg.message_reference = {
                 channel_id: this.channel.data.id,
-                message_id: this.data.id,
-                replied_user: mention
+                message_id: this.data.id
             }
+            msg.allowed_mentions = { replied_user: mention }
         }
         return this.channel.sendMessage(msg)
     }

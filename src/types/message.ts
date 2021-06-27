@@ -80,7 +80,6 @@ export interface MessageReferenceType {
   message_id?: Snowflake;
   channel_id?: Snowflake;
   guild_id?: Snowflake;
-  replied_user: boolean;
 }
 
 export enum MessageTypeData {
@@ -115,9 +114,10 @@ export enum AllowedMentionTypes {
 }
 
 export interface AllowedMentionsType {
-  parse: AllowedMentionTypes[];
-  roles: Snowflake[];
-  users: Snowflake[];
+  parse?: AllowedMentionTypes[];
+  roles?: Snowflake[];
+  users?: Snowflake[];
+  replied_user?: boolean;
 }
 
 export interface FileType {
