@@ -135,6 +135,7 @@ export interface MessageCreateParamsType {
   file?: FileType;
   sticker_ids?: Snowflake[];
   message_reference?: MessageReferenceType;
+  components?: Component[];
 }
 
 export interface MessageEditParamsType extends MessageCreateParamsType {
