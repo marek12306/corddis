@@ -84,6 +84,13 @@ export class TextChannel extends Channel {
     async editMessage(id: string, data: (MessageEditParamsType | string)): Promise<Message> {
         if (!id) throw Error("Message ID not provided")
         if (typeof data == "string") data = { content: data }
+        if (data.embeds) data.embeds = data.embeds.map((embed: any) => embed.end ? embed.end() : embed) as EmbedType[]
+        let body: FormData | string = JSON.stringify(data)
+        if (data?.file) {
+            body = new FormData();
+            body.append("file", data.file.content, data.file.name)
+            body.append("payload_json", JSON.stringify({ ...data, file: undefined }))
+        }
         const json = await this.client._fetch<MessageType>("PATCH", `channels/${this.data.id}/messages/${id}`, JSON.stringify(data), true)
         return new Message(json, this.client, this, this.guild)
     }

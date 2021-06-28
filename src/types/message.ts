@@ -137,9 +137,7 @@ export interface MessageCreateParamsType {
   message_reference?: MessageReferenceType;
 }
 
-export interface MessageEditParamsType {
-  content?: string;
-  embeds?: (EmbedType | EmbedBuilder)[];
+export interface MessageEditParamsType extends MessageCreateParamsType {
   flags?: number;
 }
 
