@@ -30,7 +30,7 @@ export class TextChannel extends Channel {
         if (!data) throw Error("Content for message is not provided");
         if (data.embeds) data.embeds = data.embeds.map((embed: any) => embed.end ? embed.end() : embed) as EmbedType[]
         let body: FormData | string = JSON.stringify(data)
-        if (data?.file) {
+        if (data.file) {
             body = new FormData();
             body.append("file", data.file.content, data.file.name)
             body.append("payload_json", JSON.stringify({ ...data, file: undefined }))

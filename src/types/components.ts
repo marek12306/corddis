@@ -10,15 +10,25 @@ export interface ButtonComponent extends Component {
   custom_id?: string
   url?: string
   disabled?: boolean
-  components: Component[]
 }
 
 export interface ActionRowComponent extends Component {
   type: ComponentType.ActionRow
+  components: Component[]
+}
+
+export interface SelectMenuComponent extends Component {
+  type: ComponentType.SelectMenu
+  custom_id: string
+  options: SelectMenuOptionsType[]
+  placeholder?: string
+  min_values?: number
+  max_values?: number
+  disabled?: boolean
 }
 
 export enum ComponentType {
-  ActionRow = 1, Button = 2
+  ActionRow = 1, Button = 2, SelectMenu = 3
 }
 export enum ButtonStyle {
   Primary = 1,
@@ -26,6 +36,14 @@ export enum ButtonStyle {
   Success = 3,
   Danger = 4,
   Link = 5
+}
+
+export interface SelectMenuOptionsType {
+  label: string
+  value: string
+  description?: string
+  emoji?: PartialEmojiType
+  default?: boolean
 }
 
 export interface PartialEmojiType {

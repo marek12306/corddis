@@ -1,5 +1,6 @@
 export * from "./src/client/client.ts";
 export * from "./src/types/utils.ts"
+export * from "./src/types/components.ts"
 export * from "./src/constants.ts"
 export * from "./src/structures/message.ts"
 export * from "./src/structures/user.ts";
