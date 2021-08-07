@@ -5,8 +5,13 @@ export class ActionRow {
   /**
    * Add component to ActionRow component
    */
-  addComponent(component: Button | SelectMenu) {
+  addComponent(component: Button | SelectMenu): ActionRow {
     this.data.components.push(component.end())
+    return this
+  }
+
+  end(): ActionRowComponent {
+    return this.data
   }
 }
 
@@ -89,7 +94,7 @@ export class SelectMenu {
     this.data.max_values = max
     return this
   }
-  
+
   /** Set select menu min values */
   min(min: number): SelectMenu {
     this.data.min_values = min
