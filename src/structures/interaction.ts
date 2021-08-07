@@ -22,6 +22,12 @@ export class Interaction {
             data
         })
     }
+
+    /** Aknowledges a interaction, user sees a loading state */
+    async defer() {
+        const resp = await this.#client._fetch<Response>("POST", `interactions/${this.data.id}/${this.data.token}/callback`, JSON.stringify({ type: InteractionResponseEnum.DeferredChannelMessageWithSource }), false)
+        return resp.status == 204
+    }
     /** Sends initial response to a slash command interaction. */
     async sendResponse(data: InteractionResponseType) {
         const resp = await this.#client._fetch<Response>("POST", `interactions/${this.data.id}/${this.data.token}/callback`, JSON.stringify(data), false)

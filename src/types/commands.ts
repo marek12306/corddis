@@ -3,6 +3,7 @@ import { GuildMemberType } from "./guild.ts";
 import { AllowedMentionsType } from "./message.ts";
 import { Snowflake } from "./utils.ts";
 import { UserType } from "./user.ts";
+import { ComponentType } from "./components.ts";
 
 export interface ApplicationCommandRootType {
     id?: Snowflake;
@@ -30,7 +31,7 @@ export interface ApplicationCommandOptionType {
 
 export interface ApplicationCommandOptionChoiceType {
     name: string;
-    value: string|number;
+    value: string | number;
 }
 
 export enum ApplicationCommandOptionEnum {
@@ -42,6 +43,8 @@ export enum ApplicationCommandOptionEnum {
     USER,
     CHANNEL,
     ROLE,
+    MENTIONABLE,
+    NUMBER
 }
 
 export interface InteractionGuildMemberType extends GuildMemberType {
@@ -52,7 +55,7 @@ export interface InteractionType {
     id: Snowflake;
     application_id: Snowflake;
     type: InteractionEnum;
-    data?: ApplicationCommandInteractionDataType;
+    data?: ApplicationCommandInteractionDataType | ApplicationSelectMenuInteractionType;
     guild_id?: Snowflake;
     channel_id?: Snowflake;
     member?: InteractionGuildMemberType;
@@ -70,11 +73,26 @@ export enum InteractionEnum {
 export interface ApplicationCommandInteractionDataType {
     id: Snowflake;
     name: string;
+    resolved?: {
+        users?: any
+        members?: any
+        roles?: any
+        channels?: any
+    }
     options?: ApplicationCommandInteractionDataOptionType[];
+    custom_id: string;
+    component_type: InteractionEnum;
+}
+
+export interface ApplicationSelectMenuInteractionType {
+    values: string[];
+    custom_id: string;
+    component_type: ComponentType;
 }
 
 export interface ApplicationCommandInteractionDataOptionType {
     name: string;
+    type: ApplicationCommandOptionType;
     value?: ApplicationCommandOptionType;
     options?: ApplicationCommandInteractionDataOptionType[];
 }

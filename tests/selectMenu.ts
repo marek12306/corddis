@@ -1,4 +1,4 @@
-import { Client, to, ActionRowComponent, ComponentType, SelectMenuComponent, SelectMenuOptionsType, Intents, InteractionResponseEnum } from "../mod.ts";
+import { Client, to, ActionRowComponent, ComponentType, SelectMenuComponent, SelectMenuOptionsType, Intents, InteractionResponseEnum, ApplicationSelectMenuInteractionType } from "../mod.ts";
 import { token } from "./token.ts"
 
 (async () => {
@@ -32,12 +32,8 @@ import { token } from "./token.ts"
 
   client.events.$attach(to("INTERACTION_CREATE"), interaction => {
 
-    if ((interaction.data.data as any).custom_id == "CUSTOM_ID") {
-      interaction.sendResponse({
-        type: InteractionResponseEnum.ChannelMessageWithSource, data: {
-          content: `So you like ${(interaction.data.data as any).values[0]}`
-        }
-      })
+    if (interaction.data.data?.custom_id == "CUSTOM_ID") {
+      interaction.reply({ content: `So you like ${(interaction.data.data as ApplicationSelectMenuInteractionType).values[0]}` })
     }
   })
   client.events.$attach(to("DEBUG"), console.log)

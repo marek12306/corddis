@@ -1,5 +1,5 @@
 import { Client } from "./../client/client.ts";
-import { ChannelModifyType, ChannelType, ChannelTypeData } from "../types/channel.ts";
+import { ChannelModifyType, ChannelType } from "../types/channel.ts";
 import { Guild } from "./guild.ts";
 
 export class Channel {

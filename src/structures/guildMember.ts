@@ -22,10 +22,9 @@ export class GuildMember {
         if (this.data.user?.id == this.guild.data.owner_id) return true;
         const roles = this.data.roles.map((id: string) => this.guild.data.roles.find((x: RoleType) => x.id == id)?.permissions)
             .filter((x: string | undefined) => x) as string[]
-        // deno-lint-ignore no-explicit-any
-        const bits = roles.reduce((bits: any, permissionss: any) => bits | BigInt(permissionss), BigInt(0))
+        const bits = roles.reduce((bits: bigint, permissionss: string) => bits | BigInt(permissionss), BigInt(0))
         if (bits & BigInt(Permissions.ADMINISTRATOR)) return true;
-        return roles.every((p: string) => bits & BigInt(Permissions[PermissionEnum[permission]]))
+        return roles.every(() => bits & BigInt(Permissions[PermissionEnum[permission]]))
     }
     /** Changes member nickname */
     async nickname(name: string): Promise<boolean> {
