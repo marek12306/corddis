@@ -6,6 +6,7 @@ import { EmbedType } from "./embed.ts";
 import { EmojiType } from "./emoji.ts";
 import { EmbedBuilder } from "../embed.ts";
 import { Component } from './components.ts';
+import { ActionRow } from '../components.ts';
 
 export interface MessageType {
   id: Snowflake;
@@ -135,7 +136,7 @@ export interface MessageCreateParamsType {
   file?: FileType;
   sticker_ids?: Snowflake[];
   message_reference?: MessageReferenceType;
-  components?: Component[];
+  components?: (Component[] | ActionRow[]);
 }
 
 export interface MessageEditParamsType extends MessageCreateParamsType {

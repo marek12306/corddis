@@ -7,6 +7,7 @@ import { ChannelTypeData } from "../types/channel.ts";
 import { EmbedType } from "../types/embed.ts";
 import { EmbedBuilder } from "../embed.ts";
 import { Snowflake } from "../types/utils.ts";
+import { GuildMember } from "./guildMember.ts";
 
 export class Message {
     #client: Client
@@ -20,6 +21,12 @@ export class Message {
         this.channel = channel;
         this.guild = guild;
     }
+
+
+    public get member(): GuildMember | undefined {
+        return this.guild === undefined ? undefined : new GuildMember(this.data.member!, this.guild, this.#client)
+    }
+
 
     /** Replies to a message with some text content or an embed. */
     async reply(content: string, reply?: boolean, mention?: boolean): Promise<Message>

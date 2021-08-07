@@ -6,7 +6,7 @@ import { Message } from "./message.ts";
 import { MessageCreateParamsType, MessageEditParamsType } from "../types/message.ts";
 import { Guild } from "./guild.ts";
 import { Channel } from "./channel.ts"
-import { EmbedBuilder, Snowflake } from "../../mod.ts";
+import { Component, EmbedBuilder, Snowflake } from "../../mod.ts";
 import { Webhook } from "./webhook.ts";
 import { CollectorOptions, Collector } from "../collector.ts";
 import { EmbedType } from '../types/embed.ts';
@@ -29,6 +29,7 @@ export class TextChannel extends Channel {
     async sendMessage(data: MessageCreateParamsType): Promise<Message> {
         if (!data) throw Error("Content for message is not provided");
         if (data.embeds) data.embeds = data.embeds.map((embed: any) => embed.end ? embed.end() : embed) as EmbedType[]
+        if (data.components) data.components = data.components.map((component: any) => component.end ? component.end() : component) as Component[]
         let body: FormData | string = JSON.stringify(data)
         if (data.file) {
             body = new FormData();
